@@ -3,6 +3,19 @@ import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 
 export default async function ActualitesPage() {
+
+  const { data: { session } } = await supabase.auth.getSession();
+  let isAdmin = false;
+
+  if (session) {
+    const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', session.user.id)
+    .single();
+    isAdmin = profile?.role === 'admin';
+  }
+
   const { data: news } = await supabase
   .from('news')
   .select('*')
@@ -13,6 +26,13 @@ export default async function ActualitesPage() {
         <Navbar />
 
         <main className="container mx-auto px-4 py-12">
+
+          {isAdmin && (
+              <button className="mb-8 bg-green-600 text-white px-6 py-2 rounded-full font-bold hover:bg-green-700 transition-all">
+                + Ajouter une actualité
+              </button>
+          )}
+
           <div className="flex flex-col mb-12">
             <h1 className="text-4xl font-black text-slate-900 uppercase italic">
               Toute l'actualité <span className="text-red-600">ACD</span>
