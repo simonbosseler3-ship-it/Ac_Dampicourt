@@ -1,36 +1,63 @@
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+import { AdminActions } from "@/components/admin/adminAction";
 import { Navbar } from "@/components/navbar/navbar";
-import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function ActualitesPage() {
+  const cookieStore = await cookies();
 
-  const { data: { session } } = await supabase.auth.getSession();
+  const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll()
+          },
+          setAll(cookiesToSet) {
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                  cookieStore.set(name, value, options)
+              )
+            } catch {
+              // Le middleware gère déjà l'écriture, on peut ignorer ici
+            }
+          },
+        },
+      }
+  )
+
+  // On demande à Supabase l'utilisateur actuel
+  const { data: { user } } = await supabase.auth.getUser();
+
   let isAdmin = false;
-
-  if (session) {
+  if (user) {
     const { data: profile } = await supabase
     .from('profiles')
     .select('role')
-    .eq('id', session.user.id)
+    .eq('id', user.id)
     .single();
-    isAdmin = profile?.role === 'admin';
+
+    isAdmin = profile?.role?.toLowerCase().trim() === 'admin';
   }
 
-  const { data: news } = await supabase
-  .from('news')
-  .select('*')
-  .order('created_at', { ascending: false });
+  const { data: news } = await supabase.from('news').select('*').order('created_at', { ascending: true });
 
   return (
-      <div className="min-h-screen bg-slate-50">
-        <Navbar />
+      <div className="min-h-screen">
+        <Navbar/>
 
         <main className="container mx-auto px-4 py-12">
-
           {isAdmin && (
-              <button className="mb-8 bg-green-600 text-white px-6 py-2 rounded-full font-bold hover:bg-green-700 transition-all">
-                + Ajouter une actualité
-              </button>
+              <Link href="/actualites/nouveau">
+                <button
+                    className="mb-8 bg-green-600 text-white px-6 py-2 rounded-full font-bold hover:bg-green-700 transition-all">
+                  + Ajouter une actualité
+                </button>
+              </Link>
           )}
 
           <div className="flex flex-col mb-12">
@@ -43,7 +70,9 @@ export default async function ActualitesPage() {
           {/* GRILLE D'ACTUALITÉS */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {news?.map((item) => (
-                <article key={item.id} className="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-xl transition-shadow group">
+                <article key={item.id}
+                         className="relative bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-xl transition-shadow group">
+                  {isAdmin && <AdminActions id={item.id}/>}
                   <div className="relative h-56 overflow-hidden">
                     <img
                         src={item.image_url}
@@ -51,7 +80,8 @@ export default async function ActualitesPage() {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute top-4 left-4">
-                  <span className="bg-red-600 text-white text-[10px] font-bold px-3 py-1 uppercase tracking-widest rounded-sm">
+                  <span
+                      className="bg-red-600 text-white text-[10px] font-bold px-3 py-1 uppercase tracking-widest rounded-sm">
                     {item.date_text}
                   </span>
                     </div>
@@ -62,8 +92,8 @@ export default async function ActualitesPage() {
                       {item.title}
                     </h2>
                     <p className="text-slate-500 text-sm leading-relaxed mb-6 line-clamp-3">
-                      {/* On pourra ajouter un champ "description" plus tard dans DataGrip */}
-                      Découvrez les derniers détails concernant cet événement marquant pour notre club d'athlétisme...
+                      Découvrez les derniers détails concernant cet événement marquant pour notre
+                      club d'athlétisme...
                     </p>
                     <Link
                         href={`/actualites/${item.id}`}

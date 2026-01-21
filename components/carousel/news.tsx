@@ -18,43 +18,51 @@ export function HeroNews({ newsData }: { newsData: NewsItem[] }) {
       Autoplay({ delay: 10000, stopOnInteraction: false })
   );
 
-  // Si pas de news, on affiche un message ou un état vide
-  if (!newsData.length) return null;
+  // Si pas de news, on ne rien afficher
+  if (!newsData || newsData.length === 0) return null;
+
+  // On limite l'affichage aux 3 actualités les plus récentes
+  const latestNews = newsData.slice(0, 3);
 
   return (
       <section className="w-full py-8">
         <Carousel
             plugins={[autoplayPlugin.current]}
             opts={{ loop: true }}
-            className="w-full max-w-6xl mx-auto shadow-2xl rounded-3xl overflow-hidden group"
+            className="w-full max-w-6xl mx-auto shadow-2xl rounded-[2.5rem] overflow-hidden group border border-white/10"
         >
           <CarouselContent>
-            {newsData.map((item) => (
+            {latestNews.map((item) => (
                 <CarouselItem key={item.id}>
                   <div className="relative h-[500px] w-full">
+                    {/* Image avec effet de zoom au survol du carousel */}
                     <img
                         src={item.image_url}
                         alt={item.title}
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                     />
-                    <div
-                        className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"/>
-                    <div className="absolute bottom-12 left-12 text-white max-w-2xl">
-                        <span
-                            className="bg-red-600 px-3 py-1 rounded-sm text-xs font-bold uppercase mb-4 inline-block italic tracking-widest">
-                            À la une
-                        </span>
-                      <h2 className="text-5xl font-black mb-4 leading-tight uppercase italic drop-shadow-lg">
+
+                    {/* Overlay sombre pour la lisibilité du texte */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+
+                    {/* Contenu textuel */}
+                    <div className="absolute bottom-12 left-12 text-white max-w-2xl z-10">
+                  <span className="bg-red-600 px-4 py-1.5 rounded-sm text-[10px] font-black uppercase mb-4 inline-block italic tracking-[0.2em] shadow-lg">
+                    À la une
+                  </span>
+
+                      <h2 className="text-5xl md:text-6xl font-black mb-6 leading-[0.9] uppercase italic drop-shadow-2xl tracking-tighter">
                         {item.title}
                       </h2>
+
                       <div className="flex items-center gap-6">
-                        <p className="text-gray-300 font-medium border-l-2 border-red-600 pl-3">
+                        <p className="text-gray-300 font-bold border-l-4 border-red-600 pl-4 italic uppercase text-sm tracking-wider">
                           {item.date_text}
                         </p>
-                        {/* LIEN VERS LA PAGE ACTUALITÉS */}
+
                         <Link
-                            href={`/actualites/${item.id}`} // Lien dynamique vers l'ID précis
-                            className="bg-white text-black px-6 py-2 rounded-full font-bold text-sm hover:bg-red-600 hover:text-white transition-all duration-300"
+                            href={`/actualites/${item.id}`}
+                            className="bg-white text-black px-8 py-3 rounded-full font-black text-xs uppercase italic hover:bg-red-600 hover:text-white transition-all duration-300 hover:scale-105 active:scale-95 shadow-xl"
                         >
                           Lire la suite
                         </Link>
@@ -64,10 +72,10 @@ export function HeroNews({ newsData }: { newsData: NewsItem[] }) {
                 </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious
-              className="left-6 opacity-0 group-hover:opacity-100 transition-opacity bg-white/10 text-white border-none hover:bg-red-600"/>
-          <CarouselNext
-              className="right-6 opacity-0 group-hover:opacity-100 transition-opacity bg-white/10 text-white border-none hover:bg-red-600"/>
+
+          {/* Flèches de navigation (visibles au survol) */}
+          <CarouselPrevious className="left-8 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-white/20 hover:bg-red-600 text-white border-none h-12 w-12" />
+          <CarouselNext className="right-8 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-white/20 hover:bg-red-600 text-white border-none h-12 w-12" />
         </Carousel>
       </section>
   );

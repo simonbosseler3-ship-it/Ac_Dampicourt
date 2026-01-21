@@ -21,10 +21,11 @@ export default function LoginPage() {
   };
 
   return (
-      <div className="min-h-screen bg-slate-50">
-        <Navbar />
+      <div className="min-h-screen">
+        <Navbar/>
         <div className="max-w-md mx-auto mt-20 p-8 bg-white rounded-3xl shadow-xl">
-          <h1 className="text-3xl font-black italic uppercase text-slate-900 mb-6">Connexion <span className="text-red-600">Admin</span></h1>
+          <h1 className="text-3xl font-black italic uppercase text-slate-900 mb-6">Connexion <span
+              className="text-red-600">Admin</span></h1>
           <form onSubmit={handleLogin} className="space-y-4">
             <input
                 type="email" placeholder="Email"
@@ -36,7 +37,8 @@ export default function LoginPage() {
                 className="w-full p-3 rounded-xl border focus:ring-2 focus:ring-red-500 outline-none"
                 onChange={(e) => setPassword(e.target.value)}
             />
-            <button className="w-full bg-red-600 text-white font-bold py-3 rounded-xl hover:bg-red-700 transition-all uppercase italic">
+            <button
+                className="w-full bg-red-600 text-white font-bold py-3 rounded-xl hover:bg-red-700 transition-all uppercase italic">
               Se connecter
             </button>
           </form>

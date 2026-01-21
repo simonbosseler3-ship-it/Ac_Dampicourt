@@ -2,48 +2,57 @@ import { Navbar } from "@/components/navbar/navbar";
 import { supabase } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 
-// On définit le type de params comme une Promise
 export default async function ArticlePage({ params }: { params: Promise<{ id: string }> }) {
-
-  // ÉTAPE CRUCIALE : On attend que les params soient prêts
   const resolvedParams = await params;
   const id = resolvedParams.id;
 
   const { data: article } = await supabase
   .from('news')
   .select('*')
-  .eq('id', id) // On utilise l'id déballé ici
+  .eq('id', id)
   .single();
 
   if (!article) notFound();
 
   return (
-      <div className="min-h-screen bg-white text-slate-900">
+      <div className="min-h-screen">
         <Navbar />
         <main className="container mx-auto px-4 py-12 max-w-4xl">
-        <span className="bg-red-600 text-white px-3 py-1 rounded-sm text-xs font-bold uppercase italic mb-6 inline-block">
+          {/* Badge Date */}
+          <span className="bg-red-600 text-white px-3 py-1 rounded-sm text-xs font-bold uppercase italic mb-6 inline-block tracking-widest">
           {article.date_text}
         </span>
 
-          <h1 className="text-5xl font-black uppercase italic mb-8 leading-tight">
+          {/* Titre avec style ACD */}
+          <h1 className="text-5xl md:text-6xl font-black uppercase italic mb-8 leading-[0.9] tracking-tighter text-slate-900">
             {article.title}
           </h1>
 
-          <div className="relative h-[450px] w-full mb-10 rounded-3xl overflow-hidden shadow-2xl border border-slate-100">
+          {/* Image de couverture optimisée */}
+          <div className="relative h-[300px] md:h-[500px] w-full mb-12 rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white">
             <img
                 src={article.image_url}
                 alt={article.title}
-                className="object-cover w-full h-full hover:scale-105 transition-transform duration-700"
+                className="object-cover w-full h-full"
             />
           </div>
 
-          <div className="prose prose-xl max-w-none">
-            <p className="text-2xl font-bold text-slate-800 mb-6 border-l-4 border-red-600 pl-6 italic">
-              {article.description || "Pas de description disponible."}
-            </p>
-            <div className="text-lg text-slate-600 leading-relaxed space-y-4">
-              {/* Ici tu pourras plus tard afficher article.content si tu ajoutes la colonne */}
-              <p>Le contenu complet de l'article sera bientôt disponible ici.</p>
+          {/* Zone de contenu */}
+          <div className="max-w-3xl mx-auto">
+            {/* Texte de l'article */}
+            <div
+                className="text-lg md:text-xl text-slate-700 leading-relaxed font-medium whitespace-pre-wrap">
+              {article.content || (
+                  <p className="italic text-slate-400">Cet article ne contient pas encore de
+                    texte.</p>
+              )}
+            </div>
+
+            <div className="mt-16 pt-8 border-t border-white/20 flex items-center justify-between">
+              <p className="font-black italic uppercase text-white text-sm">
+                AC Dampicourt
+              </p>
+              <div className="h-1 w-20 bg-red-600 shadow-[0_0_15px_rgba(220,38,38,0.5)]"></div>
             </div>
           </div>
         </main>
