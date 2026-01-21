@@ -87,12 +87,13 @@ export function Navbar() {
               Calendrier
             </Link>
 
-            {/* ONGLET INFOS AVEC TOUS LES SOUS-MENUS */}
+            {/* ONGLET INFOS (NON CLIQUABLE) */}
             <div className="relative group h-full flex items-center">
-              <Link href="/infos" className={linkStyle("/infos")}>
+              <div className="cursor-default transition-all duration-300 hover:text-red-600 flex items-center gap-1 text-slate-600 font-black uppercase tracking-wider text-sm italic">
                 Infos <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300" />
-              </Link>
+              </div>
 
+              {/* SOUS-MENU DROPDOWN */}
               <div className="absolute top-[80px] left-0 w-72 pt-2 opacity-0 translate-y-4 invisible group-hover:opacity-100 group-hover:translate-y-0 group-hover:visible transition-all duration-300 ease-out">
                 <div className="bg-white border-t-4 border-red-600 rounded-b-2xl shadow-2xl overflow-hidden p-2 ring-1 ring-black/5">
                   <Link
@@ -113,7 +114,6 @@ export function Navbar() {
                     Allures libres
                   </Link>
 
-                  {/* NOUVEAU : RECORDS */}
                   <Link
                       href="/infos/records"
                       className="block px-4 py-3 text-[11px] font-black uppercase italic text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all border-t border-slate-50"
@@ -121,7 +121,6 @@ export function Navbar() {
                     Records
                   </Link>
 
-                  {/* NOUVEAU : K.B.P.M */}
                   <Link
                       href="/infos/kbpm"
                       className="block px-4 py-3 text-[11px] font-black uppercase italic text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all border-t border-slate-50"

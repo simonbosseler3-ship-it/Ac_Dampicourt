@@ -103,18 +103,19 @@ export default function ModifierClubPage() {
   );
 
   return (
-      <div className="min-h-screen bg-slate-50">
-        <Navbar />
+      <div className="min-h-screen">
+        <Navbar/>
 
         <main className="container mx-auto px-4 py-32">
           {/* HEADER DE MODIFICATION */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
+          <div
+              className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
             <div>
               <button
                   onClick={() => router.back()}
                   className="flex items-center gap-2 text-slate-400 hover:text-slate-900 transition-colors font-bold uppercase italic text-xs mb-4"
               >
-                <ArrowLeft size={16} /> Retour à la page club
+                <ArrowLeft size={16}/> Retour à la page club
               </button>
               <h1 className="text-4xl font-black text-slate-900 uppercase italic">
                 Modifier le <span className="text-red-600">Club</span>
@@ -128,7 +129,8 @@ export default function ModifierClubPage() {
                     success ? 'bg-green-600 text-white' : 'bg-red-600 text-white hover:bg-red-700 active:scale-95'
                 }`}
             >
-              {saving ? <Loader2 className="animate-spin" size={20} /> : success ? <Check size={20} /> : <Save size={20} />}
+              {saving ? <Loader2 className="animate-spin" size={20}/> : success ?
+                  <Check size={20}/> : <Save size={20}/>}
               {success ? "Enregistré" : "Enregistrer les modifications"}
             </button>
           </div>
@@ -139,12 +141,15 @@ export default function ModifierClubPage() {
             <div className="space-y-8">
               <section className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
                 <h2 className="text-xl font-black uppercase italic mb-6 flex items-center gap-2">
-                  <div className="w-1.5 h-6 bg-red-600"></div> Présentation générale
+                  <div className="w-1.5 h-6 bg-red-600"></div>
+                  Présentation générale
                 </h2>
 
                 <div className="space-y-6">
                   <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Histoire du club</label>
+                    <label
+                        className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Histoire
+                      du club</label>
                     <textarea
                         className="w-full p-4 rounded-2xl border border-slate-100 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-red-600 outline-none transition-all min-h-[250px] text-slate-700 leading-relaxed"
                         value={info.history_text}
@@ -153,7 +158,9 @@ export default function ModifierClubPage() {
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Citation / Slogan</label>
+                    <label
+                        className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Citation
+                      / Slogan</label>
                     <input
                         type="text"
                         className="w-full p-4 rounded-2xl border border-slate-100 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-red-600 outline-none transition-all font-medium italic"
@@ -166,11 +173,14 @@ export default function ModifierClubPage() {
 
               <section className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
                 <h2 className="text-xl font-black uppercase italic mb-6 flex items-center gap-2">
-                  <div className="w-1.5 h-6 bg-red-600"></div> Infrastructures & Coordination
+                  <div className="w-1.5 h-6 bg-red-600"></div>
+                  Infrastructures & Coordination
                 </h2>
                 <div className="space-y-6">
                   <div className="flex flex-col gap-2">
-                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Adresse du Stade</label>
+                    <label
+                        className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Adresse
+                      du Stade</label>
                     <input
                         type="text"
                         className="w-full p-4 rounded-2xl border border-slate-100 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-red-600 outline-none"
@@ -180,7 +190,9 @@ export default function ModifierClubPage() {
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex flex-col gap-2">
-                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Coord. KBPM</label>
+                      <label
+                          className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Coord.
+                        KBPM</label>
                       <input
                           type="text"
                           className="w-full p-4 rounded-2xl border border-slate-100 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-red-600 outline-none"
@@ -189,7 +201,9 @@ export default function ModifierClubPage() {
                       />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Coord. Sportif</label>
+                      <label
+                          className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Coord.
+                        Sportif</label>
                       <input
                           type="text"
                           className="w-full p-4 rounded-2xl border border-slate-100 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-red-600 outline-none"
@@ -204,32 +218,36 @@ export default function ModifierClubPage() {
 
             {/* COLONNE DROITE : LE COMITÉ */}
             <div className="space-y-6">
-              <div className="flex justify-between items-center bg-slate-900 p-6 rounded-3xl text-white shadow-lg">
+              <div
+                  className="flex justify-between items-center bg-slate-900 p-6 rounded-3xl text-white shadow-lg">
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-black text-red-600 uppercase tracking-widest">Gestion</span>
+                  <span
+                      className="text-[10px] font-black text-red-600 uppercase tracking-widest">Gestion</span>
                   <h2 className="text-xl font-black uppercase italic">Membres du Comité</h2>
                 </div>
                 <button
-                    onClick={() => setComite([...comite, { role: "", name: "", tel: "", email: "" }])}
+                    onClick={() => setComite([...comite, {role: "", name: "", tel: "", email: ""}])}
                     className="bg-red-600 hover:bg-white hover:text-red-600 p-3 rounded-full transition-all active:scale-90 shadow-lg"
                 >
-                  <Plus size={24} />
+                  <Plus size={24}/>
                 </button>
               </div>
 
               <div className="space-y-4">
                 {comite.map((member, index) => (
-                    <div key={index} className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm relative group animate-in fade-in slide-in-from-right-4">
+                    <div key={index}
+                         className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm relative group animate-in fade-in slide-in-from-right-4">
                       <button
                           onClick={() => setComite(comite.filter((_, i) => i !== index))}
                           className="absolute -top-2 -right-2 bg-white border border-slate-200 text-slate-300 hover:text-red-600 hover:border-red-600 p-2 rounded-full transition-all shadow-sm"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={16}/>
                       </button>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="flex flex-col gap-1">
-                          <label className="text-[9px] font-black uppercase text-slate-300 ml-1">Rôle</label>
+                          <label
+                              className="text-[9px] font-black uppercase text-slate-300 ml-1">Rôle</label>
                           <input
                               placeholder="Ex: Président"
                               className="w-full p-3 rounded-xl border border-slate-50 bg-slate-50 focus:bg-white focus:ring-1 focus:ring-red-600 outline-none font-bold text-red-600 uppercase italic text-xs"
@@ -242,7 +260,8 @@ export default function ModifierClubPage() {
                           />
                         </div>
                         <div className="flex flex-col gap-1">
-                          <label className="text-[9px] font-black uppercase text-slate-300 ml-1">Nom</label>
+                          <label
+                              className="text-[9px] font-black uppercase text-slate-300 ml-1">Nom</label>
                           <input
                               placeholder="Prénom Nom"
                               className="w-full p-3 rounded-xl border border-slate-50 bg-slate-50 focus:bg-white focus:ring-1 focus:ring-red-600 outline-none font-bold text-slate-800 text-xs"
@@ -255,7 +274,8 @@ export default function ModifierClubPage() {
                           />
                         </div>
                         <div className="flex flex-col gap-1">
-                          <label className="text-[9px] font-black uppercase text-slate-300 ml-1">Téléphone</label>
+                          <label
+                              className="text-[9px] font-black uppercase text-slate-300 ml-1">Téléphone</label>
                           <input
                               placeholder="+32..."
                               className="w-full p-3 rounded-xl border border-slate-50 bg-slate-50 focus:bg-white focus:ring-1 focus:ring-red-600 outline-none text-xs"
@@ -268,7 +288,8 @@ export default function ModifierClubPage() {
                           />
                         </div>
                         <div className="flex flex-col gap-1">
-                          <label className="text-[9px] font-black uppercase text-slate-300 ml-1">Email</label>
+                          <label
+                              className="text-[9px] font-black uppercase text-slate-300 ml-1">Email</label>
                           <input
                               placeholder="nom@acdampicourt.be"
                               className="w-full p-3 rounded-xl border border-slate-50 bg-slate-50 focus:bg-white focus:ring-1 focus:ring-red-600 outline-none text-xs"
@@ -285,8 +306,10 @@ export default function ModifierClubPage() {
                 ))}
 
                 {comite.length === 0 && (
-                    <div className="text-center py-10 border-2 border-dashed border-slate-200 rounded-3xl">
-                      <p className="text-slate-400 font-bold uppercase italic text-xs">Aucun membre enregistré</p>
+                    <div
+                        className="text-center py-10 border-2 border-dashed border-slate-200 rounded-3xl">
+                      <p className="text-slate-400 font-bold uppercase italic text-xs">Aucun membre
+                        enregistré</p>
                     </div>
                 )}
               </div>
