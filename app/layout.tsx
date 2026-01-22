@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import {Navbar} from "@/components/navbar/navbar";
+import { Navbar } from "@/components/navbar/navbar";
+import { Footer } from "@/components/footer/footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,12 +27,21 @@ export default function RootLayout({
   return (
       <html lang="fr">
       <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-linear-to-b from-white via-red-50/50 to-red-600/60`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-linear-to-b from-white via-red-50/50 to-red-600/60`}
       >
-      <Navbar/>
-      {/* Le contenu commence ici */}
-      <div className="relative pt-20">
-        {children}
+      {/* On utilise une structure Flexbox sur toute la hauteur de l'écran */}
+      <div className="flex flex-col min-h-screen">
+        <Navbar />
+
+        {/* Le contenu principal (main) prend tout l'espace disponible (flex-grow).
+            Le padding-top (pt-20) évite que le contenu ne passe sous la Navbar fixe.
+          */}
+        <main className="flex-grow pt-20 relative">
+          {children}
+        </main>
+
+        {/* Le Footer sera maintenant automatiquement en bas, peu importe la longueur de la page */}
+        <Footer />
       </div>
       </body>
       </html>
