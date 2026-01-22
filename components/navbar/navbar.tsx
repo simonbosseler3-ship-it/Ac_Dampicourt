@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export function Navbar() {
   const [user, setUser] = useState<any>(null);
@@ -89,7 +89,8 @@ export function Navbar() {
           {/* MENU PRINCIPAL */}
           <nav className="hidden md:flex items-center gap-8 text-sm font-black uppercase tracking-wider h-full">
             <Link href="/club" className={linkStyle("/club")}>Le Club</Link>
-            <Link href="/actualites" className={linkStyle("/actualites")}>Toutes les actualités</Link>
+            <Link href="/actualites" className={linkStyle("/actualites")}>Actualités</Link>
+
             <Link
                 href="https://www.beathletics.be/calendar"
                 target="_blank"
@@ -101,7 +102,7 @@ export function Navbar() {
 
             {/* ONGLET INFOS */}
             <div className="relative group h-full flex items-center">
-              <div className="cursor-default transition-all duration-300 hover:text-red-600 flex items-center gap-1 text-slate-600 font-black uppercase tracking-wider text-sm italic">
+              <div className={`cursor-default transition-all duration-300 hover:text-red-600 flex items-center gap-1 font-black uppercase tracking-wider text-sm italic ${pathname.startsWith('/infos') ? 'text-red-600' : 'text-slate-600'}`}>
                 Infos <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300" />
               </div>
 
@@ -123,6 +124,7 @@ export function Navbar() {
                   >
                     Allures libres
                   </Link>
+
                   <Link
                       href="/infos/records"
                       className="block px-4 py-3 text-[11px] font-black uppercase italic text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all border-t border-slate-50"
@@ -135,11 +137,33 @@ export function Navbar() {
                   >
                     K.B.P.M
                   </Link>
+
+                  <Link
+                      href="/infos/entraineurs"
+                      className="block px-4 py-3 text-[11px] font-black uppercase italic text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all border-t border-slate-50"
+                  >
+                    Entraîneurs
+                  </Link>
+                  <Link
+                      href="/infos/officiels"
+                      className="block px-4 py-3 text-[11px] font-black uppercase italic text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all border-t border-slate-50"
+                  >
+                    Officiels
+                  </Link>
+                  <Link
+                      href="/infos/ethique"
+                      className="block px-4 py-3 text-[11px] font-black uppercase italic text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all border-t border-slate-50"
+                  >
+                    Éthique & Dopage
+                  </Link>
                 </div>
               </div>
             </div>
 
-            <Link href="/entrainement" className={linkStyle("/entrainement")}>Entraînements</Link>
+            <Link href="/musculation" className={linkStyle("/musculation")}>
+              Musculation
+            </Link>
+
           </nav>
 
           {/* RECHERCHE ET AUTHENTIFICATION */}
