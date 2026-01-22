@@ -50,11 +50,14 @@ export default async function ActualitesPage() {
       <div className="min-h-screen relative">
         <Navbar/>
 
-        <main className="container mx-auto px-4 py-12 pt-32">
+        {/* pt-24 réduit la marge sous la navbar par rapport à pt-32 */}
+        <main className="container mx-auto px-4 py-12 pt-24">
+
           {canManage && (
-              <Link href="/actualites/nouveau">
+              /* w-fit assure que le lien ne prend que la place du bouton */
+              <Link href="/actualites/nouveau" className="block w-fit mb-8">
                 <button
-                    className="mb-8 bg-green-600 text-white px-6 py-2 rounded-full font-bold hover:bg-green-700 transition-all flex items-center gap-2 shadow-lg">
+                    className="bg-green-600 text-white px-6 py-2 rounded-full font-bold hover:bg-green-700 transition-all flex items-center gap-2 shadow-lg">
                   <span>+</span> Ajouter une actualité
                 </button>
               </Link>
@@ -71,7 +74,7 @@ export default async function ActualitesPage() {
             {news?.map((item) => (
                 <article key={item.id} className="relative group">
 
-                  {/* BOUTONS ADMIN : Positionnés en dehors du Link pour rester cliquables séparément */}
+                  {/* BOUTONS ADMIN */}
                   {canManage && (
                       <div className="absolute top-4 right-4 z-30">
                         <AdminActions id={item.id}/>

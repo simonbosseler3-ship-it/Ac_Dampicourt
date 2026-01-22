@@ -1,7 +1,7 @@
 import { HeroNews } from "@/components/carousel/news";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
-import { Timer, Trophy, CalendarCheck, ChevronRight } from "lucide-react";
+import { Timer, Trophy, CalendarCheck, ChevronRight, HelpCircle, MessageSquare } from "lucide-react";
 
 export default async function Home() {
   const { data: news } = await supabase
@@ -16,13 +16,12 @@ export default async function Home() {
           <HeroNews newsData={news || []}/>
         </div>
 
-        {/* SECTION LIENS */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 px-2">
+        {/* SECTION LIENS PRINCIPAUX */}
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 px-2 mb-10">
 
           {/* CARTE 1 : RÉSULTATS */}
           <Link href="/resultats"
                 className="group relative h-40 bg-slate-50 border-l-4 border-slate-200 hover:border-red-600 transition-all duration-300 overflow-hidden flex flex-col justify-between p-6 rounded-r-2xl shadow-sm hover:shadow-md">
-            {/* Centré verticalement, légèrement décalé du bord droit */}
             <div className="absolute top-1/2 -translate-y-1/2 right-4 opacity-[0.05] group-hover:opacity-[0.1] transition-opacity transform group-hover:scale-110 duration-500 text-black">
               <Trophy size={80} strokeWidth={1}/>
             </div>
@@ -55,7 +54,6 @@ export default async function Home() {
           {/* CARTE 3 : SPEED NIGHT */}
           <Link href="/speed-night"
                 className="group relative h-40 bg-slate-50 border-r-4 border-slate-200 hover:border-red-600 transition-all duration-300 overflow-hidden flex flex-col justify-between p-6 rounded-l-2xl shadow-sm hover:shadow-md">
-            {/* Centré verticalement, légèrement décalé du bord droit */}
             <div className="absolute top-1/2 -translate-y-1/2 right-4 opacity-[0.05] group-hover:opacity-[0.1] transition-opacity transform group-hover:scale-110 duration-500 text-black">
               <Timer size={80} strokeWidth={1}/>
             </div>
@@ -68,7 +66,39 @@ export default async function Home() {
               <ChevronRight className="text-red-600 transform group-hover:translate-x-1 transition-transform" size={16}/>
             </div>
           </Link>
+        </section>
 
+        {/* NOUVELLE SECTION : FORUM / QUESTIONS */}
+        <section className="px-2">
+          <Link href="/forum"
+                className="group block w-full bg-white border-2 border-slate-100 rounded-[2rem] p-8 hover:border-red-600 transition-all duration-300 shadow-sm hover:shadow-xl relative overflow-hidden">
+
+            {/* Décoration en arrière-plan */}
+            <div className="absolute -right-10 -bottom-10 text-slate-50 group-hover:text-red-50 transition-colors duration-500 -rotate-12">
+              <MessageSquare size={200} strokeWidth={1} />
+            </div>
+
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="flex items-center gap-6">
+                <div className="bg-red-600 p-4 rounded-2xl shadow-lg shadow-red-200 group-hover:scale-110 transition-transform">
+                  <HelpCircle className="text-white" size={32} />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-black uppercase italic tracking-tighter text-slate-900">
+                    Une question ? <span className="text-red-600">Le Forum ACD</span>
+                  </h2>
+                  <p className="text-slate-500 font-medium max-w-md">
+                    Besoin d'aide pour une inscription ou d'infos sur les entraînements ? Posez vos questions à la communauté.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black uppercase italic tracking-widest text-sm group-hover:bg-red-600 transition-colors shadow-lg">
+                Accéder au forum
+                <ChevronRight size={20} />
+              </div>
+            </div>
+          </Link>
         </section>
       </main>
   );
