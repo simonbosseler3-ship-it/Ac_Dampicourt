@@ -2,7 +2,7 @@ import { Navbar } from "@/components/navbar/navbar";
 import { HeroNews } from "@/components/carousel/news";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
-import { MapPin, Phone, ExternalLink, Instagram, Facebook } from "lucide-react"; // Import des réseaux
+import { MapPin, Phone, ExternalLink, Instagram, Facebook, Timer, Trophy, CalendarCheck, ChevronRight } from "lucide-react";
 
 export default async function Home() {
   const { data: news } = await supabase
@@ -14,65 +14,100 @@ export default async function Home() {
       <div className="min-h-screen">
         <Navbar/>
 
-        <main className="container mx-auto px-4 py-12 pt-32">
-          <HeroNews newsData={news || []}/>
+        {/* pt-10 au lieu de pt-32 pour remonter le contenu vers la Navbar */}
+        <main className="container mx-auto px-4 pt-10 pb-12">
 
-          <section className="grid grid-cols-1 md:grid-cols-3 gap-6 py-12 text-center">
-            {/* RÉSULTATS */}
-            <Link
-                href="/resultats"
-                className="bg-white/90 backdrop-blur-sm p-8 rounded-[32px] shadow-sm border-2 border-transparent hover:border-red-600 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group flex flex-col items-center justify-center min-h-[200px]"
-            >
-              <h3 className="text-xl font-black text-red-600 uppercase italic group-hover:scale-110 transition-transform">Résultats</h3>
-              <p className="text-gray-500 mt-2 font-medium">Consultez les dernières performances</p>
+          {/* CAROUSEL : Marges réduites pour coller davantage au haut de page */}
+          <div className="mb-10">
+            <HeroNews newsData={news || []}/>
+          </div>
+
+          {/* SECTION LIENS - DYNAMIQUE & COMPACTE */}
+          <section className="grid grid-cols-1 md:grid-cols-3 gap-6 px-2">
+
+            {/* CARTE 1 : RÉSULTATS */}
+            <Link href="/resultats"
+                  className="group relative h-40 bg-slate-50 border-l-4 border-slate-200 hover:border-red-600 transition-all duration-300 overflow-hidden flex flex-col justify-between p-6 rounded-r-2xl shadow-sm hover:shadow-md">
+              <div
+                  className="absolute -top-2 -right-2 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity transform group-hover:scale-110 duration-500 text-black">
+                <Trophy size={120} strokeWidth={1}/>
+              </div>
+              <div className="z-10">
+                <h3 className="text-xl font-black text-slate-900 uppercase italic tracking-tighter group-hover:text-red-600 transition-colors">Résultats</h3>
+                <div
+                    className="w-6 h-1 bg-red-600 mt-1 group-hover:w-12 transition-all duration-500"></div>
+              </div>
+              <div className="flex items-center justify-between z-10">
+                <p className="text-slate-400 font-bold text-[9px] uppercase tracking-[0.2em]">Chronos
+                  & Podiums</p>
+                <ChevronRight
+                    className="text-red-600 transform group-hover:translate-x-1 transition-transform"
+                    size={16}/>
+              </div>
             </Link>
 
-            {/* INSCRIPTIONS COMPÉTITIONS */}
-            <Link
-                href="/inscriptions"
-                className="bg-white/90 backdrop-blur-sm p-8 rounded-[32px] shadow-sm border-2 border-transparent hover:border-red-600 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group flex flex-col items-center justify-center min-h-[200px]"
-            >
-              <h3 className="text-xl font-black text-red-600 uppercase italic group-hover:scale-110 transition-transform">Inscriptions</h3>
-              <p className="text-gray-500 mt-2 font-medium">S'inscrire aux compétitions &
-                championnats</p>
+            {/* CARTE 2 : INSCRIPTIONS */}
+            <Link href="/inscriptions"
+                  className="group relative h-40 bg-slate-900 overflow-hidden flex flex-col justify-between p-6 rounded-2xl shadow-lg hover:shadow-red-900/20 transition-all duration-300">
+              <div
+                  className="absolute inset-0 bg-red-600 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300 ease-out z-0"></div>
+              <div className="z-10 relative">
+                <h3 className="text-xl font-black text-white uppercase italic tracking-tighter">Inscriptions</h3>
+                <p className="text-slate-400 text-[10px] mt-1 font-bold uppercase tracking-widest group-hover:text-white/80 transition-colors">Meetings
+                  & Championnats</p>
+              </div>
+              <div className="z-10 relative flex justify-between items-end">
+                <div className="bg-white/10 p-1.5 rounded-full">
+                  <ChevronRight className="text-white" size={14}/>
+                </div>
+                <CalendarCheck className="text-red-600 group-hover:text-white transition-colors"
+                               size={28}/>
+              </div>
             </Link>
 
-            {/* DAMPICOURT SPEED NIGHT/RACE */}
-            <Link
-                href="/speed-night"
-                className="bg-white/90 backdrop-blur-sm p-8 rounded-[32px] shadow-sm border-2 border-transparent hover:border-red-600 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group flex flex-col items-center justify-center min-h-[200px]"
-            >
-              <h3 className="text-xl font-black text-red-600 uppercase italic group-hover:scale-110 transition-transform">Speed
-                Night / Race</h3>
-              <p className="text-gray-500 mt-2 font-medium">L'événement majeur de l'année à
-                Dampicourt</p>
+            {/* CARTE 3 : SPEED NIGHT */}
+            <Link href="/speed-night"
+                  className="group relative h-40 bg-slate-50 border-r-4 border-slate-200 hover:border-red-600 transition-all duration-300 overflow-hidden flex flex-col justify-between p-6 rounded-l-2xl shadow-sm hover:shadow-md">
+              <div
+                  className="absolute -top-2 -right-2 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity transform group-hover:scale-110 duration-500 text-black">
+                <Timer size={120} strokeWidth={1}/>
+              </div>
+              <div className="z-10">
+                <h3 className="text-xl font-black text-slate-900 uppercase italic tracking-tighter group-hover:text-red-600 transition-colors">Speed
+                  Night</h3>
+                <div
+                    className="w-6 h-1 bg-red-600 mt-1 group-hover:w-12 transition-all duration-500"></div>
+              </div>
+              <div className="flex items-center justify-between z-10">
+                <p className="text-slate-400 font-bold text-[9px] uppercase tracking-[0.2em]">Événement
+                  Majeur</p>
+                <ChevronRight
+                    className="text-red-600 transform group-hover:translate-x-1 transition-transform"
+                    size={16}/>
+              </div>
             </Link>
+
           </section>
         </main>
 
-        {/* FOOTER LARGE (FULL WIDTH) */}
-        <footer className="bg-slate-900 text-white pt-20 pb-10 mt-20">
+        {/* FOOTER LARGE */}
+        <footer className="bg-slate-900 text-white pt-20 pb-10 mt-24">
           <div className="container mx-auto px-4">
-
-            {/* GRILLE DU FOOTER */}
             <div
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 border-b border-white/10 pb-16">
-
-              {/* COLONNE 1 : BRAND & BIO */}
               <div className="flex flex-col gap-6">
                 <div>
                   <h4 className="text-red-600 font-black uppercase italic text-3xl leading-none">AC
                     Dampicourt</h4>
-                  <p className="text-gray-500 text-xs font-bold uppercase tracking-[0.2em] mt-2">Province
-                    du Luxembourg</p>
+                  <p className="text-gray-500 text-xs font-bold uppercase tracking-[0.2em] mt-2">Le
+                    club de la Gaume</p>
                 </div>
                 <p className="text-gray-400 text-sm leading-relaxed max-w-xs">
-                  Depuis sa création, l'AC Dampicourt forme les passionnés d'athlétisme du sud de la
-                  Belgique, de l'initiation à la haute performance.
+                  Former, s'entraîner et performer. L'athlétisme pour tous, de l'initiation au haut
+                  niveau.
                 </p>
               </div>
 
-              {/* COLONNE 2 : NAVIGATION RAPIDE */}
               <div className="flex flex-col gap-6">
                 <h4 className="text-white font-black uppercase italic text-sm tracking-widest">Navigation</h4>
                 <nav className="flex flex-col gap-3">
@@ -88,18 +123,16 @@ export default async function Home() {
                 </nav>
               </div>
 
-              {/* COLONNE 3 : LOCALISATION & CONTACT */}
               <div className="flex flex-col gap-6">
-                <h4 className="text-white font-black uppercase italic text-sm tracking-widest">Nous
-                  Trouver</h4>
+                <h4 className="text-white font-black uppercase italic text-sm tracking-widest">Le
+                  Stade</h4>
                 <div className="space-y-4 text-sm">
                   <div className="flex items-start gap-3 text-gray-400">
                     <MapPin size={20} className="text-red-600 shrink-0 mt-1"/>
                     <div>
                       <p className="font-black text-white uppercase italic leading-none mb-1">Stade
                         des Fusillés</p>
-                      <p>Rue du Stade 7</p>
-                      <p>6762 SAINT-MARD (Virton)</p>
+                      <p>Rue du Stade 7, 6762 SAINT-MARD</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 text-gray-400">
@@ -107,58 +140,35 @@ export default async function Home() {
                     <a href="tel:+3263576974"
                        className="hover:text-white transition-colors font-bold">+32 63 57 69 74</a>
                   </div>
-                  <a
-                      href="https://www.google.com/maps/dir//Rue+du+Stade+7,+6762+Virton"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-red-600 font-black uppercase italic text-[10px] hover:text-white transition-all group pt-2"
-                  >
-                    <ExternalLink size={14}/> Itinéraire vers le stade
-                  </a>
                 </div>
               </div>
 
-              {/* COLONNE 4 : RÉSEAUX SOCIAUX */}
               <div className="flex flex-col gap-6">
                 <h4 className="text-white font-black uppercase italic text-sm tracking-widest">Suivre
                   l'ACD</h4>
-                <p className="text-gray-400 text-sm italic">Rejoignez notre communauté sur les
-                  réseaux sociaux pour ne rien manquer.</p>
                 <div className="flex items-center gap-4">
-                  <a
-                      href="https://www.facebook.com/groups/111612989000083"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-white/5 p-4 rounded-2xl hover:bg-blue-600 transition-all group shadow-xl"
-                  >
-                    <Facebook size={24} className="group-hover:scale-110 transition-transform"/>
+                  <a href="https://www.facebook.com/groups/111612989000083" target="_blank"
+                     className="bg-white/5 p-4 rounded-2xl hover:bg-blue-600 transition-all group shadow-xl">
+                    <Facebook size={22} className="group-hover:scale-110 transition-transform"/>
                   </a>
-                  <a
-                      href="https://www.instagram.com/acdampicourt_?utm_source=ig_web_button_share_sheet"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-white/5 p-4 rounded-2xl hover:bg-gradient-to-tr from-yellow-500 via-red-500 to-purple-600 transition-all group shadow-xl"
-                  >
-                    <Instagram size={24} className="group-hover:scale-110 transition-transform"/>
+                  <a href="https://www.instagram.com/acdampicourt_" target="_blank"
+                     className="bg-white/5 p-4 rounded-2xl hover:bg-gradient-to-tr from-yellow-500 via-red-500 to-purple-600 transition-all group shadow-xl">
+                    <Instagram size={22} className="group-hover:scale-110 transition-transform"/>
                   </a>
                 </div>
               </div>
-
             </div>
 
-            {/* COPYRIGHT & CRÉDITS */}
             <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-10">
-              <div className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-600">
-                © 2026 AC Dampicourt - Site Officiel
+              <div className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-600">©
+                2026 AC Dampicourt
               </div>
               <div
-                  className="flex gap-6 text-[9px] font-black uppercase text-gray-700 tracking-tighter italic">
-                <span>Politique de confidentialité</span>
-                <span>Réglement interne</span>
-                <span>Mentions légales</span>
+                  className="flex gap-6 text-[9px] font-black uppercase text-gray-700 tracking-widest italic">
+                <span>Confidentialité</span>
+                <span>Réglement</span>
               </div>
             </div>
-
           </div>
         </footer>
       </div>

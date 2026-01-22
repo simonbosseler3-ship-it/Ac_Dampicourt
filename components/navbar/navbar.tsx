@@ -2,18 +2,33 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Search, LogOut, ChevronDown } from "lucide-react";
+import { Search, LogOut, ChevronDown, ShieldCheck } from "lucide-react"; // Ajout d'une icône admin
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 export function Navbar() {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const router = useRouter();
   const pathname = usePathname();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // MODIFICATION ICI : Redirection intelligente
+  const handleSearch = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && searchQuery.trim().length > 0) {
+      const encodedQuery = encodeURIComponent(searchQuery.trim());
+
+      // Si l'utilisateur est admin, on l'envoie sur la page de modification
+      if (profile?.role === 'admin') {
+        router.push(`/recherche/modifier?q=${encodedQuery}`);
+      } else {
+        router.push(`/recherche?q=${encodedQuery}`);
+      }
+    }
+  };
 
   useEffect(() => {
     const getSession = async () => {
@@ -87,13 +102,12 @@ export function Navbar() {
               Calendrier
             </Link>
 
-            {/* ONGLET INFOS (NON CLIQUABLE) */}
+            {/* ONGLET INFOS */}
             <div className="relative group h-full flex items-center">
               <div className="cursor-default transition-all duration-300 hover:text-red-600 flex items-center gap-1 text-slate-600 font-black uppercase tracking-wider text-sm italic">
                 Infos <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300" />
               </div>
 
-              {/* SOUS-MENU DROPDOWN */}
               <div className="absolute top-[80px] left-0 w-72 pt-2 opacity-0 translate-y-4 invisible group-hover:opacity-100 group-hover:translate-y-0 group-hover:visible transition-all duration-300 ease-out">
                 <div className="bg-white border-t-4 border-red-600 rounded-b-2xl shadow-2xl overflow-hidden p-2 ring-1 ring-black/5">
                   <Link
@@ -104,7 +118,6 @@ export function Navbar() {
                   >
                     Affiliation au club
                   </Link>
-
                   <Link
                       href="https://allures-libres-de-gaume.be/"
                       target="_blank"
@@ -113,14 +126,12 @@ export function Navbar() {
                   >
                     Allures libres
                   </Link>
-
                   <Link
                       href="/infos/records"
                       className="block px-4 py-3 text-[11px] font-black uppercase italic text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all border-t border-slate-50"
                   >
                     Records
                   </Link>
-
                   <Link
                       href="/infos/kbpm"
                       className="block px-4 py-3 text-[11px] font-black uppercase italic text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all border-t border-slate-50"
@@ -140,18 +151,28 @@ export function Navbar() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                   type="search"
-                  placeholder="Rechercher..."
-                  className="w-48 pl-10 rounded-xl bg-gray-100/50 border-gray-200 focus:bg-white focus:ring-2 focus:ring-red-600 transition-all"
+                  placeholder={profile?.role === 'admin' ? "Gérer un athlète..." : "Rechercher un athlète"}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleSearch}
+                  className={`w-48 pl-10 rounded-xl bg-gray-100/50 border-gray-200 focus:bg-white focus:ring-2 transition-all ${
+                      profile?.role === 'admin' ? 'focus:ring-slate-900 border-slate-300' : 'focus:ring-red-600'
+                  }`}
               />
             </div>
 
             <div className="flex items-center gap-4 border-l-2 border-gray-100 pl-4">
               {profile && (
-                  <div className="hidden sm:block text-right">
-                    <p className="text-[10px] uppercase font-black text-gray-400 leading-none tracking-tighter">Espace Admin</p>
-                    <p className="text-sm font-black italic text-red-600 leading-tight">
-                      {profile.full_name}
-                    </p>
+                  <div className="hidden sm:flex items-center gap-3 text-right">
+                    <div>
+                      <p className="text-[10px] uppercase font-black text-gray-400 leading-none tracking-tighter flex items-center justify-end gap-1">
+                        {profile.role === 'admin' && <ShieldCheck size={10} className="text-red-600" />}
+                        {profile.role === 'admin' ? 'Espace Admin' : 'Membre'}
+                      </p>
+                      <p className="text-sm font-black italic text-slate-900 leading-tight">
+                        {profile.full_name}
+                      </p>
+                    </div>
                   </div>
               )}
 
@@ -165,7 +186,8 @@ export function Navbar() {
                   </Button>
               ) : (
                   <Link href="/login">
-                    <Button className="bg-red-600 hover:bg-red-700 text-white font-black rounded-xl px-6 shadow-lg shadow-red-200 transition-all active:scale-95 uppercase italic tracking-tighter">
+                    <Button
+                        className="bg-red-600 hover:bg-red-700 text-white font-black rounded-xl px-6 shadow-lg shadow-red-200 transition-all active:scale-95 uppercase italic tracking-tighter">
                       Connexion
                     </Button>
                   </Link>
