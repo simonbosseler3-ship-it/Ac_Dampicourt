@@ -5,12 +5,11 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import {
   User, Search as SearchIcon, Loader2, Plus,
-  Pencil, Trash2, X, Save, ArrowLeft
+  Pencil, Trash2, X, Save, ArrowLeft, AlertTriangle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-// Composant interne pour gérer les paramètres de recherche proprement avec Next.js 13+
 function ModifierContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -22,6 +21,11 @@ function ModifierContent() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAthlete, setEditingAthlete] = useState<any>(null);
+
+  // ÉTATS POUR LA SUPPRESSION
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [athleteToDelete, setAthleteToDelete] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [formData, setFormData] = useState({
     nom: "",
@@ -35,11 +39,9 @@ function ModifierContent() {
   const fetchAthletes = async () => {
     setLoading(true);
     let q = supabase.from("athletes").select("*");
-
     if (query) {
       q = q.or(`nom.ilike.%${query}%,prenom.ilike.%${query}%`);
     }
-
     const { data, error } = await q.order("nom", { ascending: true }).limit(50);
     if (!error) setResults(data || []);
     setLoading(false);
@@ -77,7 +79,6 @@ function ModifierContent() {
       ...formData,
       annee_naissance: parseInt(formData.annee_naissance) || null
     };
-
     if (editingAthlete) {
       const { error } = await supabase.from("athletes").update(payload).eq("id", editingAthlete.id);
       if (error) alert("Erreur modification");
@@ -85,22 +86,27 @@ function ModifierContent() {
       const { error } = await supabase.from("athletes").insert([payload]);
       if (error) alert("Erreur ajout");
     }
-
     setIsModalOpen(false);
     fetchAthletes();
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm("Supprimer définitivement cet athlète ?")) {
-      const { error } = await supabase.from("athletes").delete().eq("id", id);
-      if (!error) fetchAthletes();
+  // NOUVELLE FONCTION DE SUPPRESSION STYLISÉE
+  const confirmDelete = async () => {
+    if (!athleteToDelete) return;
+    setIsDeleting(true);
+    const { error } = await supabase.from("athletes").delete().eq("id", athleteToDelete.id);
+
+    if (error) {
+      alert("Erreur lors de la suppression");
+    } else {
+      fetchAthletes();
+      setShowDeleteConfirm(false);
     }
+    setIsDeleting(false);
   };
 
   return (
       <main className="container mx-auto px-4 pt-32 pb-20 min-h-screen">
-
-        {/* BARRE DE NAVIGATION ADMIN / RETOUR */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
           <div className="flex items-center gap-4">
             <Button
@@ -126,7 +132,6 @@ function ModifierContent() {
           </form>
         </div>
 
-        {/* BOUTON AJOUT RAPIDE */}
         <div
             onClick={() => openModal()}
             className="mb-8 p-6 border-2 border-dashed border-slate-200 rounded-[32px] flex items-center justify-center gap-3 text-slate-400 hover:text-red-600 hover:border-red-200 hover:bg-red-50/30 transition-all cursor-pointer group"
@@ -146,7 +151,14 @@ function ModifierContent() {
                         <button onClick={() => openModal(athlete)} className="p-2 bg-slate-100 text-slate-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all">
                           <Pencil size={16} />
                         </button>
-                        <button onClick={() => handleDelete(athlete.id)} className="p-2 bg-slate-100 text-slate-600 rounded-xl hover:bg-red-600 hover:text-white transition-all">
+                        {/* BOUTON SUPPRIMER MODIFIÉ */}
+                        <button
+                            onClick={() => {
+                              setAthleteToDelete(athlete);
+                              setShowDeleteConfirm(true);
+                            }}
+                            className="p-2 bg-slate-100 text-slate-600 rounded-xl hover:bg-red-600 hover:text-white transition-all"
+                        >
                           <Trash2 size={16} />
                         </button>
                       </div>
@@ -166,7 +178,33 @@ function ModifierContent() {
             </div>
         )}
 
-        {/* LA MODALE RESTE IDENTIQUE */}
+        {/* MODALE DE CONFIRMATION DE SUPPRESSION (Warning stylisé) */}
+        {showDeleteConfirm && (
+            <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
+              <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => !isDeleting && setShowDeleteConfirm(false)} />
+              <div className="relative bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl border border-slate-100 animate-in fade-in zoom-in duration-200">
+                <div className="flex flex-col items-center text-center">
+                  <div className="bg-red-50 p-4 rounded-full mb-4">
+                    <AlertTriangle className="h-8 w-8 text-red-600" />
+                  </div>
+                  <h3 className="text-xl font-black italic uppercase text-slate-900 mb-2">Supprimer l'athlète ?</h3>
+                  <p className="text-slate-500 text-sm mb-8">
+                    Voulez-vous vraiment supprimer **{athleteToDelete?.prenom} {athleteToDelete?.nom}** ? Cette action est irréversible.
+                  </p>
+                  <div className="flex gap-3 w-full">
+                    <button onClick={() => setShowDeleteConfirm(false)} disabled={isDeleting} className="flex-1 px-4 py-3 rounded-xl font-bold text-slate-600 hover:bg-slate-100 transition-colors">
+                      Annuler
+                    </button>
+                    <button onClick={confirmDelete} disabled={isDeleting} className="flex-1 px-4 py-3 rounded-xl font-bold bg-red-600 text-white hover:bg-red-700 transition-all flex justify-center items-center">
+                      {isDeleting ? <Loader2 className="h-5 w-5 animate-spin" /> : "Supprimer"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+        )}
+
+        {/* MODALE D'ÉDITION */}
         {isModalOpen && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
               <div className="bg-white w-full max-w-lg rounded-[40px] shadow-2xl overflow-hidden border-t-8 border-red-600">
@@ -198,7 +236,6 @@ function ModifierContent() {
   );
 }
 
-// Wrapper pour éviter les erreurs de SSR avec useSearchParams
 export default function ModifierPage() {
   return (
       <Suspense fallback={<div className="pt-32 text-center">Chargement...</div>}>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Search, LogOut, ChevronDown, ShieldCheck } from "lucide-react"; // Ajout d'une icône admin
+import { Search, LogOut, ChevronDown, ShieldCheck, PenTool } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
@@ -16,12 +16,9 @@ export function Navbar() {
   const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState("");
 
-  // MODIFICATION ICI : Redirection intelligente
   const handleSearch = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && searchQuery.trim().length > 0) {
       const encodedQuery = encodeURIComponent(searchQuery.trim());
-
-      // Si l'utilisateur est admin, on l'envoie sur la page de modification
       if (profile?.role === 'admin') {
         router.push(`/recherche/modifier?q=${encodedQuery}`);
       } else {
@@ -167,7 +164,12 @@ export function Navbar() {
                     <div>
                       <p className="text-[10px] uppercase font-black text-gray-400 leading-none tracking-tighter flex items-center justify-end gap-1">
                         {profile.role === 'admin' && <ShieldCheck size={10} className="text-red-600" />}
-                        {profile.role === 'admin' ? 'Espace Admin' : 'Membre'}
+                        {profile.role === 'redacteur' && <PenTool size={10} className="text-blue-600" />}
+                        {profile.role === 'admin'
+                            ? 'Espace Admin'
+                            : profile.role === 'redacteur'
+                                ? 'Rédacteur'
+                                : 'Membre'}
                       </p>
                       <p className="text-sm font-black italic text-slate-900 leading-tight">
                         {profile.full_name}

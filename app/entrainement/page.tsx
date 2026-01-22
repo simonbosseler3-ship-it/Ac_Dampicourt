@@ -69,8 +69,7 @@ export default async function EntrainementPage() {
                       </div>
                       <div className="text-right">
                         <h3 className="font-black text-slate-900 uppercase italic leading-tight">{t.name}</h3>
-                        <p className="text-[10px] font-bold text-red-600 uppercase tracking-widest mt-1">Coordinateur
-                          Technique</p>
+                        <p className="text-[10px] font-bold text-red-600 uppercase tracking-widest mt-1">Entraineur</p>
                       </div>
                     </div>
                     <div className="space-y-2 border-t border-slate-200 pt-4">

@@ -6,54 +6,57 @@ import { useRouter } from "next/navigation";
 import { Trash2, Edit, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 
-export function AdminActions({ id }: { id: string }) {
+export function AdminActions({ id }: { id: string, name?: string }) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
   const handleDelete = async () => {
     setIsDeleting(true);
-    const { error } = await supabase.from('news').delete().eq('id', id);
+
+    const { error } = await supabase.from('athletes').delete().eq('id', id);
 
     if (error) {
-      alert("Erreur lors de la suppression");
+      alert("Erreur lors de la suppression de l'athlète");
       setIsDeleting(false);
     } else {
       setShowConfirm(false);
       router.refresh();
+      // Si on est sur la fiche de l'athlète, on redirige vers la recherche
+      if (window.location.pathname.includes(id)) {
+        router.push("/recherche");
+      }
     }
   };
 
   return (
       <>
-        <div className="absolute top-4 right-4 z-10 flex gap-2">
-          {/* BOUTON MODIFIER : Redirige vers la page dynamique de modification */}
+        <div className="flex gap-2">
+          {/* BOUTON MODIFIER */}
           <Link
-              href={`/actualites/modifier/${id}`}
-              className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 shadow-lg transition-transform active:scale-95 flex items-center justify-center"
+              href={`/athletes/modifier/${id}`}
+              className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 shadow-lg transition-transform active:scale-95 flex items-center justify-center"
           >
             <Edit size={16} />
           </Link>
 
-          {/* BOUTON SUPPRIMER : Ouvre la modale de confirmation */}
+          {/* BOUTON SUPPRIMER */}
           <button
               onClick={() => setShowConfirm(true)}
-              className="bg-slate-900 text-white p-2 rounded-full hover:bg-red-600 shadow-lg transition-all active:scale-95 flex items-center justify-center"
+              className="bg-slate-900 text-white p-2 rounded-lg hover:bg-red-600 shadow-lg transition-all active:scale-95 flex items-center justify-center"
           >
             <Trash2 size={16} />
           </button>
         </div>
 
-        {/* MODALE DE CONFIRMATION PERSONNALISÉE */}
+        {/* MODALE DE CONFIRMATION */}
         {showConfirm && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-              {/* Overlay sombre avec effet flou */}
               <div
                   className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
                   onClick={() => !isDeleting && setShowConfirm(false)}
               />
 
-              {/* Contenu de la modale */}
               <div className="relative bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl border border-slate-100 animate-in fade-in zoom-in duration-200">
                 <div className="flex flex-col items-center text-center">
                   <div className="bg-red-50 p-4 rounded-full mb-4">
@@ -61,11 +64,11 @@ export function AdminActions({ id }: { id: string }) {
                   </div>
 
                   <h3 className="text-xl font-black italic uppercase text-slate-900 mb-2">
-                    Supprimer l'article ?
+                    Supprimer l'athlète ?
                   </h3>
 
                   <p className="text-slate-500 text-sm mb-8">
-                    Cette action est irréversible. L'actualité sera définitivement retirée du site du club.
+                    Voulez-vous vraiment supprimer cet athlète ? Toutes ses performances et données seront effacées.
                   </p>
 
                   <div className="flex gap-3 w-full">

@@ -37,12 +37,13 @@ export default function ModifierArticle({ params }: { params: Promise<{ id: stri
       .eq('id', user.id)
       .single();
 
-      if (profile?.role?.toLowerCase() !== 'admin') {
+      const role = profile?.role?.toLowerCase().trim();
+
+      if (role !== 'admin' && role !== 'redacteur') {
         router.push("/actualites");
         return;
       }
 
-      // 2. Charger les données actuelles de l'article
       const { data: article, error } = await supabase
       .from('news')
       .select('*')

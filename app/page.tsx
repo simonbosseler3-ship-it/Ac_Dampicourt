@@ -22,8 +22,9 @@ export default async function Home() {
           {/* CARTE 1 : RÉSULTATS */}
           <Link href="/resultats"
                 className="group relative h-40 bg-slate-50 border-l-4 border-slate-200 hover:border-red-600 transition-all duration-300 overflow-hidden flex flex-col justify-between p-6 rounded-r-2xl shadow-sm hover:shadow-md">
-            <div className="absolute -top-2 -right-2 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity transform group-hover:scale-110 duration-500 text-black">
-              <Trophy size={120} strokeWidth={1}/>
+            {/* Centré verticalement, légèrement décalé du bord droit */}
+            <div className="absolute top-1/2 -translate-y-1/2 right-4 opacity-[0.05] group-hover:opacity-[0.1] transition-opacity transform group-hover:scale-110 duration-500 text-black">
+              <Trophy size={80} strokeWidth={1}/>
             </div>
             <div className="z-10">
               <h3 className="text-xl font-black text-slate-900 uppercase italic tracking-tighter group-hover:text-red-600 transition-colors">Résultats</h3>
@@ -54,8 +55,9 @@ export default async function Home() {
           {/* CARTE 3 : SPEED NIGHT */}
           <Link href="/speed-night"
                 className="group relative h-40 bg-slate-50 border-r-4 border-slate-200 hover:border-red-600 transition-all duration-300 overflow-hidden flex flex-col justify-between p-6 rounded-l-2xl shadow-sm hover:shadow-md">
-            <div className="absolute -top-2 -right-2 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity transform group-hover:scale-110 duration-500 text-black">
-              <Timer size={120} strokeWidth={1}/>
+            {/* Centré verticalement, légèrement décalé du bord droit */}
+            <div className="absolute top-1/2 -translate-y-1/2 right-4 opacity-[0.05] group-hover:opacity-[0.1] transition-opacity transform group-hover:scale-110 duration-500 text-black">
+              <Timer size={80} strokeWidth={1}/>
             </div>
             <div className="z-10">
               <h3 className="text-xl font-black text-slate-900 uppercase italic tracking-tighter group-hover:text-red-600 transition-colors">Speed Night</h3>

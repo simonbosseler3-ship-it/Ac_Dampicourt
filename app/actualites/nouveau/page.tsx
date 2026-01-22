@@ -9,7 +9,7 @@ import { Upload, Check, ArrowLeft, Loader2 } from "lucide-react";
 export default function NouveauArticle() {
   const [title, setTitle] = useState("");
   const [dateText, setDateText] = useState("");
-  const [content, setContent] = useState(""); // Nouveau champ texte
+  const [content, setContent] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -18,25 +18,31 @@ export default function NouveauArticle() {
   const router = useRouter();
 
   useEffect(() => {
-    const checkAdmin = async () => {
+    const checkAccess = async () => {
       const { data: { user } } = await supabase.auth.getUser();
+
       if (!user) {
         router.push("/login");
         return;
       }
+
       const { data: profile } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', user.id)
       .single();
 
-      if (profile?.role?.toLowerCase() !== 'admin') {
-        router.push("/");
-      } else {
+      const role = profile?.role?.toLowerCase().trim();
+
+      // MODIFICATION ICI : On autorise admin OU redacteur
+      if (role === 'admin' || role === 'redacteur') {
         setLoading(false);
+      } else {
+        router.push("/");
       }
     };
-    checkAdmin();
+
+    checkAccess();
   }, [router]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,7 +63,6 @@ export default function NouveauArticle() {
     setIsUploading(true);
 
     try {
-      // 1. Upload de l'image sur Supabase Storage
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `articles/${fileName}`;
@@ -68,18 +73,16 @@ export default function NouveauArticle() {
 
       if (uploadError) throw uploadError;
 
-      // 2. Récupérer l'URL publique
       const { data: { publicUrl } } = supabase.storage
       .from('news-images')
       .getPublicUrl(filePath);
 
-      // 3. Insérer les données dans la table 'news' avec le champ CONTENT
       const { error: insertError } = await supabase.from('news').insert([
         {
           title,
           image_url: publicUrl,
           date_text: dateText,
-          content // On ajoute bien le contenu ici
+          content
         }
       ]);
 
