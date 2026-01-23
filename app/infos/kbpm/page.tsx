@@ -14,8 +14,8 @@ export default function KBPMPage() {
   ];
 
   return (
-      <div className="min-h-screen relative bg-white">
-        <Navbar />
+      <div className="min-h-screen">
+        <Navbar/>
 
         <main className="container mx-auto px-4 py-12 pt-32 text-slate-900">
 
@@ -32,37 +32,46 @@ export default function KBPMPage() {
             <div className="lg:col-span-2 space-y-8">
               <section className="prose prose-slate max-w-none">
                 <h2 className="text-2xl font-black uppercase italic text-slate-800 mb-6 flex items-center gap-3">
-                  <Info className="text-red-600" /> Chers parents,
+                  <Info className="text-red-600"/> Chers parents,
                 </h2>
                 <div className="space-y-6 text-slate-600 leading-relaxed text-lg">
                   <p>
-                    Ce document a pour but de vous fournir l’essentiel des informations qui vous permettront de planifier et préparer sereinement la participation de votre enfant à une compétition d’athlétisme.
+                    Ce document a pour but de vous fournir l’essentiel des informations qui vous
+                    permettront de planifier et préparer sereinement la participation de votre
+                    enfant à une compétition d’athlétisme.
                   </p>
-                  <div className="bg-slate-50 border-l-4 border-red-600 p-8 rounded-r-3xl my-10 italic shadow-sm">
+                  <div
+                      className="bg-slate-50 border-l-4 border-red-600 p-8 rounded-r-3xl my-10 italic shadow-sm">
                     <p className="text-slate-700 text-xl font-medium mb-4">
-                      « Le coureur qui ne fait jamais de compétition ressemble fort à cet amoureux qui ne donne jamais de preuve d’amour. »
+                      « Le coureur qui ne fait jamais de compétition ressemble fort à cet amoureux
+                      qui ne donne jamais de preuve d’amour. »
                     </p>
-                    <cite className="text-red-600 font-bold not-italic uppercase tracking-widest text-sm">— J. Joannes, 1984</cite>
+                    <cite
+                        className="text-red-600 font-bold not-italic uppercase tracking-widest text-sm">—
+                      J. Joannes, 1984</cite>
                   </div>
                   <p>
-                    La compétition est une occasion pour votre enfant de s’(auto-)évaluer, d’établir des références et de mettre en pratique le travail réalisé aux entraînements.
+                    La compétition est une occasion pour votre enfant de s’(auto-)évaluer, d’établir
+                    des références et de mettre en pratique le travail réalisé aux entraînements.
                   </p>
                 </div>
               </section>
             </div>
 
             <div className="space-y-6">
-              <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-xl relative overflow-hidden group">
+              <div
+                  className="bg-slate-900 text-white p-8 rounded-3xl shadow-xl relative overflow-hidden group">
                 <div className="relative z-10">
-                  <Users className="text-red-600 mb-4" size={32} />
+                  <Users className="text-red-600 mb-4" size={32}/>
                   <h3 className="text-xl font-black uppercase italic mb-4">Le Comité Spécial</h3>
                   <p className="text-slate-300 text-sm leading-relaxed text-balance">
-                    Un comité dédié regroupe parents et entraîneurs pour l'amélioration de l'encadrement des catégories <span className="text-white font-bold">BPM</span>.
+                    Un comité dédié regroupe parents et entraîneurs pour l'amélioration de
+                    l'encadrement des catégories <span className="text-white font-bold">BPM</span>.
                   </p>
                 </div>
               </div>
               <div className="bg-red-600 p-8 rounded-3xl text-white">
-                <Calendar size={32} className="mb-4 text-white" />
+                <Calendar size={32} className="mb-4 text-white"/>
                 <h3 className="text-xl font-black uppercase italic mb-2">Récompenses</h3>
                 <p className="text-sm text-red-100">
                   En fin de saison, la participation est récompensée par la remise d'écussons.
@@ -80,22 +89,34 @@ export default function KBPMPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
-            <div className="md:col-span-2 bg-slate-50 rounded-3xl p-8 border border-slate-100 flex flex-col md:flex-row gap-8 items-center">
-              <div className="bg-white p-4 rounded-2xl shadow-sm shrink-0 text-red-600"><Mail size={40} /></div>
+            <div
+                className="md:col-span-2 bg-slate-50 rounded-3xl p-8 border border-slate-100 flex flex-col md:flex-row gap-8 items-center">
+              <div className="bg-white p-4 rounded-2xl shadow-sm shrink-0 text-red-600"><Mail
+                  size={40}/></div>
               <p className="text-slate-600 leading-relaxed">
-                Le <span className="font-bold text-slate-900">comité BPM</span> vous informera régulièrement du programme par email environ <span className="text-red-600 font-bold">4 à 6 semaines à l'avance</span>.
+                Le <span className="font-bold text-slate-900">comité BPM</span> vous informera
+                régulièrement du programme par email environ <span
+                  className="text-red-600 font-bold">4 à 6 semaines à l'avance</span>.
               </p>
             </div>
             <Link href="/infos/resultats" className="group">
-              <div className="h-full bg-white rounded-3xl p-8 border border-slate-100 shadow-sm hover:shadow-xl transition-all">
-                <h3 className="text-xl font-black uppercase italic mb-3 group-hover:text-red-600 transition-colors">Résultats du Club</h3>
-                <div className="text-red-600 font-black uppercase text-xs tracking-widest flex items-center gap-2">Consulter <span className="group-hover:translate-x-2 transition-transform">→</span></div>
+              <div
+                  className="h-full bg-white rounded-3xl p-8 border border-slate-100 shadow-sm hover:shadow-xl transition-all">
+                <h3 className="text-xl font-black uppercase italic mb-3 group-hover:text-red-600 transition-colors">Résultats
+                  du Club</h3>
+                <div
+                    className="text-red-600 font-black uppercase text-xs tracking-widest flex items-center gap-2">Consulter <span
+                    className="group-hover:translate-x-2 transition-transform">→</span></div>
               </div>
             </Link>
             <a href="https://www.lbfa.be/" target="_blank" className="group">
-              <div className="h-full bg-white rounded-3xl p-8 border border-slate-100 shadow-sm hover:shadow-xl transition-all">
-                <h3 className="text-xl font-black uppercase italic mb-3 group-hover:text-red-600 transition-colors">Site de la LBFA</h3>
-                <div className="text-red-600 font-black uppercase text-xs tracking-widest flex items-center gap-2">Visiter <span className="group-hover:translate-x-2 transition-transform">→</span></div>
+              <div
+                  className="h-full bg-white rounded-3xl p-8 border border-slate-100 shadow-sm hover:shadow-xl transition-all">
+                <h3 className="text-xl font-black uppercase italic mb-3 group-hover:text-red-600 transition-colors">Site
+                  de la LBFA</h3>
+                <div
+                    className="text-red-600 font-black uppercase text-xs tracking-widest flex items-center gap-2">Visiter <span
+                    className="group-hover:translate-x-2 transition-transform">→</span></div>
               </div>
             </a>
           </div>
@@ -111,20 +132,23 @@ export default function KBPMPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start mb-20">
             <div className="lg:col-span-1 space-y-6">
               <div className="p-6 bg-slate-900 rounded-3xl text-white">
-                <Baby className="text-red-600 mb-4" size={32} />
+                <Baby className="text-red-600 mb-4" size={32}/>
                 <p className="text-sm leading-relaxed text-slate-300">
-                  Les catégories regroupent les athlètes par tranche de <span className="text-white font-bold tracking-tight">deux ans</span>.
+                  Les catégories regroupent les athlètes par tranche de <span
+                    className="text-white font-bold tracking-tight">deux ans</span>.
                 </p>
               </div>
               <div className="p-6 border border-slate-100 rounded-3xl space-y-4">
                 <p className="text-sm text-slate-500 leading-relaxed italic">
-                  "La notion de « toute catégorie » s'entend à partir de Cadet(te). Les BPM ne sont pas concernés par cette dénomination."
+                  "La notion de « toute catégorie » s'entend à partir de Cadet(te). Les BPM ne sont
+                  pas concernés par cette dénomination."
                 </p>
               </div>
             </div>
 
             <div className="lg:col-span-2">
-              <div className="overflow-hidden rounded-3xl border border-slate-100 shadow-sm bg-white">
+              <div
+                  className="overflow-hidden rounded-3xl border border-slate-100 shadow-sm bg-white">
                 <table className="w-full text-left border-collapse">
                   <thead>
                   <tr className="bg-slate-50 border-b border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400">
@@ -137,7 +161,8 @@ export default function KBPMPage() {
                   </thead>
                   <tbody className="text-sm">
                   {categories.map((cat, idx) => (
-                      <tr key={idx} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                      <tr key={idx}
+                          className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                         <td className="p-6 font-black uppercase italic text-slate-800">{cat.name}</td>
                         <td className="p-6 text-center font-bold text-slate-400">{cat.acro}</td>
                         <td className="p-6 font-medium text-slate-600">{cat.ages}</td>
@@ -152,9 +177,13 @@ export default function KBPMPage() {
               </div>
 
               <div className="mt-8 p-6 bg-red-50 rounded-3xl border border-red-100">
-                <h4 className="font-black uppercase italic text-red-600 mb-2 text-sm tracking-wide">Note pour les Kangourous</h4>
+                <h4 className="font-black uppercase italic text-red-600 mb-2 text-sm tracking-wide">Note
+                  pour les Kangourous</h4>
                 <p className="text-sm text-slate-600 leading-relaxed">
-                  Les enfants de la catégorie Kangourou ne sont pas autorisés à participer aux compétitions traditionnelles. Les <span className="font-bold text-slate-900">« Kid’s Athletics »</span> leur sont par contre ouverts, voire destinés. La Ligue cherche activement à stimuler l’organisation de ces événements.
+                  Les enfants de la catégorie Kangourou ne sont pas autorisés à participer aux
+                  compétitions traditionnelles. Les <span className="font-bold text-slate-900">« Kid’s Athletics »</span> leur
+                  sont par contre ouverts, voire destinés. La Ligue cherche activement à stimuler
+                  l’organisation de ces événements.
                 </p>
               </div>
             </div>

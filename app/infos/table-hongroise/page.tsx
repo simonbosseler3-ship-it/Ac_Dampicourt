@@ -7,7 +7,6 @@ import { Calculator, Info, Trophy, Zap, Clock } from "lucide-react";
 // Coefficients officiels World Athletics (IAAF Scoring Tables)
 const COEFFICIENTS: any = {
   homme: {
-    // Courses (Track)
     "100m": { a: 25.4347, b: 18.0, c: 1.81, type: "track" },
     "200m": { a: 5.8425, b: 38.0, c: 1.81, type: "track" },
     "400m": { a: 1.53775, b: 82.0, c: 1.81, type: "track" },
@@ -19,7 +18,6 @@ const COEFFICIENTS: any = {
     "110m Haies": { a: 5.74352, b: 28.5, c: 1.92, type: "track" },
     "400m Haies": { a: 0.55601, b: 95.0, c: 1.89, type: "track" },
     "3000m Steeple": { a: 0.00511, b: 1155.0, c: 1.9, type: "track" },
-    // Concours (Field) - b est en m sauf Hauteur/Perche (cm dans la formule)
     "Hauteur": { a: 0.8465, b: 75.0, c: 1.42, type: "field_cm" },
     "Perche": { a: 0.2797, b: 100.0, c: 1.35, type: "field_cm" },
     "Longueur": { a: 0.14354, b: 220.0, c: 1.4, type: "field_cm" },
@@ -58,7 +56,6 @@ export default function TableHongroise() {
   const [performance, setPerformance] = useState("");
   const [points, setPoints] = useState<number | null>(null);
 
-  // Fonction pour parser les formats MM:SS.cc ou SS.cc
   const parsePerformance = (input: string) => {
     const cleanInput = input.replace(",", ".");
     if (cleanInput.includes(":")) {
@@ -107,20 +104,19 @@ export default function TableHongroise() {
     calculatePoints();
   }, [performance, event, gender]);
 
-  // Reset de la performance si on change d'épreuve pour éviter les incohérences
   useEffect(() => {
     setPerformance("");
     setPoints(0);
   }, [event, gender]);
 
   return (
-      <div className="min-h-screen bg-slate-50/50">
+      <div className="min-h-screen">
         <Navbar/>
 
         <main className="container mx-auto px-4 py-12 pt-24 max-w-4xl">
-          {/* HEADER */}
           <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 bg-red-100 text-red-600 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest mb-4">
+            <div
+                className="inline-flex items-center gap-2 bg-red-100 text-red-600 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest mb-4">
               <Calculator size={14}/> Simulation de Performance
             </div>
             <h1 className="text-4xl md:text-5xl font-black text-slate-900 uppercase italic tracking-tighter">
@@ -130,11 +126,8 @@ export default function TableHongroise() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 items-start">
-
-            {/* CALCULATEUR */}
             <div className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100">
               <div className="space-y-6">
-                {/* SEXE */}
                 <div className="flex bg-slate-100 p-1 rounded-2xl">
                   <button
                       onClick={() => setGender("homme")}
@@ -148,9 +141,9 @@ export default function TableHongroise() {
                   </button>
                 </div>
 
-                {/* EPREUVE */}
                 <div>
-                  <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-1 tracking-widest">Discipline</label>
+                  <label
+                      className="block text-[10px] font-black uppercase text-slate-400 mb-2 ml-1 tracking-widest">Discipline</label>
                   <select
                       value={event}
                       onChange={(e) => setEvent(e.target.value)}
@@ -162,12 +155,10 @@ export default function TableHongroise() {
                   </select>
                 </div>
 
-                {/* PERFORMANCE */}
                 <div>
                   <div className="flex justify-between items-end mb-2 ml-1">
-                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-widest">
-                      Performance
-                    </label>
+                    <label
+                        className="block text-[10px] font-black uppercase text-slate-400 tracking-widest">Performance</label>
                     <span className="text-[9px] text-slate-400 italic">
                       {COEFFICIENTS[gender][event].type === "track" ? "Format SS.cc ou MM:SS.cc" : "Format en mètres (ex: 7.20)"}
                     </span>
@@ -181,17 +172,21 @@ export default function TableHongroise() {
                         className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl font-black text-3xl outline-none focus:ring-2 focus:ring-red-500 transition-all"
                     />
                     {COEFFICIENTS[gender][event].type === "track" && (
-                        <Clock className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-200" size={24} />
+                        <Clock className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-200"
+                               size={24}/>
                     )}
                   </div>
                 </div>
 
-                {/* RESULTAT */}
                 <div className="pt-6">
-                  <div className="bg-slate-900 rounded-[2rem] p-8 text-center relative overflow-hidden group">
-                    <Zap className="absolute -right-4 -top-4 text-white/10 group-hover:scale-110 transition-transform duration-500" size={120}/>
+                  <div
+                      className="bg-slate-900 rounded-[2rem] p-8 text-center relative overflow-hidden group">
+                    <Zap
+                        className="absolute -right-4 -top-4 text-white/10 group-hover:scale-110 transition-transform duration-500"
+                        size={120}/>
                     <div className="relative z-10">
-                      <p className="text-red-600 text-[10px] font-black uppercase tracking-[0.3em] mb-2">Points calculés</p>
+                      <p className="text-red-600 text-[10px] font-black uppercase tracking-[0.3em] mb-2">Points
+                        calculés</p>
                       <div className="text-6xl font-black text-white italic tracking-tighter">
                         {points ?? 0}
                       </div>
@@ -201,49 +196,45 @@ export default function TableHongroise() {
               </div>
             </div>
 
-            {/* EXPLICATIONS / REPERES */}
             <div className="space-y-6">
               <div className="bg-white p-7 rounded-[2rem] border border-slate-100 shadow-sm">
                 <div className="flex items-center gap-3 mb-4 text-red-600">
                   <Info size={20}/>
-                  <h3 className="font-black uppercase italic text-sm">À quoi ça sert ?</h3>
+                  <h3 className="font-black uppercase italic text-sm">Barème Belge</h3>
                 </div>
                 <p className="text-slate-500 text-xs leading-relaxed font-medium">
-                  Les tables de cotation de World Athletics permettent de comparer les performances entre des épreuves totalement différentes.
-                  <br /><br />
-                  Est-ce qu'un 100m en 10.50 est plus "fort" qu'un saut en longueur à 7m50 ? Le nombre de points donne la réponse.
+                  Cette simulation utilise les coefficients officiels de World Athletics.
+                  <br/><br/>
+                  Pour un athlète en Belgique, l'échelle ci-dessous correspond aux standards de
+                  performance observés lors des championnats nationaux (Elite) et provinciaux.
                 </p>
               </div>
 
               <div className="bg-white p-7 rounded-[2rem] border border-slate-100 shadow-sm">
                 <h3 className="font-black uppercase italic mb-6 flex items-center gap-2 text-sm">
-                  <Trophy size={18} className="text-red-600"/> Échelle de niveau
+                  <Trophy size={18} className="text-red-600"/> Échelle de niveau (BE)
                 </h3>
                 <div className="space-y-4">
                   <div className="flex justify-between items-center border-b border-slate-50 pb-2">
-                    <span className="text-[10px] font-black uppercase text-slate-400">International</span>
-                    <span className="text-sm font-black italic text-red-600">1200+ pts</span>
+                    <span className="text-[10px] font-black uppercase text-slate-400">Elite / International</span>
+                    <span className="text-sm font-black italic text-red-600">1150+ pts</span>
                   </div>
                   <div className="flex justify-between items-center border-b border-slate-50 pb-2">
-                    <span className="text-[10px] font-black uppercase text-slate-400">National</span>
+                    <span className="text-[10px] font-black uppercase text-slate-400">Niveau National (Top 8 BE)</span>
                     <span className="text-sm font-black italic text-slate-900">1000 pts</span>
                   </div>
                   <div className="flex justify-between items-center border-b border-slate-50 pb-2">
-                    <span className="text-[10px] font-black uppercase text-slate-400">Régional</span>
-                    <span className="text-sm font-black italic text-slate-700">700 pts</span>
+                    <span className="text-[10px] font-black uppercase text-slate-400">Niveau LBFA / VABB</span>
+                    <span className="text-sm font-black italic text-slate-700">750 pts</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black uppercase text-slate-400">Départemental</span>
-                    <span className="text-sm font-black italic text-slate-500">400 pts</span>
+                    <span className="text-[10px] font-black uppercase text-slate-400">Provincial / Club</span>
+                    <span className="text-sm font-black italic text-slate-500">500 pts</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-
-          <p className="text-center text-slate-300 text-[9px] mt-16 uppercase font-bold tracking-[0.4em]">
-            Athlétique Club Dampicourt
-          </p>
         </main>
       </div>
   );

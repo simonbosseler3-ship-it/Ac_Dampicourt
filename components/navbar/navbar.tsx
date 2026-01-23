@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Search, LogOut, ChevronDown, ShieldCheck, PenTool } from "lucide-react";
+import { Search, LogOut, ChevronDown, ShieldCheck, PenTool, User } from "lucide-react"; // Ajout de l'icône User si besoin
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
@@ -157,7 +157,6 @@ export function Navbar() {
                     Éthique & Dopage
                   </Link>
 
-                  {/* NOUVEL ONGLET : TABLE HONGROISE */}
                   <Link
                       href="/infos/table-hongroise"
                       className={`block px-4 py-3 text-[11px] font-black uppercase italic rounded-xl transition-all border-t border-slate-50 ${
@@ -201,11 +200,14 @@ export function Navbar() {
                       <p className="text-[10px] uppercase font-black text-gray-400 leading-none tracking-tighter flex items-center justify-end gap-1">
                         {profile.role === 'admin' && <ShieldCheck size={10} className="text-red-600" />}
                         {profile.role === 'redacteur' && <PenTool size={10} className="text-blue-600" />}
+                        {profile.role === 'athlete' && <User size={10} className="text-green-600" />}
                         {profile.role === 'admin'
                             ? 'Espace Admin'
                             : profile.role === 'redacteur'
                                 ? 'Rédacteur'
-                                : 'Membre'}
+                                : profile.role === 'athlete'
+                                    ? 'Athlète'
+                                    : 'Membre'}
                       </p>
                       <p className="text-sm font-black italic text-slate-900 leading-tight">
                         {profile.full_name}
