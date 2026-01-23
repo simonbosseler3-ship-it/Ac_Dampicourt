@@ -46,7 +46,7 @@ export default function ForumPage() {
       <div className="min-h-screen relative">
         <Navbar/>
 
-        <main className="container mx-auto px-4 pt-32 pb-20">
+        <main className="container mx-auto px-4 pt-24 pb-20">
 
           {/* HEADER SECTION */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">

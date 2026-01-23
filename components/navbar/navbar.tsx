@@ -156,6 +156,18 @@ export function Navbar() {
                   >
                     Éthique & Dopage
                   </Link>
+
+                  {/* NOUVEL ONGLET : TABLE HONGROISE */}
+                  <Link
+                      href="/infos/table-hongroise"
+                      className={`block px-4 py-3 text-[11px] font-black uppercase italic rounded-xl transition-all border-t border-slate-50 ${
+                          pathname === "/infos/table-hongroise"
+                              ? "bg-red-50 text-red-600"
+                              : "text-slate-600 hover:bg-red-50 hover:text-red-600"
+                      }`}
+                  >
+                    Table hongroise
+                  </Link>
                 </div>
               </div>
             </div>
@@ -172,7 +184,7 @@ export function Navbar() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                   type="search"
-                  placeholder={profile?.role === 'admin' ? "Gérer un athlète..." : "Rechercher un athlète"}
+                  placeholder={profile?.role === 'admin' ? "Gérer un athlète..." : "Rechercher un membre"}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={handleSearch}
