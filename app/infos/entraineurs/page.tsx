@@ -40,7 +40,7 @@ export default async function EntraineursPage() {
 
             {isAdmin && (
                 <Link
-                    href="/entrainement/modifier"> {/* Tu pourras changer ce lien plus tard si tu déplaces la page admin */}
+                    href="/infos/entraineurs/modifier">
                   <button
                       className="flex items-center gap-2 bg-slate-900 text-white px-6 py-2 rounded-full font-bold hover:bg-red-600 transition-all text-xs uppercase italic">
                     <Edit size={16}/> Gérer les entraîneurs

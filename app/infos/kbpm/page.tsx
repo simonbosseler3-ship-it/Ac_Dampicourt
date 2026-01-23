@@ -1,5 +1,5 @@
 import { Navbar } from "@/components/navbar/navbar";
-import { Info, Heart, Users, Calendar, Mail, FileText, ExternalLink, Baby } from "lucide-react";
+import { Info, Users, Calendar, Mail, Baby } from "lucide-react";
 import Link from "next/link";
 
 export default function KBPMPage() {
