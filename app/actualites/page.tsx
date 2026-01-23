@@ -3,17 +3,17 @@ import { cookies } from 'next/headers'
 import { AdminActions } from "@/components/admin/adminAction";
 import { Navbar } from "@/components/navbar/navbar";
 import Link from "next/link";
-import { User, Feather, EyeOff } from "lucide-react";
+import { User, EyeOff, Calendar } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
-// On définit l'interface pour TypeScript pour éviter les erreurs sur "item"
+// Interface pour TypeScript
 interface NewsItem {
   id: string;
   title: string;
   content: string;
   image_url: string;
-  date_text: string;
+  date_text: string; // Ce champ est maintenant de type DATE (YYYY-MM-DD)
   is_hidden: boolean;
   author?: {
     full_name: string;
@@ -57,22 +57,23 @@ export default async function ActualitesPage() {
     canManage = isAdmin || role === 'redacteur';
   }
 
+  // MODIFICATION ICI : On trie par date_text de la plus récente à la plus vieille
   let query = supabase
   .from('news')
   .select('*, author:profiles(full_name)')
-  .order('created_at', { ascending: false });
+  .order('date_text', { ascending: false });
 
   if (!isAdmin) {
     query = query.eq('is_hidden', false);
   }
 
   const { data: news } = await query;
-  const { data: redactors } = await supabase.from('profiles').select('full_name').eq('role', 'redacteur');
 
   return (
       <div className="min-h-screen">
         <Navbar />
         <main className="container mx-auto px-4 py-12 pt-24">
+
           {canManage && (
               <Link href="/actualites/nouveau" className="block w-fit mb-8">
                 <button className="bg-green-600 text-white px-6 py-2 rounded-full font-bold hover:bg-green-700 transition-all flex items-center gap-2 shadow-lg active:scale-95">
@@ -101,23 +102,53 @@ export default async function ActualitesPage() {
 
                   {canManage && (
                       <div className="absolute top-4 right-4 z-50">
-                        {/* C'est ici que l'oeil devient actif */}
                         <AdminActions id={item.id} isHidden={item.is_hidden} />
                       </div>
                   )}
 
                   <Link href={`/actualites/${item.id}`} className="block h-full">
                     <div className={`h-full bg-white rounded-3xl overflow-hidden shadow-sm border transition-all duration-300 flex flex-col ${item.is_hidden ? 'border-orange-200 bg-slate-50' : 'border-slate-100 hover:shadow-xl hover:-translate-y-1'}`}>
+
                       <div className="relative h-56 overflow-hidden">
-                        <img src={item.image_url} alt={item.title} className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${item.is_hidden ? 'grayscale' : ''}`} />
+                        <img
+                            src={item.image_url}
+                            alt={item.title}
+                            className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${item.is_hidden ? 'grayscale' : ''}`}
+                        />
                       </div>
+
                       <div className="p-6 flex flex-col flex-grow">
-                        <h2 className="text-xl font-bold text-slate-800 mb-3 group-hover:text-red-600 transition-colors uppercase italic tracking-tighter line-clamp-2">{item.title}</h2>
-                        <p className="text-slate-500 text-sm leading-relaxed mb-6 line-clamp-3 font-medium">{item.content || "Détails à venir..."}</p>
+                        <h2 className="text-xl font-bold text-slate-800 mb-3 group-hover:text-red-600 transition-colors uppercase italic tracking-tighter line-clamp-2">
+                          {item.title}
+                        </h2>
+
+                        <p className="text-slate-500 text-sm leading-relaxed mb-6 line-clamp-3 font-medium">
+                          {item.content || "Détails à venir..."}
+                        </p>
+
                         <div className="mt-auto pt-4 border-t border-slate-50 flex items-center justify-between">
-                          <div className="flex items-center gap-2 text-slate-400">
-                            <User size={14} className="text-red-600" />
-                            <span className="text-[10px] font-black uppercase italic tracking-tighter">Par {item.author?.full_name || "Club ACD"}</span>
+                          <div className="flex flex-wrap items-center gap-4 text-slate-400">
+
+                            {/* AUTEUR */}
+                            <div className="flex items-center gap-1.5">
+                              <User size={14} className="text-red-600" />
+                              <span className="text-[10px] font-black uppercase italic tracking-tighter">
+                                Par {item.author?.full_name || "Club ACD"}
+                              </span>
+                            </div>
+
+                            {/* DATE FORMATÉE */}
+                            <div className="flex items-center gap-1.5 border-l border-slate-200 pl-4 md:border-none md:pl-0">
+                              <Calendar size={14} className="text-red-600" />
+                              <span className="text-[10px] font-black uppercase italic tracking-tighter">
+                                {new Date(item.date_text).toLocaleDateString('fr-FR', {
+                                  day: '2-digit',
+                                  month: 'short',
+                                  year: 'numeric'
+                                }).replace('.', '').toUpperCase()}
+                              </span>
+                            </div>
+
                           </div>
                         </div>
                       </div>

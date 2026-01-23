@@ -4,21 +4,23 @@ import Link from "next/link";
 import { Timer, Trophy, CalendarCheck, ChevronRight, HelpCircle, MessageSquare } from "lucide-react";
 
 export default async function Home() {
+  // On récupère uniquement les 3 actualités les plus récentes selon la date de l'événement
   const { data: news } = await supabase
   .from('news')
   .select('*')
-  .order('created_at', { ascending: false });
+  .eq('is_hidden', false) // Optionnel : n'afficher que ce qui n'est pas masqué
+  .order('date_text', { ascending: false }) // Tri par date de l'actualité
+  .limit(3); // On ne prend que les 3 premiers
 
   return (
       <main className="container mx-auto px-4 pt-10 pb-12">
-        {/* CAROUSEL */}
+        {/* CAROUSEL - N'affiche que les 3 dernières actus */}
         <div className="mb-10">
           <HeroNews newsData={news || []}/>
         </div>
 
         {/* SECTION LIENS PRINCIPAUX */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 px-2 mb-10">
-
           {/* CARTE 1 : RÉSULTATS */}
           <Link href="/resultats"
                 className="group relative h-40 bg-slate-50 border-l-4 border-slate-200 hover:border-red-600 transition-all duration-300 overflow-hidden flex flex-col justify-between p-6 rounded-r-2xl shadow-sm hover:shadow-md">
@@ -68,16 +70,13 @@ export default async function Home() {
           </Link>
         </section>
 
-        {/* NOUVELLE SECTION : FORUM / QUESTIONS */}
+        {/* SECTION : FORUM */}
         <section className="px-2">
           <Link href="/forum"
                 className="group block w-full bg-white border-2 border-slate-100 rounded-[2rem] p-8 hover:border-red-600 transition-all duration-300 shadow-sm hover:shadow-xl relative overflow-hidden">
-
-            {/* Décoration en arrière-plan */}
             <div className="absolute -right-10 -bottom-10 text-slate-50 group-hover:text-red-50 transition-colors duration-500 -rotate-12">
               <MessageSquare size={200} strokeWidth={1} />
             </div>
-
             <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div className="flex items-center gap-6">
                 <div className="bg-red-600 p-4 rounded-2xl shadow-lg shadow-red-200 group-hover:scale-110 transition-transform">
@@ -92,7 +91,6 @@ export default async function Home() {
                   </p>
                 </div>
               </div>
-
               <div className="flex items-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black uppercase italic tracking-widest text-sm group-hover:bg-red-600 transition-colors shadow-lg">
                 Accéder au forum
                 <ChevronRight size={20} />

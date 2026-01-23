@@ -4,18 +4,17 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/navbar/navbar";
-import { Upload, Check, ArrowLeft, Loader2 } from "lucide-react";
+import { Upload, Check, ArrowLeft, Loader2, Calendar } from "lucide-react";
 
 export default function NouveauArticle() {
   const [title, setTitle] = useState("");
-  const [dateText, setDateText] = useState("");
+  // Initialisation avec la date du jour au format YYYY-MM-DD
+  const [dateText, setDateText] = useState(new Date().toISOString().split('T')[0]);
   const [content, setContent] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  // État pour stocker l'ID du rédacteur
   const [userId, setUserId] = useState<string | null>(null);
-
   const [isUploading, setIsUploading] = useState(false);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -29,7 +28,6 @@ export default function NouveauArticle() {
         return;
       }
 
-      // On stocke l'ID de l'utilisateur pour l'insertion plus tard
       setUserId(user.id);
 
       const { data: profile } = await supabase
@@ -40,7 +38,6 @@ export default function NouveauArticle() {
 
       const role = profile?.role?.toLowerCase().trim();
 
-      // Autorisation : Admin ou Rédacteur
       if (role === 'admin' || role === 'redacteur') {
         setLoading(false);
       } else {
@@ -75,7 +72,6 @@ export default function NouveauArticle() {
     setIsUploading(true);
 
     try {
-      // 1. Upload de l'image
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `articles/${fileName}`;
@@ -90,14 +86,14 @@ export default function NouveauArticle() {
       .from('news-images')
       .getPublicUrl(filePath);
 
-      // 2. Insertion dans la table 'news' avec author_id
+      // L'insertion enverra maintenant une date valide (ex: "2026-01-23")
       const { error: insertError } = await supabase.from('news').insert([
         {
           title,
           image_url: publicUrl,
           date_text: dateText,
           content,
-          author_id: userId // L'ID du rédacteur est envoyé ici
+          author_id: userId
         }
       ]);
 
@@ -172,12 +168,14 @@ export default function NouveauArticle() {
               </div>
             </div>
 
-            {/* DATE */}
+            {/* DATE (MODIFIÉE EN TYPE DATE) */}
             <div>
-              <label className="block text-xs font-black uppercase italic text-slate-400 mb-2 tracking-widest">Date (ex: 21 JANV. 2026)</label>
+              <label className="block text-xs font-black uppercase italic text-slate-400 mb-2 tracking-widest flex items-center gap-2">
+                <Calendar size={14} /> Date de l'actualité
+              </label>
               <input
-                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl font-bold focus:ring-2 focus:ring-red-500 outline-none"
-                  placeholder="Ex: 21 JANV. 2026"
+                  type="date"
+                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl font-bold focus:ring-2 focus:ring-red-500 outline-none text-slate-700"
                   value={dateText}
                   onChange={e => setDateText(e.target.value)}
                   required
