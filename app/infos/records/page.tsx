@@ -1,7 +1,8 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { Navbar } from "@/components/navbar/navbar";
-import { FileText, Mail, MapPin, Phone, Award } from "lucide-react";
+import { FileText, Mail, MapPin, Phone, Award, Settings } from "lucide-react";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -20,14 +21,15 @@ export default async function RecordsPage() {
       }
   )
 
-  // Récupération des records masculins
+  // Vérification de la session pour afficher le bouton
+  const { data: { user } } = await supabase.auth.getUser();
+
   const { data: maleRecords } = await supabase
   .from('club_records')
   .select('*')
   .eq('category', 'Masculin')
   .order('display_order', { ascending: true });
 
-  // Récupération des records féminins
   const { data: femaleRecords } = await supabase
   .from('club_records')
   .select('*')
@@ -40,14 +42,28 @@ export default async function RecordsPage() {
 
         <main className="container mx-auto px-4 py-12 pt-32 text-slate-900">
 
-          {/* TITRE PRINCIPAL */}
-          <div className="flex flex-col mb-12">
-            <h1 className="text-4xl font-black text-slate-900 uppercase italic">
-              Les Records <span className="text-red-600">du Club et Top 10</span>
-            </h1>
-            <div className="h-2 w-24 bg-red-600 mt-2"></div>
+          {/* TITRE PRINCIPAL & BOUTON ADMIN */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+            <div className="flex flex-col">
+              <h1 className="text-4xl font-black text-slate-900 uppercase italic">
+                Les Records <span className="text-red-600">du Club et Top 10</span>
+              </h1>
+              <div className="h-2 w-24 bg-red-600 mt-2"></div>
+            </div>
+
+            {/* LIEN CORRIGÉ VERS LE DOSSIER INFOS */}
+            {user && (
+                <Link
+                    href="/infos/records/modification"
+                    className="flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-2xl font-black uppercase italic text-xs hover:bg-red-600 transition-all duration-300 shadow-lg hover:-translate-y-1"
+                >
+                  <Settings size={16} />
+                  Modifier les données
+                </Link>
+            )}
           </div>
 
+          {/* ... RESTE DE TON CODE (GRILLE ET TABLEAUX) ... */}
           {/* GRILLE DU HAUT (PDF & CONTACT) */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
             <article className="relative group">
@@ -205,7 +221,6 @@ export default async function RecordsPage() {
               </tbody>
             </table>
           </div>
-
         </main>
       </div>
   );
