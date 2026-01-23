@@ -13,6 +13,9 @@ export default function NouveauArticle() {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
+  // État pour stocker l'ID du rédacteur
+  const [userId, setUserId] = useState<string | null>(null);
+
   const [isUploading, setIsUploading] = useState(false);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -26,6 +29,9 @@ export default function NouveauArticle() {
         return;
       }
 
+      // On stocke l'ID de l'utilisateur pour l'insertion plus tard
+      setUserId(user.id);
+
       const { data: profile } = await supabase
       .from('profiles')
       .select('role')
@@ -34,7 +40,7 @@ export default function NouveauArticle() {
 
       const role = profile?.role?.toLowerCase().trim();
 
-      // MODIFICATION ICI : On autorise admin OU redacteur
+      // Autorisation : Admin ou Rédacteur
       if (role === 'admin' || role === 'redacteur') {
         setLoading(false);
       } else {
@@ -55,14 +61,21 @@ export default function NouveauArticle() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!file) {
       alert("Veuillez sélectionner une image pour l'article.");
+      return;
+    }
+
+    if (!userId) {
+      alert("Session utilisateur introuvable. Veuillez vous reconnecter.");
       return;
     }
 
     setIsUploading(true);
 
     try {
+      // 1. Upload de l'image
       const fileExt = file.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `articles/${fileName}`;
@@ -77,12 +90,14 @@ export default function NouveauArticle() {
       .from('news-images')
       .getPublicUrl(filePath);
 
+      // 2. Insertion dans la table 'news' avec author_id
       const { error: insertError } = await supabase.from('news').insert([
         {
           title,
           image_url: publicUrl,
           date_text: dateText,
-          content
+          content,
+          author_id: userId // L'ID du rédacteur est envoyé ici
         }
       ]);
 
@@ -128,6 +143,7 @@ export default function NouveauArticle() {
               <input
                   className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl font-bold text-lg focus:ring-2 focus:ring-red-500 outline-none transition-all"
                   placeholder="Ex: Record du club battu au 100m"
+                  value={title}
                   onChange={e => setTitle(e.target.value)}
                   required
               />
@@ -162,6 +178,7 @@ export default function NouveauArticle() {
               <input
                   className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl font-bold focus:ring-2 focus:ring-red-500 outline-none"
                   placeholder="Ex: 21 JANV. 2026"
+                  value={dateText}
                   onChange={e => setDateText(e.target.value)}
                   required
               />
@@ -173,6 +190,7 @@ export default function NouveauArticle() {
               <textarea
                   className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl font-medium h-64 resize-none focus:ring-2 focus:ring-red-500 outline-none leading-relaxed"
                   placeholder="Rédigez l'actualité en détail ici..."
+                  value={content}
                   onChange={e => setContent(e.target.value)}
                   required
               />
