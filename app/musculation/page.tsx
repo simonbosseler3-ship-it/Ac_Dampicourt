@@ -99,12 +99,32 @@ export default function MusculationPage() {
 
     let allResas = data ? [...data] : [];
 
+    // --- CRÉNEAUX RÉCURRENTS VERROUILLÉS ---
+
+    // 1. GROUPE F. ALLARD (Jeudi 18h-20h)
     const thursday = addDays(start, 3);
-    const slotTime = setMinutes(setHours(thursday, 18), 0);
     allResas.push({
       id: `recurrent-allard`,
       full_name: "GROUPE F. ALLARD",
-      start_time: slotTime.toISOString(),
+      start_time: setMinutes(setHours(thursday, 18), 0).toISOString(),
+      is_locked: true
+    });
+
+    // 2. GROUPE NICOLAS THOMAS (Samedi 10h-12h)
+    const saturday = addDays(start, 5);
+    allResas.push({
+      id: `recurrent-nicolas-thomas`,
+      full_name: "NICOLAS THOMAS",
+      start_time: setMinutes(setHours(saturday, 10), 0).toISOString(),
+      is_locked: true
+    });
+
+    // 3. GROUPE YVES HERMAN (Dimanche 10h-12h)
+    const sunday = addDays(start, 6);
+    allResas.push({
+      id: `recurrent-yves-herman`,
+      full_name: "YVES HERMAN",
+      start_time: setMinutes(setHours(sunday, 10), 0).toISOString(),
       is_locked: true
     });
 
@@ -137,7 +157,6 @@ export default function MusculationPage() {
       return;
     }
 
-    // MODIFICATION : On autorise 'athlete' ET 'redacteur' (et 'admin' par sécurité)
     const allowedRoles = ['athlete', 'redacteur', 'admin'];
     if (!userRole || !allowedRoles.includes(userRole.toLowerCase())) {
       setModalConfig({ isOpen: true, type: "forbidden" });
@@ -166,7 +185,7 @@ export default function MusculationPage() {
       auth: { icon: <LogIn className="h-8 w-8 text-red-600" />, title: "Connexion requise", desc: "Connecte-toi pour réserver.", btnText: "Se connecter", btnClass: "bg-red-600", action: () => (window.location.href = "/login") },
       confirm_delete: { icon: <AlertTriangle className="h-8 w-8 text-red-600" />, title: "Annuler ?", desc: "Libérer ta place ?", btnText: "Confirmer", btnClass: "bg-red-600", action: confirmDelete },
       full: { icon: <Info className="h-8 w-8 text-slate-600" />, title: "Complet", desc: "La limite de 8 personnes est atteinte.", btnText: "Fermer", btnClass: "bg-slate-900", action: () => setModalConfig({ ...modalConfig, isOpen: false }) },
-      locked: { icon: <ShieldCheck className="h-8 w-8 text-blue-600" />, title: "Créneau réservé", desc: "Réservé par Frédéric Allard (18h-20h).", btnText: "Compris", btnClass: "bg-blue-600", action: () => setModalConfig({ ...modalConfig, isOpen: false }) },
+      locked: { icon: <ShieldCheck className="h-8 w-8 text-blue-600" />, title: "Créneau réservé", desc: "Ce créneau est réservé pour un entraînement de groupe spécifique.", btnText: "Compris", btnClass: "bg-blue-600", action: () => setModalConfig({ ...modalConfig, isOpen: false }) },
       forbidden: { icon: <ShieldAlert className="h-8 w-8 text-orange-600" />, title: "Accès restreint", desc: "Seuls les athlètes et rédacteurs peuvent réserver un créneau.", btnText: "J'ai compris", btnClass: "bg-orange-600", action: () => setModalConfig({ ...modalConfig, isOpen: false }) }
     }[modalConfig.type];
 
@@ -239,7 +258,6 @@ export default function MusculationPage() {
                           const isLockedSlot = slotResas.some(r => r.is_locked);
                           const isFull = slotResas.length >= MAX_CAPACITY || isLockedSlot;
 
-                          // On vérifie si l'utilisateur actuel peut théoriquement réserver pour afficher le "+"
                           const canUserReserve = userRole && ['athlete', 'redacteur', 'admin'].includes(userRole.toLowerCase());
 
                           return (
