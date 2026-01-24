@@ -101,7 +101,16 @@ export default function MusculationPage() {
 
     // --- CRÉNEAUX RÉCURRENTS VERROUILLÉS ---
 
-    // 1. GROUPE F. ALLARD (Jeudi 18h-20h)
+    // 1. GROUPE JACQUES LUCAS (Lundi 18h-20h)
+    const monday = start; // start est déjà le lundi
+    allResas.push({
+      id: `recurrent-jacques-lucas`,
+      full_name: "JACQUES LUCAS",
+      start_time: setMinutes(setHours(monday, 18), 0).toISOString(),
+      is_locked: true
+    });
+
+    // 2. GROUPE F. ALLARD (Jeudi 18h-20h)
     const thursday = addDays(start, 3);
     allResas.push({
       id: `recurrent-allard`,
@@ -110,7 +119,7 @@ export default function MusculationPage() {
       is_locked: true
     });
 
-    // 2. GROUPE NICOLAS THOMAS (Samedi 10h-12h)
+    // 3. GROUPE NICOLAS THOMAS (Samedi 10h-12h)
     const saturday = addDays(start, 5);
     allResas.push({
       id: `recurrent-nicolas-thomas`,
@@ -119,7 +128,7 @@ export default function MusculationPage() {
       is_locked: true
     });
 
-    // 3. GROUPE YVES HERMAN (Dimanche 10h-12h)
+    // 4. GROUPE YVES HERMAN (Dimanche 10h-12h)
     const sunday = addDays(start, 6);
     allResas.push({
       id: `recurrent-yves-herman`,

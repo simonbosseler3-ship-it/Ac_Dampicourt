@@ -55,11 +55,13 @@ export default async function TopicDetailPage({ params }: { params: Promise<{ id
   if (!topic) return <div className="pt-40 text-center font-black text-slate-400">Discussion introuvable</div>
 
   return (
-      <div className="min-h-screen bg-slate-50">
-        <Navbar />
+      <div className="min-h-screen">
+        <Navbar/>
         <main className="container mx-auto px-4 pt-32 pb-20 max-w-4xl">
-          <Link href="/forum" className="flex items-center gap-2 text-slate-400 hover:text-red-600 font-bold uppercase italic text-[10px] mb-10 transition-colors group">
-            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform"/> Retour au forum
+          <Link href="/forum"
+                className="flex items-center gap-2 text-slate-400 hover:text-red-600 font-bold uppercase italic text-[10px] mb-10 transition-colors group">
+            <ArrowLeft size={14}
+                       className="group-hover:-translate-x-1 transition-transform"/> Retour au forum
           </Link>
 
           <h1 className="text-5xl font-black text-slate-900 uppercase italic tracking-tighter mb-12 leading-none">{topic.title}</h1>
@@ -67,7 +69,9 @@ export default async function TopicDetailPage({ params }: { params: Promise<{ id
           <div className="space-y-6 mb-16">
             <div className="bg-white p-8 rounded-[2.5rem] border-2 border-white shadow-sm">
               <div className="flex items-center gap-3 mb-4">
-                <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400"><User size={18}/></div>
+                <div
+                    className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400">
+                  <User size={18}/></div>
                 <span className="text-[10px] font-black uppercase text-slate-900">Question</span>
               </div>
               <p className="text-lg italic font-medium text-slate-800 whitespace-pre-wrap">{topic.title}</p>
@@ -76,10 +80,12 @@ export default async function TopicDetailPage({ params }: { params: Promise<{ id
             {/* BOUCLE DE RÉPONSES */}
             {messages && messages.length > 0 ? (
                 messages.map((msg) => (
-                    <div key={msg.id} className={`p-8 rounded-[2.5rem] border-2 transition-all shadow-sm ${msg.is_staff_answer ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-900 border-white"}`}>
+                    <div key={msg.id}
+                         className={`p-8 rounded-[2.5rem] border-2 transition-all shadow-sm ${msg.is_staff_answer ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-900 border-white"}`}>
                       <div className="flex justify-between items-start mb-4">
                         <div className="flex items-center gap-3">
-                          <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${msg.is_staff_answer ? "bg-red-600" : "bg-slate-100 text-slate-400"}`}>
+                          <div
+                              className={`h-10 w-10 rounded-xl flex items-center justify-center ${msg.is_staff_answer ? "bg-red-600" : "bg-slate-100 text-slate-400"}`}>
                             <User size={18}/>
                           </div>
                           <div>
@@ -94,8 +100,10 @@ export default async function TopicDetailPage({ params }: { params: Promise<{ id
                     </div>
                 ))
             ) : (
-                <div className="p-10 border-2 border-dashed border-slate-200 rounded-[2.5rem] text-center bg-white/50">
-                  <p className="text-slate-400 font-bold uppercase text-[10px]">En attente de réponses...</p>
+                <div
+                    className="p-10 border-2 border-dashed border-slate-200 rounded-[2.5rem] text-center bg-white/50">
+                  <p className="text-slate-400 font-bold uppercase text-[10px]">En attente de
+                    réponses...</p>
                 </div>
             )}
           </div>
@@ -103,15 +111,21 @@ export default async function TopicDetailPage({ params }: { params: Promise<{ id
           {isStaff ? (
               <div className="bg-white p-10 rounded-[3rem] shadow-2xl border border-slate-100">
                 <form action={postReply} className="space-y-4">
-                  <input type="hidden" name="topicId" value={topic.id} />
-                  <textarea name="content" required rows={4} className="w-full bg-slate-50 border-2 border-slate-100 rounded-[2rem] p-6 outline-none focus:border-red-600 font-bold text-slate-900" placeholder="Répondre..."></textarea>
-                  <button type="submit" className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black uppercase italic hover:bg-red-600 transition-all">Envoyer</button>
+                  <input type="hidden" name="topicId" value={topic.id}/>
+                  <textarea name="content" required rows={4}
+                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-[2rem] p-6 outline-none focus:border-red-600 font-bold text-slate-900"
+                            placeholder="Répondre..."></textarea>
+                  <button type="submit"
+                          className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black uppercase italic hover:bg-red-600 transition-all">Envoyer
+                  </button>
                 </form>
               </div>
           ) : (
-              <div className="bg-slate-100 rounded-[2.5rem] p-10 text-center border-2 border-dashed border-slate-200">
-                <Lock className="mx-auto mb-2 text-slate-400" size={24} />
-                <p className="text-[10px] font-black uppercase text-slate-400">Espace réservé au Staff</p>
+              <div
+                  className="bg-slate-100 rounded-[2.5rem] p-10 text-center border-2 border-dashed border-slate-200">
+                <Lock className="mx-auto mb-2 text-slate-400" size={24}/>
+                <p className="text-[10px] font-black uppercase text-slate-400">Espace réservé au
+                  Staff</p>
               </div>
           )}
         </main>
