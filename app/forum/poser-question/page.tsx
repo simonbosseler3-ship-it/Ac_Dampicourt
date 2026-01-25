@@ -104,7 +104,7 @@ export default async function NouveauTopicPage() {
   }
 
   return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen">
         <Navbar/>
 
         <main className="container mx-auto px-4 pt-32 pb-20 max-w-3xl">
@@ -129,7 +129,8 @@ export default async function NouveauTopicPage() {
 
               {/* TITRE */}
               <div className="space-y-3">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">
+                <label
+                    className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">
                   Objet de la question
                 </label>
                 <input
@@ -142,7 +143,8 @@ export default async function NouveauTopicPage() {
 
               {/* SELECTEUR DE CATÉGORIE */}
               <div className="space-y-3">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">
+                <label
+                    className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">
                   Choisissez une catégorie
                 </label>
 
@@ -162,7 +164,8 @@ export default async function NouveauTopicPage() {
                         flex items-center gap-2
                       ">
                           {cat}
-                          <Check size={12} className="hidden peer-checked:block animate-in zoom-in duration-200" />
+                          <Check size={12}
+                                 className="hidden peer-checked:block animate-in zoom-in duration-200"/>
                         </div>
                       </label>
                   ))}
@@ -171,7 +174,8 @@ export default async function NouveauTopicPage() {
 
               {/* MESSAGE DÉTAILLÉ */}
               <div className="space-y-3">
-                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">
+                <label
+                    className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-4">
                   Votre message détaillé
                 </label>
                 <textarea
@@ -184,10 +188,12 @@ export default async function NouveauTopicPage() {
               </div>
 
               {/* ALERTE */}
-              <div className="bg-red-50 p-6 rounded-2xl flex gap-4 items-start mb-4 border border-red-100">
+              <div
+                  className="bg-red-50 p-6 rounded-2xl flex gap-4 items-start mb-4 border border-red-100">
                 <AlertCircle className="text-red-600 shrink-0 mt-0.5" size={20}/>
                 <p className="text-xs font-bold text-red-800 leading-relaxed uppercase tracking-tight">
-                  Votre question sera publiée publiquement. Le staff ACD vous répondra dans les plus brefs délais.
+                  Votre question sera publiée publiquement. Le staff ACD vous répondra dans les plus
+                  brefs délais.
                 </p>
               </div>
 
@@ -195,7 +201,8 @@ export default async function NouveauTopicPage() {
                   type="submit"
                   className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black uppercase italic tracking-widest flex items-center justify-center gap-3 hover:bg-red-600 transition-all shadow-xl active:scale-95 group"
               >
-                <Send size={20} className="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
+                <Send size={20}
+                      className="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform"/>
                 Publier la question
               </button>
             </form>
