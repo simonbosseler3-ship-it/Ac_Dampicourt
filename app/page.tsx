@@ -136,7 +136,7 @@ export default async function Home() {
               </div>
 
               <div>
-                <h3 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter group-hover:text-white transition-colors duration-500">Speed Night</h3>
+                <h3 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter group-hover:text-white transition-colors duration-500">Speed Night/Race</h3>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 group-hover:text-red-200 transition-colors duration-500 mt-1">
                   Événement Majeur
                 </p>
