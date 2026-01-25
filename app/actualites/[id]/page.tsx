@@ -16,7 +16,6 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
 
   return (
       <div className="min-h-screen">
-        <Navbar />
         <main className="container mx-auto px-4 py-12 max-w-4xl">
           {/* Badge Date */}
           <span className="bg-red-600 text-white px-3 py-1 rounded-sm text-xs font-bold uppercase italic mb-6 inline-block tracking-widest">

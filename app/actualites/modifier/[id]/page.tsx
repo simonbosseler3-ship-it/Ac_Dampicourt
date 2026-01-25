@@ -131,7 +131,6 @@ export default function ModifierArticle({ params }: { params: Promise<{ id: stri
 
   return (
       <div className="min-h-screen">
-        <Navbar />
         <main className="container mx-auto px-4 py-12 max-w-3xl">
           <button
               onClick={() => router.back()}

@@ -56,7 +56,6 @@ export default async function TopicDetailPage({ params }: { params: Promise<{ id
 
   return (
       <div className="min-h-screen">
-        <Navbar/>
         <main className="container mx-auto px-4 pt-32 pb-20 max-w-4xl">
           <Link href="/forum"
                 className="flex items-center gap-2 text-slate-400 hover:text-red-600 font-bold uppercase italic text-[10px] mb-10 transition-colors group">

@@ -3,56 +3,62 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import { Navbar } from "@/components/navbar/navbar";
-import { AlertCircle, Loader2 } from "lucide-react"; // Ajout des icônes
+// SUPPRESSION DE L'IMPORT NAVBAR ICI
+import { AlertCircle, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null); // Nouvel état pour l'erreur
-  const [loading, setLoading] = useState(false); // Nouvel état pour le chargement
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null); // On efface l'erreur précédente
-    setLoading(true); // On lance le chargement
+    setError(null);
+    setLoading(true);
 
-    const { error: supabaseError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { data, error: supabaseError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (supabaseError) {
-      // On traduit le message technique en français pour l'utilisateur
-      if (supabaseError.message === "Invalid login credentials") {
-        setError("Email ou mot de passe incorrect.");
-      } else {
-        setError(supabaseError.message);
+      if (supabaseError) {
+        if (supabaseError.message === "Invalid login credentials") {
+          setError("Email ou mot de passe incorrect.");
+        } else {
+          setError(supabaseError.message);
+        }
+        setLoading(false);
+      } else if (data.user) {
+        // AJOUT D'UN REFRESH AVANT LA REDIRECTION
+        // Cela force Next.js à invalider le cache de session côté serveur
+        router.refresh();
+
+        // Petite temporisation pour laisser le temps au refresh de s'amorcer
+        setTimeout(() => {
+          router.push("/");
+        }, 100);
       }
-      setLoading(false); // On arrête le chargement
-    } else {
-      router.push("/");
-      router.refresh(); // Bonne pratique pour mettre à jour la Navbar
-      // On ne met pas setLoading(false) ici pour éviter que le bouton se réactive pendant la redirection
+    } catch (err) {
+      setError("Une erreur inattendue est survenue.");
+      setLoading(false);
     }
   };
 
   return (
-      <div className="min-h-screen">
-        <Navbar/>
-        <div
-            className="max-w-md mx-auto mt-32 p-8 bg-white rounded-[2rem] shadow-xl border border-slate-100">
+      <div className="min-h-[80vh] flex items-center justify-center">
+        {/* LA NAVBAR EST DÉJÀ DANS LE LAYOUT, ON NE LA MET PAS ICI */}
 
+        <div className="max-w-md w-full p-8 bg-white rounded-[2rem] shadow-xl border border-slate-100">
           <h1 className="text-3xl font-black italic uppercase text-slate-900 mb-6 text-center">
             Page <span className="text-red-600">Connexion</span>
           </h1>
 
-          {/* ZONE D'ERREUR */}
           {error && (
-              <div
-                  className="mb-6 p-4 bg-red-50 border-l-4 border-red-600 rounded-r-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+              <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-600 rounded-r-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
                 <AlertCircle className="text-red-600 min-w-[20px]" size={20}/>
                 <p className="text-red-600 text-sm font-bold">{error}</p>
               </div>
@@ -64,9 +70,10 @@ export default function LoginPage() {
                   type="email"
                   placeholder="Email"
                   value={email}
-                  className="w-full p-4 bg-slate-50 rounded-xl border border-slate-200 font-bold text-slate-900 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal"
+                  className="w-full p-4 bg-slate-50 rounded-xl border border-slate-200 font-bold text-slate-900 focus:ring-2 focus:ring-red-500 outline-none transition-all"
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  disabled={loading}
               />
             </div>
 
@@ -75,21 +82,18 @@ export default function LoginPage() {
                   type="password"
                   placeholder="Mot de passe"
                   value={password}
-                  className="w-full p-4 bg-slate-50 rounded-xl border border-slate-200 font-bold text-slate-900 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-all placeholder:text-slate-400 placeholder:font-normal"
+                  className="w-full p-4 bg-slate-50 rounded-xl border border-slate-200 font-bold text-slate-900 focus:ring-2 focus:ring-red-500 outline-none transition-all"
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={loading}
               />
             </div>
 
             <button
                 disabled={loading}
-                className="w-full bg-red-600 text-white font-black py-4 rounded-xl hover:bg-slate-900 hover:shadow-lg hover:-translate-y-1 active:scale-95 transition-all uppercase italic tracking-widest flex items-center justify-center gap-2 disabled:opacity-70 disabled:hover:bg-red-600 disabled:hover:translate-y-0"
+                className="w-full bg-red-600 text-white font-black py-4 rounded-xl hover:bg-slate-900 hover:shadow-lg hover:-translate-y-1 active:scale-95 transition-all uppercase italic tracking-widest flex items-center justify-center gap-2 disabled:opacity-70"
             >
-              {loading ? (
-                  <Loader2 className="animate-spin"/>
-              ) : (
-                  "Se connecter"
-              )}
+              {loading ? <Loader2 className="animate-spin" /> : "Se connecter"}
             </button>
           </form>
         </div>

@@ -64,7 +64,6 @@ export default async function ForumPage({
 
   return (
       <div className="min-h-screen">
-        <Navbar/>
 
         <main className="container mx-auto px-4 pt-32 pb-20">
 

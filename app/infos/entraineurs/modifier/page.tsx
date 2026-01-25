@@ -106,7 +106,6 @@ export default function GererEntraineursPage() {
   return (
       <div className="min-h-screen">
         <Toaster position="bottom-right" richColors/>
-        <Navbar/>
 
         {/* MODAL DE SUPPRESSION PERSONNALISÉE */}
         {deleteId && (

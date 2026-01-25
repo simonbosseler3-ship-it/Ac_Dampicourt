@@ -105,7 +105,6 @@ export default async function NouveauTopicPage() {
 
   return (
       <div className="min-h-screen">
-        <Navbar/>
 
         <main className="container mx-auto px-4 pt-32 pb-20 max-w-3xl">
 

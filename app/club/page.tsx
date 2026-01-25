@@ -38,7 +38,6 @@ export default async function ClubPage() {
 
   return (
       <div className="min-h-screen">
-        <Navbar/>
 
         <main className="container mx-auto px-4 py-12 pt-32">
 
@@ -154,12 +153,6 @@ export default async function ClubPage() {
                     className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Coordinateur KBPM</span>
                 <span
                     className="text-lg font-black italic uppercase text-slate-800 underline decoration-red-600 decoration-4">{info?.kbpm_coordinator}</span>
-              </div>
-              <div className="text-right">
-                <span
-                    className="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Coordinateur Sportif & Technique</span>
-                <span
-                    className="text-lg font-black italic uppercase text-slate-800">{info?.sport_coordinator}</span>
               </div>
             </div>
           </div>

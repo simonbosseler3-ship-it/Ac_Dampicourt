@@ -67,7 +67,6 @@ export default function SpeedNightPage() {
 
   return (
       <div className="min-h-screen relative">
-        <Navbar />
 
         {/* Fond d'écran dynamique selon la config chargée */}
         <div

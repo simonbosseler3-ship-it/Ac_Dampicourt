@@ -47,7 +47,6 @@ export default async function ModificationRecordsPage() {
 
   return (
       <div className="min-h-screen">
-        <Navbar/>
         <main className="container mx-auto px-4 py-12 pt-32 text-slate-900">
 
           <div className="flex items-center gap-4 mb-12">

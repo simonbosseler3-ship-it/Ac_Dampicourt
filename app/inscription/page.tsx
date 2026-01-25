@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 export default function InscriptionsPage() {
   return (
       <div className="min-h-screen">
-        <Navbar/>
 
         <main className="container mx-auto px-4 py-12 pt-32">
           {/* HERO SECTION */}

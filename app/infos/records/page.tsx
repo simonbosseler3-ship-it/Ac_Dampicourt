@@ -38,7 +38,6 @@ export default async function RecordsPage() {
 
   return (
       <div className="min-h-screen relative">
-        <Navbar/>
 
         <main className="container mx-auto px-4 py-12 pt-32 text-slate-900">
 

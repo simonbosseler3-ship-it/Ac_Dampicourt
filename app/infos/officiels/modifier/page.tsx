@@ -81,7 +81,6 @@ export default function GererOfficielsPage() {
   return (
       <div className="min-h-screen">
         <Toaster position="bottom-right" richColors/>
-        <Navbar/>
 
         {/* MODAL DE SUPPRESSION PERSONNALISÉE */}
         {deleteId && (
