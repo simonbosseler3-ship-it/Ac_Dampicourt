@@ -23,8 +23,6 @@ export function Footer() {
               <nav className="flex flex-col gap-3">
                 <Link href="/club" className="text-gray-400 hover:text-red-600 transition-colors text-sm font-bold uppercase italic">Le Club</Link>
                 <Link href="/actualites" className="text-gray-400 hover:text-red-600 transition-colors text-sm font-bold uppercase italic">Actualités</Link>
-                <Link href="/entrainement" className="text-gray-400 hover:text-red-600 transition-colors text-sm font-bold uppercase italic">Entraînements</Link>
-                <Link href="/resultats" className="text-gray-400 hover:text-red-600 transition-colors text-sm font-bold uppercase italic">Résultats</Link>
               </nav>
             </div>
 
