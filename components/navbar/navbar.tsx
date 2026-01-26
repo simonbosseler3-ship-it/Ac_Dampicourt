@@ -8,57 +8,17 @@ import { Input } from "@/components/ui/input";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter, usePathname } from "next/navigation";
+import { useAuth } from "../../app/context/authContext";
 
 export function Navbar() {
-  const [user, setUser] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, profile, loading } = useAuth();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileInfosOpen, setIsMobileInfosOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   const router = useRouter();
   const pathname = usePathname();
-
-  const fetchProfile = useCallback(async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-      if (!error && data) setProfile(data);
-    } catch (err) {
-      console.error("Erreur profil:", err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    const initAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        setUser(session.user);
-        await fetchProfile(session.user.id);
-      } else {
-        setLoading(false);
-      }
-    };
-    initAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        setUser(session.user);
-        await fetchProfile(session.user.id);
-      } else {
-        setUser(null);
-        setProfile(null);
-        setLoading(false);
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [fetchProfile]);
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -124,7 +84,7 @@ export function Navbar() {
                     <Link href="/infos/entraineurs" className="block px-4 py-3 text-[11px] font-black uppercase italic text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all border-t">Entraîneurs</Link>
                     <Link href="/infos/officiels" className="block px-4 py-3 text-[11px] font-black uppercase italic text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all border-t">Officiels</Link>
                     <Link href="/infos/ethique" className="block px-4 py-3 text-[11px] font-black uppercase italic text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all border-t">Éthique & Dopage</Link>
-                    <Link href="/infos/table-hongroise" className={`block px-4 py-3 text-[11px] font-black uppercase italic rounded-xl border-t ${pathname === "/infos/table-hongroise" ? "bg-red-50 text-red-600" : "text-slate-600 hover:bg-red-50 hover:text-red-600"}`}>Table hongroise</Link>
+                    {/*<Link href="/infos/table-hongroise" className={`block px-4 py-3 text-[11px] font-black uppercase italic rounded-xl border-t ${pathname === "/infos/table-hongroise" ? "bg-red-50 text-red-600" : "text-slate-600 hover:bg-red-50 hover:text-red-600"}`}>Table hongroise</Link>]]*/}
                   </div>
                 </div>
               </div>
@@ -212,7 +172,7 @@ export function Navbar() {
                     <Link href="/infos/entraineurs" className="p-3 border-b border-white">Entraîneurs</Link>
                     <Link href="/infos/officiels" className="p-3 border-b border-white">Officiels</Link>
                     <Link href="/infos/ethique" className="p-3 border-b border-white">Éthique</Link>
-                    <Link href="/infos/table-hongroise" className="p-3">Table hongroise</Link>
+                    {/*<Link href="/infos/table-hongroise" className="p-3">Table hongroise</Link>*/}
                   </div>
               )}
 
