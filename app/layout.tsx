@@ -23,11 +23,15 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
       <html lang="fr">
-      <body>
-      <AuthProvider> {/* Enveloppe tout ici */}
+      {/* On applique les polices et le dégradé directement sur le body */}
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-linear-to-b from-white via-red-50/50 to-red-600/60`}>
+      <AuthProvider>
         <div className="flex flex-col min-h-screen">
           <Navbar />
-          <main className="flex-grow pt-20 relative">{children}</main>
+          {/* Le contenu (children) sera transparent par défaut, laissant voir le dégradé derrière */}
+          <main className="flex-grow pt-20 relative">
+            {children}
+          </main>
           <Footer />
         </div>
       </AuthProvider>

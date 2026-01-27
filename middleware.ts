@@ -17,33 +17,26 @@ export async function middleware(request: NextRequest) {
             return request.cookies.get(name)?.value
           },
           set(name: string, value: string, options: CookieOptions) {
+            // On applique les cookies à la requête pour le serveur
             request.cookies.set({ name, value, ...options })
-            response = NextResponse.next({
-              request: {
-                headers: request.headers,
-              },
-            })
+            // ET à la réponse pour le navigateur
             response.cookies.set({ name, value, ...options })
           },
           remove(name: string, options: CookieOptions) {
-            // ICI : On utilise une chaîne vide pour supprimer le cookie
             request.cookies.set({ name, value: '', ...options })
-            response = NextResponse.next({
-              request: {
-                headers: request.headers,
-              },
-            })
             response.cookies.set({ name, value: '', ...options })
           },
         },
       }
   )
 
+  // CRUCIAL : getUser() rafraîchit la session si elle expire.
+  // On ne stocke pas le résultat, on laisse Supabase gérer les cookies via les fonctions set/remove définies au-dessus.
   await supabase.auth.getUser()
 
   return response
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
 }

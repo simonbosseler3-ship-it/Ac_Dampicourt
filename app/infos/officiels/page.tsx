@@ -1,42 +1,50 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import { Navbar } from "@/components/navbar/navbar";
+"use client";
+
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/app/context/authContext";
 import { Info, Edit } from "lucide-react";
 import Link from "next/link";
 
-export const dynamic = "force-dynamic";
+export default function OfficielsPage() {
+  const { profile, loading: authLoading } = useAuth();
+  const [officials, setOfficials] = useState<any[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
 
-export default async function OfficielsPage() {
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      { cookies: { getAll() { return cookieStore.getAll() } } }
-  );
+  // Vérification admin via le Context
+  const isAdmin = profile?.role?.toLowerCase().trim() === 'admin';
 
-  // 1. Vérification du rôle Admin
-  const { data: { user } } = await supabase.auth.getUser();
-  let isAdmin = false;
+  useEffect(() => {
+    async function fetchOfficials() {
+      try {
+        const { data, error } = await supabase
+        .from('officials')
+        .select('*')
+        .order('name');
 
-  if (user) {
-    const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single();
-    isAdmin = profile?.role?.toLowerCase().trim() === 'admin';
+        if (error) throw error;
+        setOfficials(data || []);
+      } catch (err) {
+        console.error("Erreur chargement officiels:", err);
+      } finally {
+        setDataLoading(false);
+      }
+    }
+
+    fetchOfficials();
+  }, []);
+
+  if (dataLoading) {
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-transparent">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-red-600"></div>
+        </div>
+    );
   }
 
-  // 2. Récupération des officiels
-  const { data: officials } = await supabase
-  .from('officials')
-  .select('*')
-  .order('name');
-
   return (
-      <div className="min-h-screen">
-
-        <main className="container mx-auto px-4 py-12 pt-32">
+      <div className="min-h-screen bg-transparent">
+        <main className="container mx-auto px-4 py-12 pt-32 animate-in fade-in duration-700">
 
           {/* TITRE & ACTION ADMIN */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
@@ -47,40 +55,46 @@ export default async function OfficielsPage() {
               <div className="h-2 w-24 bg-red-600 mt-2"></div>
             </div>
 
-            {isAdmin && (
+            {!authLoading && isAdmin && (
                 <Link href="/infos/officiels/modifier">
-                  <button
-                      className="flex items-center gap-2 bg-slate-900 text-white px-6 py-2 rounded-full font-bold hover:bg-red-600 transition-all text-xs uppercase italic shadow-lg">
+                  <button className="flex items-center gap-2 bg-slate-900 text-white px-6 py-2 rounded-full font-bold hover:bg-red-600 transition-all text-xs uppercase italic shadow-lg active:scale-95">
                     <Edit size={16}/> Gérer le jury
                   </button>
                 </Link>
             )}
           </div>
 
-          {/* SECTION LISTE OFFICIELS */}
-          <section className="mb-24 bg-slate-900 rounded-[40px] p-8 md:p-16 text-white shadow-2xl">
-            <div className="max-w-4xl mx-auto">
+          {/* SECTION LISTE OFFICIELS - BLOC NOIR ACD */}
+          <section className="mb-24 bg-slate-900 rounded-[40px] p-8 md:p-16 text-white shadow-2xl relative overflow-hidden group">
+            {/* Effet décoratif subtil */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 transition-colors group-hover:bg-red-600/20"></div>
+
+            <div className="max-w-4xl mx-auto relative z-10">
               <div className="text-center mb-12">
                 <h2 className="text-4xl font-black uppercase italic mb-4 text-white">
                   L'équipe <span className="text-red-600">Juge & Arbitre</span>
                 </h2>
-                <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">
+                <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">
                   Le cœur des compétitions
                 </p>
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {officials?.map((off) => (
+                {officials.map((off) => (
                     <div key={off.id}
-                         className="text-[11px] font-bold uppercase tracking-tight text-slate-300 border-l border-red-600 pl-3">
+                         className="text-[11px] font-bold uppercase tracking-tight text-slate-300 border-l-2 border-red-600 pl-3 py-1 hover:text-white transition-colors">
                       {off.name}
                     </div>
                 ))}
               </div>
+
+              {officials.length === 0 && (
+                  <p className="text-center text-slate-500 italic text-sm">Aucun officiel répertorié pour le moment.</p>
+              )}
             </div>
           </section>
 
-          {/* FAQ */}
+          {/* FAQ - UTILISATION DE LA TRANSPARENCE POUR LE DÉGRADÉ */}
           <section className="max-w-3xl mx-auto space-y-8">
             <div className="flex items-center gap-3 mb-8">
               <Info className="text-red-600" size={28}/>
@@ -88,15 +102,16 @@ export default async function OfficielsPage() {
             </div>
 
             <div className="space-y-6">
-              <div className="bg-slate-50 border-l-4 border-red-600 p-8 shadow-sm rounded-r-3xl">
+              <div className="bg-white/60 backdrop-blur-sm border-l-4 border-red-600 p-8 shadow-sm rounded-r-3xl hover:bg-white/80 transition-all">
                 <h3 className="font-black uppercase italic text-slate-900 mb-2 text-lg">Quel est son rôle ?</h3>
-                <p className="text-slate-600 leading-relaxed">
+                <p className="text-slate-600 leading-relaxed text-sm">
                   Encadrer les concours et courses, juger du respect des règles et faire respecter les règlements de la fédération.
                 </p>
               </div>
-              <div className="bg-slate-50 border-l-4 border-red-600 p-8 shadow-sm rounded-r-3xl">
+
+              <div className="bg-white/60 backdrop-blur-sm border-l-4 border-red-600 p-8 shadow-sm rounded-r-3xl hover:bg-white/80 transition-all">
                 <h3 className="font-black uppercase italic text-slate-900 mb-2 text-lg">Y a-t-il une formation ?</h3>
-                <p className="text-slate-600 leading-relaxed">
+                <p className="text-slate-600 leading-relaxed text-sm">
                   Un syllabus succinct à assimiler, une formation sur le terrain et un petit test de contrôle organisé fin mars.
                 </p>
               </div>

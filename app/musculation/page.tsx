@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/app/context/authContext";
 import Link from "next/link";
 import {
   ChevronLeft,
@@ -20,11 +21,11 @@ import {
   startOfWeek,
   addDays,
   format,
-  addWeeks,
-  subWeeks,
   isSameDay,
   setHours,
-  setMinutes
+  setMinutes,
+  addWeeks,
+  subWeeks
 } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
@@ -35,11 +36,10 @@ const CLOSING_HOUR = 22;
 const DAYS_TO_SHOW = 7;
 
 export default function MusculationPage() {
+  const { user, profile, loading: authLoading } = useAuth(); // Accès instantané
   const [currentDate, setCurrentDate] = useState(new Date());
   const [reservations, setReservations] = useState<any[]>([]);
-  const [user, setUser] = useState<any>(null);
-  const [userRole, setUserRole] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [dataLoading, setDataLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
 
   const [modalConfig, setModalConfig] = useState<{
@@ -53,12 +53,8 @@ export default function MusculationPage() {
   const timeSlots = Array.from({ length: (CLOSING_HOUR - OPENING_HOUR) / 2 }, (_, i) => OPENING_HOUR + i * 2);
 
   // --- RÉCUPÉRATION DES RÉSERVATIONS ---
-  const fetchReservations = useCallback(async (dateRef: Date, isAuth: boolean) => {
-    if (!isAuth) {
-      setReservations([]);
-      return;
-    }
-
+  const fetchReservations = useCallback(async (dateRef: Date) => {
+    // On ne fetch que si l'utilisateur est potentiellement connecté
     const start = startOfWeek(dateRef, { weekStartsOn: 1 });
     const end = addDays(start, 7);
 
@@ -90,43 +86,25 @@ export default function MusculationPage() {
     });
 
     setReservations(allResas);
+    setDataLoading(false);
   }, []);
 
   // --- INITIALISATION ---
   useEffect(() => {
     setMounted(true);
-    const init = async () => {
-      try {
-        const { data: { user: authUser } } = await supabase.auth.getUser();
-        setUser(authUser ?? null);
-
-        if (authUser) {
-          const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', authUser.id)
-          .single();
-          setUserRole(profile?.role || null);
-          await fetchReservations(currentDate, true);
-        }
-      } catch (err) {
-        console.error("Erreur d'initialisation:", err);
-      } finally {
-        setLoading(false); // Fin du chargement : on affiche soit le planning soit le Lock
-      }
-    };
-
-    init();
+    if (!authLoading) {
+      fetchReservations(currentDate);
+    }
 
     const channel = supabase
     .channel(`gym-changes-${currentDate.getTime()}`)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'gym_reservations' }, () => {
-      fetchReservations(currentDate, true);
+      fetchReservations(currentDate);
     })
     .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [currentDate, fetchReservations]);
+  }, [currentDate, fetchReservations, authLoading]);
 
   const handleSlotClick = async (slotDate: Date, myReservationId: string | null, currentCount: number, isLocked: boolean) => {
     if (isLocked) {
@@ -139,7 +117,8 @@ export default function MusculationPage() {
     }
 
     const allowedRoles = ['athlete', 'redacteur', 'admin'];
-    if (!userRole || !allowedRoles.includes(userRole.toLowerCase())) {
+    const userRole = profile?.role?.toLowerCase().trim();
+    if (!userRole || !allowedRoles.includes(userRole)) {
       setModalConfig({ isOpen: true, type: "forbidden" });
       return;
     }
@@ -153,8 +132,7 @@ export default function MusculationPage() {
       return;
     }
 
-    // Traitement réservation
-    const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single();
+    // Traitement réservation immédiat
     await supabase.from('gym_reservations').insert({
       user_id: user.id,
       full_name: profile?.full_name || user.email,
@@ -193,8 +171,9 @@ export default function MusculationPage() {
   };
 
   return (
-      <div className="min-h-screen">
-        <main className="container mx-auto px-4 py-12 pt-32">
+      <div className="min-h-screen bg-transparent">
+        <main className="container mx-auto px-4 py-12 pt-32 animate-in fade-in duration-500">
+
           {/* HEADER */}
           <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
             <div>
@@ -204,7 +183,7 @@ export default function MusculationPage() {
               <p className="text-slate-500 font-bold text-xs mt-2 uppercase tracking-[0.2em]">Accès réservé membres ACD</p>
             </div>
 
-            <div className="flex items-center gap-3 bg-white p-2 rounded-2xl shadow-sm border border-slate-200">
+            <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm p-2 rounded-2xl shadow-sm border border-slate-200">
               <button onClick={() => setCurrentDate(subWeeks(currentDate, 1))} className="p-2 hover:bg-slate-100 rounded-xl transition">
                 <ChevronLeft size={20} />
               </button>
@@ -218,13 +197,13 @@ export default function MusculationPage() {
           </div>
 
           {/* CONTENU PRINCIPAL */}
-          {loading ? (
-              <div className="min-h-[500px] flex flex-col items-center justify-center bg-white rounded-[2.5rem] border border-slate-100 shadow-sm">
+          {authLoading ? (
+              <div className="min-h-[500px] flex flex-col items-center justify-center bg-white/50 backdrop-blur-sm rounded-[2.5rem] border border-slate-100">
                 <Loader2 className="h-12 w-12 text-red-600 animate-spin mb-4" />
                 <p className="text-slate-400 font-black uppercase italic text-xs tracking-widest">Vérification de vos accès...</p>
               </div>
           ) : user ? (
-              <div className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden">
+              <div className="bg-white/90 backdrop-blur-sm rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden">
                 <div className="overflow-x-auto">
                   <div className="min-w-[1100px]">
                     {/* JOURS */}
@@ -242,7 +221,7 @@ export default function MusculationPage() {
                     <div className="divide-y divide-slate-100">
                       {timeSlots.map((hour) => (
                           <div key={hour} className="grid grid-cols-8 min-h-[160px]">
-                            <div className="flex flex-col items-center justify-center bg-slate-50/80 border-r border-slate-100 font-black text-slate-400 text-[10px] italic">
+                            <div className="flex flex-col items-center justify-center bg-slate-50/50 border-r border-slate-100 font-black text-slate-400 text-[10px] italic">
                               <span>{hour}H00</span>
                               <div className="w-px h-8 bg-slate-200 my-1"></div>
                               <span>{hour + 2}H00</span>
@@ -265,7 +244,7 @@ export default function MusculationPage() {
                                         className={`w-full h-full rounded-2xl p-4 flex flex-col transition-all duration-300 relative
                                 ${isLockedSlot ? 'bg-blue-600 text-white shadow-lg' :
                                             myResa ? 'bg-white ring-4 ring-red-600 shadow-xl' :
-                                                isFull ? 'bg-slate-100 opacity-60' : 'bg-white border border-slate-100 hover:border-red-200'}
+                                                isFull ? 'bg-slate-100 opacity-60' : 'bg-white border border-slate-100 hover:border-red-200 shadow-sm'}
                               `}
                                     >
                                       <div className="flex justify-between items-center mb-3 w-full">
@@ -300,12 +279,12 @@ export default function MusculationPage() {
                 </div>
               </div>
           ) : (
-              <div className="bg-white rounded-[2.5rem] p-12 md:p-20 shadow-xl border border-slate-100 text-center flex flex-col items-center">
+              <div className="bg-white/80 backdrop-blur-sm rounded-[2.5rem] p-12 md:p-20 shadow-xl border border-slate-100 text-center flex flex-col items-center">
                 <div className="bg-red-50 p-8 rounded-full mb-8"><Lock size={60} className="text-red-600" /></div>
                 <h2 className="text-3xl font-black uppercase italic text-slate-900 mb-4">Accès Privé</h2>
-                <p className="text-slate-500 max-w-lg mb-10 font-bold">Le planning est réservé aux membres de l'AC Dampicourt. Connectez-vous pour réserver.</p>
+                <p className="text-slate-500 max-w-lg mb-10 font-bold uppercase text-xs tracking-widest">Le planning est réservé aux membres de l'AC Dampicourt.</p>
                 <Link href="/login">
-                  <Button className="bg-red-600 text-white font-black rounded-2xl px-12 py-7 uppercase italic shadow-2xl">Se connecter</Button>
+                  <Button className="bg-red-600 text-white font-black rounded-2xl px-12 py-7 uppercase italic shadow-2xl active:scale-95 transition-transform">Se connecter</Button>
                 </Link>
               </div>
           )}

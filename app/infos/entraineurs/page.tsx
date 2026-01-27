@@ -1,35 +1,54 @@
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import { Navbar } from "@/components/navbar/navbar";
+"use client";
+
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/app/context/authContext";
 import { Mail, Phone, Edit } from "lucide-react";
 import Link from "next/link";
 
-export const dynamic = "force-dynamic";
+export default function EntraineursPage() {
+  const { profile, loading: authLoading } = useAuth(); // Récupération instantanée du rôle admin
+  const [trainers, setTrainers] = useState<any[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
 
-export default async function EntraineursPage() {
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      { cookies: { getAll() { return cookieStore.getAll() } } }
-  );
+  // Vérification admin simplifiée via le Context
+  const isAdmin = profile?.role?.toLowerCase().trim() === 'admin';
 
-  const { data: { user } } = await supabase.auth.getUser();
-  let isAdmin = false;
-  if (user) {
-    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-    isAdmin = profile?.role?.toLowerCase().trim() === 'admin';
+  useEffect(() => {
+    async function fetchTrainers() {
+      try {
+        const { data, error } = await supabase
+        .from('trainers')
+        .select('*')
+        .order('order_index');
+
+        if (error) throw error;
+        if (data) setTrainers(data);
+      } catch (err) {
+        console.error("Erreur lors du chargement des entraîneurs:", err);
+      } finally {
+        setDataLoading(false);
+      }
+    }
+
+    fetchTrainers();
+  }, []);
+
+  // Affichage d'un loader léger pendant le chargement des données
+  if (dataLoading) {
+    return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-red-600"></div>
+        </div>
+    );
   }
-
-  const { data: trainers } = await supabase.from('trainers').select('*').order('order_index');
 
   return (
       <div className="min-h-screen">
+        <main className="container mx-auto px-4 py-12 pt-32 animate-in fade-in duration-500">
 
-        <main className="container mx-auto px-4 py-12 pt-32">
           {/* TITRE & ACTION ADMIN */}
-          <div
-              className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 gap-6">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 gap-6">
             <div className="flex flex-col">
               <h1 className="text-4xl font-black text-slate-900 uppercase italic">
                 Nos <span className="text-red-600">Entraîneurs</span>
@@ -37,11 +56,10 @@ export default async function EntraineursPage() {
               <div className="h-2 w-24 bg-red-600 mt-2"></div>
             </div>
 
-            {isAdmin && (
-                <Link
-                    href="/infos/entraineurs/modifier">
-                  <button
-                      className="flex items-center gap-2 bg-slate-900 text-white px-6 py-2 rounded-full font-bold hover:bg-red-600 transition-all text-xs uppercase italic">
+            {/* Le bouton apparaît dès que l'auth est confirmée, sans rechargement de page */}
+            {!authLoading && isAdmin && (
+                <Link href="/infos/entraineurs/modifier">
+                  <button className="flex items-center gap-2 bg-slate-900 text-white px-6 py-2 rounded-full font-bold hover:bg-red-600 transition-all text-xs uppercase italic shadow-lg active:scale-95">
                     <Edit size={16}/> Gérer les entraîneurs
                   </button>
                 </Link>
@@ -50,19 +68,23 @@ export default async function EntraineursPage() {
 
           {/* LISTE DES ENTRAÎNEURS */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {trainers?.map((t) => (
-                <div key={t.id}
-                     className="bg-slate-50 p-6 rounded-3xl border border-slate-100 hover:shadow-xl transition-all group">
+            {trainers.map((t) => (
+                <div
+                    key={t.id}
+                    className="bg-slate-50 p-6 rounded-3xl border border-slate-100 hover:shadow-xl hover:border-red-100 transition-all group animate-in slide-in-from-bottom-2 duration-500"
+                >
                   <div className="flex items-start justify-between mb-4">
-                    <div
-                        className="bg-red-600 text-white font-black p-3 rounded-xl text-lg w-12 h-12 flex items-center justify-center italic">
+                    <div className="bg-red-600 text-white font-black p-3 rounded-xl text-lg w-12 h-12 flex items-center justify-center italic group-hover:scale-110 transition-transform">
                       {t.sigle}
                     </div>
                     <div className="text-right">
-                      <h3 className="font-black text-slate-900 uppercase italic leading-tight">{t.name}</h3>
-                      <p className="text-[10px] font-bold text-red-600 uppercase tracking-widest mt-1">Entraineur</p>
+                      <h3 className="font-black text-slate-900 uppercase italic leading-tight group-hover:text-red-600 transition-colors">
+                        {t.name}
+                      </h3>
+                      <p className="text-[10px] font-bold text-red-600 uppercase tracking-widest mt-1">Entraîneur</p>
                     </div>
                   </div>
+
                   <div className="space-y-2 border-t border-slate-200 pt-4">
                     {t.phone && (
                         <p className="text-xs font-bold text-slate-500 flex items-center gap-2">
@@ -70,8 +92,10 @@ export default async function EntraineursPage() {
                         </p>
                     )}
                     {t.email && (
-                        <a href={`mailto:${t.email}`}
-                           className="text-xs font-bold text-slate-500 flex items-center gap-2 hover:text-red-600 transition-colors">
+                        <a
+                            href={`mailto:${t.email}`}
+                            className="text-xs font-bold text-slate-500 flex items-center gap-2 hover:text-red-600 transition-colors truncate"
+                        >
                           <Mail size={14} className="text-red-600"/> {t.email}
                         </a>
                     )}
@@ -79,6 +103,13 @@ export default async function EntraineursPage() {
                 </div>
             ))}
           </div>
+
+          {/* Message si aucun entraîneur n'est trouvé */}
+          {!dataLoading && trainers.length === 0 && (
+              <div className="text-center py-20 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
+                <p className="text-slate-400 font-bold italic uppercase">Aucun entraîneur répertorié pour le moment.</p>
+              </div>
+          )}
         </main>
       </div>
   );

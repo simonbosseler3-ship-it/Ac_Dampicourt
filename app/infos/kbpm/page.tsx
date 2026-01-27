@@ -1,5 +1,5 @@
-import { Navbar } from "@/components/navbar/navbar";
-import { Info, Users, Calendar, Mail, Baby, Edit, ShoppingBag, Truck, Zap, Clock, MapPin, Gauge, Timer } from "lucide-react";
+"use client";
+import { Info, Users, Baby, Edit, ShoppingBag, Truck, Zap, Clock, MapPin, Gauge, Timer } from "lucide-react";
 import Link from "next/link";
 
 const CATEGORIES = [
@@ -13,7 +13,7 @@ export default function KBPMPage() {
   return (
       <div className="min-h-screen">
 
-        <main className="container mx-auto px-4 py-12 pt-32 text-slate-900">
+        <main className="container mx-auto px-4 pt-32 pb-20 animate-in fade-in duration-500">
 
           {/* TITRE PRINCIPAL */}
           <div className="flex flex-col mb-12">
@@ -67,21 +67,25 @@ export default function KBPMPage() {
           {/* LIEN VERS MÉTHODE PÉDAGOGIQUE */}
           <div className="mb-20">
             <Link href="/infos/kbpm/methode-pedagogique" className="group block">
-              <div className="bg-slate-50 border-2 border-dashed border-slate-200 p-8 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-6 hover:border-red-600 hover:bg-white transition-all duration-300">
+              <div
+                  className="bg-slate-50 border-2 border-dashed border-slate-200 p-8 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-6 hover:border-red-600 hover:bg-white/80 backdrop-blur-md transition-all duration-300">
                 <div className="flex items-center gap-6">
-                  <div className="bg-white p-4 rounded-2xl shadow-sm group-hover:bg-red-600 transition-colors">
-                    <Edit className="text-red-600 group-hover:text-white" size={32} />
+                  <div
+                      className="bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-sm group-hover:bg-red-600 transition-colors">
+                    <Edit className="text-red-600 group-hover:text-white" size={32}/>
                   </div>
                   <div>
                     <h3 className="text-xl font-black uppercase italic text-slate-900">
                       Notre méthode <span className="text-red-600">pédagogique</span>
                     </h3>
                     <p className="text-sm text-slate-500 mt-1 italic">
-                      Découvrez comment nous accompagnons le développement moteur et technique de vos enfants.
+                      Découvrez comment nous accompagnons le développement moteur et technique de
+                      vos enfants.
                     </p>
                   </div>
                 </div>
-                <div className="bg-slate-900 text-white px-6 py-3 rounded-xl font-black uppercase italic text-xs tracking-widest group-hover:bg-red-600 transition-colors">
+                <div
+                    className="bg-slate-900 text-white px-6 py-3 rounded-xl font-black uppercase italic text-xs tracking-widest group-hover:bg-red-600 transition-colors">
                   En savoir plus →
                 </div>
               </div>
@@ -96,14 +100,15 @@ export default function KBPMPage() {
               <div className="relative z-10">
                 <h2 className="text-3xl font-black uppercase italic mb-6">L'importance de <span
                     className="text-red-600">l'échauffement</span></h2>
-                <div className="space-y-4 text-slate-300 leading-relaxed">
+                {/* ON UTILISE text-slate-200 POUR ETRE LISIBLE SUR LE FOND SOMBRE */}
+                <div className="space-y-4 text-slate-200 leading-relaxed text-sm md:text-base">
                   <p>Nous veillerons à avoir au minimum **un membre attitré** à l’échauffement le
                     jour des compétitions.</p>
                   <p>L’échauffement pré-compétition ne diffère pas nécessairement de celui des
                     entraînements, mais il est **indispensable** d'être prêt physiquement avant de
                     concourir.</p>
                   <div
-                      className="bg-white/10 p-4 rounded-2xl border border-white/10 text-sm italic">
+                      className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 text-sm italic text-white">
                     Un moniteur/entraîneur sera présent pour encadrer vos enfants sur place.
                   </div>
                 </div>
@@ -148,7 +153,7 @@ export default function KBPMPage() {
                   place.</p>
               </div>
               <div
-                  className="bg-white text-red-600 px-8 py-4 rounded-2xl font-black text-2xl italic shadow-lg">
+                  className="bg-white/80 backdrop-blur-md text-red-600 px-8 py-4 rounded-2xl font-black text-2xl italic shadow-lg">
                 1H30 MAX
               </div>
             </div>
@@ -193,9 +198,8 @@ export default function KBPMPage() {
                 </div>
               </div>
 
-              <div
-                  className="lg:col-span-2 overflow-hidden rounded-[2rem] border border-slate-100 shadow-sm bg-white">
-                <table className="w-full text-left border-collapse text-sm">
+              <div className="lg:col-span-2 overflow-x-auto rounded-[2rem] border border-slate-100 shadow-sm bg-white/80 backdrop-blur-md">
+                <table className="w-full text-left border-collapse text-sm min-w-[600px]">
                   <thead>
                   <tr className="bg-slate-50/50 text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-100">
                     <th className="p-6">Catégorie</th>
@@ -227,11 +231,10 @@ export default function KBPMPage() {
             <h2 className="text-3xl font-black text-slate-900 uppercase italic mb-8">
               Quelles sont les épreuves <span className="text-red-600">pour les BPM ?</span>
             </h2>
-            <div
-                className="overflow-hidden rounded-[2rem] border border-slate-200 shadow-xl bg-white">
-              <table className="w-full text-left border-collapse text-sm">
+            <div className="overflow-x-auto rounded-[2rem] border border-slate-200 shadow-xl bg-white/80 backdrop-blur-md">
+              <table className="w-full text-left border-collapse text-sm min-w-[800px]">
                 <thead>
-                <tr className="bg-white border-b border-slate-100 text-red-600 font-black uppercase text-xs italic">
+                <tr className="bg-white/80 backdrop-blur-md border-b border-slate-100 text-red-600 font-black uppercase text-xs italic">
                   <th className="p-6 border-r border-slate-100">Catégorie</th>
                   <th className="p-6 border-r border-slate-100">Courses</th>
                   <th className="p-6 border-r border-slate-100">Concours : Sauts</th>
@@ -311,7 +314,7 @@ export default function KBPMPage() {
 
               <div className="lg:col-span-2 group relative">
                 <div
-                    className="overflow-hidden rounded-[2.5rem] border-4 border-slate-900 shadow-2xl bg-white">
+                    className="overflow-hidden rounded-[2.5rem] border-4 border-slate-900 shadow-2xl bg-white/80 backdrop-blur-md">
                   <img
                       src="/Grille-de-lecture.gif"
                       alt="Exemple de grille horaire Meeting BPM"
@@ -357,51 +360,6 @@ export default function KBPMPage() {
             </div>
           </div>
 
-          {/* NOUVELLE SECTION : ÉCHAUFFEMENT ET TEMPS */}
-          <div
-              className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12 pt-12 border-t border-slate-100">
-            <div className="bg-slate-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden">
-              <Gauge className="absolute -right-8 -bottom-8 text-white/5 w-64 h-64 rotate-12"/>
-              <div className="relative z-10">
-                <h2 className="text-3xl font-black uppercase italic mb-6">L'importance de <span
-                    className="text-red-600">l'échauffement</span></h2>
-                <div className="space-y-4 text-slate-300 leading-relaxed text-sm">
-                  <p>Nous avons constaté l’importance d’assurer la présence d’un
-                    **moniteur/entraîneur** pour encadrer l’échauffement des enfants le jour des
-                    compétitions.</p>
-                  <p>Nous veillerons donc à avoir au minimum un membre attitré à l’échauffement.
-                    S'il ne diffère pas nécessairement des jours d'entraînements, il est
-                    **primordial** d'être prêt avant de concourir ou de courir.</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col justify-center space-y-6 p-4">
-              <h2 className="text-3xl font-black text-slate-900 uppercase italic leading-tight">
-                Une compétition, <br/><span
-                  className="text-red-600">ça prend combien de temps ?</span>
-              </h2>
-              <p className="text-slate-600 text-sm leading-relaxed">
-                Suivant le choix d’épreuves et le nombre de participants, la durée peut varier
-                grandement. Voici nos estimations pour vous organiser :
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                  <h4 className="font-black text-[10px] uppercase text-red-600 mb-1 tracking-widest italic">Courses</h4>
-                  <p className="text-sm font-bold italic">15 à 20 minutes</p>
-                  <p className="text-[10px] text-slate-500 mt-1 uppercase font-bold tracking-tighter">Sprint
-                    & Demi-fond</p>
-                </div>
-                <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-                  <h4 className="font-black text-[10px] uppercase text-red-600 mb-1 tracking-widest italic">Concours</h4>
-                  <p className="text-sm font-bold italic">30 à 60 minutes</p>
-                  <p className="text-[10px] text-slate-500 mt-1 uppercase font-bold tracking-tighter">Sauts
-                    & Lancers</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* BANDEAU ESTIMATION TOTALE */}
           <div
               className="mb-20 bg-red-600 rounded-[2.5rem] p-10 text-white shadow-2xl shadow-red-200">
@@ -413,7 +371,7 @@ export default function KBPMPage() {
                   place.</p>
               </div>
               <div
-                  className="bg-white text-red-600 px-8 py-4 rounded-2xl font-black text-2xl italic shadow-lg flex items-center gap-3">
+                  className="bg-white/80 backdrop-blur-md text-red-600 px-8 py-4 rounded-2xl font-black text-2xl italic shadow-lg flex items-center gap-3">
                 <Timer size={32}/> 1H30 MAX
               </div>
             </div>
@@ -450,7 +408,7 @@ export default function KBPMPage() {
 
               <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 space-y-6">
                 <div className="flex gap-4">
-                  <div className="bg-white p-3 rounded-2xl shadow-sm h-fit"><Users size={20}
+                  <div className="bg-white/80 backdrop-blur-md p-3 rounded-2xl shadow-sm h-fit"><Users size={20}
                                                                                    className="text-red-600"/>
                   </div>
                   <div>
@@ -462,7 +420,7 @@ export default function KBPMPage() {
                 </div>
 
                 <div className="flex gap-4">
-                  <div className="bg-white p-3 rounded-2xl shadow-sm h-fit"><MapPin size={20}
+                  <div className="bg-white/80 backdrop-blur-md p-3 rounded-2xl shadow-sm h-fit"><MapPin size={20}
                                                                                     className="text-red-600"/>
                   </div>
                   <div>
@@ -510,7 +468,7 @@ export default function KBPMPage() {
                   <Link
                       href="https://www.beathletics.be/res/calendrier"
                       target="_blank"
-                      className="p-6 bg-white border-2 border-slate-900 rounded-3xl hover:bg-red-600 hover:border-red-600 hover:text-white transition-all group shadow-sm"
+                      className="p-6 bg-white/80 backdrop-blur-md border-2 border-slate-900 rounded-3xl hover:bg-red-600 hover:border-red-600 hover:text-white transition-all group shadow-sm"
                   >
                     <h4 className="font-black uppercase italic text-xs mb-2 text-red-600 group-hover:text-white transition-colors">BeAthletics</h4>
                     <p className="text-[10px] opacity-70 uppercase font-bold group-hover:text-white transition-colors leading-tight">

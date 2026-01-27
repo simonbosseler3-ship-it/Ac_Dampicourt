@@ -1,10 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
-// SUPPRESSION DE L'IMPORT NAVBAR ICI
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, Loader2, LockKeyhole } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -12,10 +10,19 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const router = useRouter();
+  // Sécurité : Si l'utilisateur est déjà connecté, on le sort de là
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) window.location.href = "/";
+    };
+    checkUser();
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
+
     setError(null);
     setLoading(true);
 
@@ -32,68 +39,75 @@ export default function LoginPage() {
           setError(supabaseError.message);
         }
         setLoading(false);
-      } else if (data.user) {
-        // AJOUT D'UN REFRESH AVANT LA REDIRECTION
-        // Cela force Next.js à invalider le cache de session côté serveur
-        router.refresh();
-
-        // Petite temporisation pour laisser le temps au refresh de s'amorcer
-        setTimeout(() => {
-          router.push("/");
-        }, 100);
+        return;
       }
-    } catch (err) {
-      setError("Une erreur inattendue est survenue.");
+
+      if (data?.session) {
+        // SUCCESS : On force la redirection brute pour réinitialiser tout le site proprement
+        window.location.href = "/";
+      }
+    } catch (err: any) {
+      console.error("Erreur critique login:", err);
+      setError("Erreur système. Essayez de rafraîchir la page.");
       setLoading(false);
     }
   };
 
   return (
-      <div className="min-h-[80vh] flex items-center justify-center">
-        {/* LA NAVBAR EST DÉJÀ DANS LE LAYOUT, ON NE LA MET PAS ICI */}
+      <div className="min-h-[80vh] flex items-center justify-center bg-transparent px-4">
+        <div className="max-w-md w-full p-8 md:p-12 bg-white/80 backdrop-blur-md rounded-[2.5rem] shadow-2xl border border-white/20 animate-in fade-in zoom-in duration-500">
 
-        <div className="max-w-md w-full p-8 bg-white rounded-[2rem] shadow-xl border border-slate-100">
-          <h1 className="text-3xl font-black italic uppercase text-slate-900 mb-6 text-center">
-            Page <span className="text-red-600">Connexion</span>
+          <div className="flex justify-center mb-6">
+            <div className="bg-red-600 p-4 rounded-2xl shadow-lg shadow-red-200">
+              <LockKeyhole className="text-white" size={32} />
+            </div>
+          </div>
+
+          <h1 className="text-3xl font-black italic uppercase text-slate-900 mb-2 text-center tracking-tighter leading-none">
+            Espace <span className="text-red-600">Membre</span>
           </h1>
+          <p className="text-center text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-8">
+            Athlétic Club Dampicourt
+          </p>
 
           {error && (
-              <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-600 rounded-r-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+              <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-600 rounded-r-xl flex items-center gap-3">
                 <AlertCircle className="text-red-600 min-w-[20px]" size={20}/>
-                <p className="text-red-600 text-sm font-bold">{error}</p>
+                <p className="text-red-600 text-[11px] font-black uppercase italic leading-tight">{error}</p>
               </div>
           )}
 
           <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <input
-                  type="email"
-                  placeholder="Email"
-                  value={email}
-                  className="w-full p-4 bg-slate-50 rounded-xl border border-slate-200 font-bold text-slate-900 focus:ring-2 focus:ring-red-500 outline-none transition-all"
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  disabled={loading}
-              />
-            </div>
-
-            <div>
-              <input
-                  type="password"
-                  placeholder="Mot de passe"
-                  value={password}
-                  className="w-full p-4 bg-slate-50 rounded-xl border border-slate-200 font-bold text-slate-900 focus:ring-2 focus:ring-red-500 outline-none transition-all"
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={loading}
-              />
-            </div>
+            <input
+                type="email"
+                placeholder="Email"
+                className="w-full p-4 bg-slate-100/50 rounded-xl border border-slate-200 font-bold text-slate-900 focus:ring-2 focus:ring-red-600 outline-none transition-all text-sm"
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={loading}
+            />
+            <input
+                type="password"
+                placeholder="Mot de passe"
+                className="w-full p-4 bg-slate-100/50 rounded-xl border border-slate-200 font-bold text-slate-900 focus:ring-2 focus:ring-red-600 outline-none transition-all text-sm"
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+            />
 
             <button
+                type="submit"
                 disabled={loading}
-                className="w-full bg-red-600 text-white font-black py-4 rounded-xl hover:bg-slate-900 hover:shadow-lg hover:-translate-y-1 active:scale-95 transition-all uppercase italic tracking-widest flex items-center justify-center gap-2 disabled:opacity-70"
+                className="w-full bg-red-600 text-white font-black py-4 rounded-xl hover:bg-slate-900 shadow-xl shadow-red-100 hover:-translate-y-1 active:scale-95 transition-all uppercase italic tracking-widest flex items-center justify-center gap-2 disabled:opacity-70"
             >
-              {loading ? <Loader2 className="animate-spin" /> : "Se connecter"}
+              {loading ? (
+                  <>
+                    <Loader2 className="animate-spin" size={20} />
+                    <span>Connexion en cours...</span>
+                  </>
+              ) : (
+                  "Se connecter"
+              )}
             </button>
           </form>
         </div>

@@ -27,7 +27,8 @@ export function Navbar() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    window.location.href = "/"; // Force le nettoyage complet du cache et des états
+    // On force un rechargement complet de la page pour vider le cache d'authentification de Next.js
+    window.location.assign('/');
   };
 
   const handleSearch = (e: React.KeyboardEvent | React.FormEvent) => {
@@ -97,7 +98,7 @@ export function Navbar() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                     type="search"
-                    placeholder={profile?.role === 'admin' ? "Gérer..." : "Rechercher..."}
+                    placeholder={profile?.role === 'admin' ? "Gérer membre..." : "Rechercher membre..."}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSearch(e)}

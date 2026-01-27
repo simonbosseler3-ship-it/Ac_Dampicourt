@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { User, Search as SearchIcon, Loader2, Trophy, ShieldCheck, HardHat } from "lucide-react";
+import { User, Search as SearchIcon, Loader2, Trophy, ShieldCheck, HardHat, ChevronRight } from "lucide-react";
 
 export default function SearchPage() {
   const searchParams = useSearchParams();
@@ -38,7 +38,6 @@ export default function SearchPage() {
 
         const merged: { [key: string]: any } = {};
 
-        // 1. ATHLÈTES
         athletesRes.data?.forEach(item => {
           const key = createUnificationKey(item.nom, item.prenom);
           merged[key] = {
@@ -49,7 +48,6 @@ export default function SearchPage() {
           };
         });
 
-        // 2. ENTRAÎNEURS
         coachesRes.data?.forEach(item => {
           const key = createUnificationKey(item.name);
           if (merged[key]) {
@@ -66,7 +64,6 @@ export default function SearchPage() {
           }
         });
 
-        // 3. OFFICIELS
         officialsRes.data?.forEach(item => {
           const key = createUnificationKey(item.name);
           if (merged[key]) {
@@ -95,87 +92,85 @@ export default function SearchPage() {
   }, [query]);
 
   return (
-      <main className="container mx-auto px-4 pt-24 pb-20 min-h-screen bg-slate-50/20">
-        {/* HEADER */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-          <div className="flex items-center gap-4">
-            <div className="bg-red-600 p-3 rounded-2xl shadow-xl shadow-red-100">
-              <SearchIcon className="text-white" size={24} />
+      <main className="container mx-auto px-4 pt-32 pb-20 min-h-screen bg-transparent animate-in fade-in duration-700">
+
+        {/* HEADER FLUIDE */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+          <div className="flex items-center gap-6">
+            <div className="bg-red-600 p-4 rounded-2xl shadow-xl shadow-red-200">
+              <SearchIcon className="text-white" size={28} />
             </div>
             <div>
-              <h1 className="text-3xl font-black uppercase italic tracking-tighter text-slate-900 leading-none">
-                Résultats : <span className="text-red-600">"{query}"</span>
+              <span className="text-red-600 font-black uppercase italic tracking-[0.3em] text-[10px] mb-2 block">Base de données membres</span>
+              <h1 className="text-4xl md:text-5xl font-black uppercase italic tracking-tighter text-slate-900 leading-none">
+                RÉSULTATS : <span className="text-red-600">"{query}"</span>
               </h1>
-              <p className="text-slate-500 font-bold text-xs mt-1 uppercase tracking-[0.2em]">
-                {results.length} membre(s) trouvé(s)
+              <p className="text-slate-400 font-bold text-[10px] mt-2 uppercase tracking-widest">
+                {results.length} membre(s) identifié(s)
               </p>
             </div>
           </div>
         </div>
 
         {loading ? (
-            <div className="flex flex-col items-center justify-center py-32 gap-4">
-              <Loader2 className="animate-spin text-red-600" size={40} />
-              <p className="text-slate-400 font-black uppercase italic text-[10px] tracking-[0.3em]">Chargement...</p>
+            <div className="flex flex-col items-center justify-center py-40 gap-4 bg-white/30 backdrop-blur-md rounded-[3rem] border border-white">
+              <Loader2 className="animate-spin text-red-600" size={48} />
+              <p className="text-slate-500 font-black uppercase italic text-xs tracking-widest">Recherche en cours...</p>
             </div>
         ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {results.map((person, index) => (
                   <div
                       key={index}
-                      className="group relative bg-white border border-slate-100 p-7 rounded-[2.5rem] shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col justify-between overflow-hidden"
+                      className="group bg-white/70 backdrop-blur-md border border-white p-8 rounded-[2.5rem] shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 flex flex-col justify-between overflow-hidden relative"
                   >
+                    {/* Effet de brillance au survol */}
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-600 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
                     <div>
-                      <div className="flex justify-between items-start mb-8">
-                        <div className={`p-4 rounded-2xl ${
-                            person.roles?.includes('entraineur') ? 'bg-blue-50 text-blue-600' :
-                                person.roles?.includes('officiel') ? 'bg-amber-50 text-amber-600' : 'bg-slate-50 text-slate-400'
+                      <div className="flex justify-between items-start mb-10">
+                        <div className={`p-4 rounded-2xl shadow-inner ${
+                            person.roles?.includes('entraineur') ? 'bg-blue-600 text-white shadow-blue-200' :
+                                person.roles?.includes('officiel') ? 'bg-amber-500 text-white shadow-amber-200' : 'bg-slate-900 text-white'
                         }`}>
-                          <User size={28} />
+                          <User size={24} />
                         </div>
 
-                        {/* LISTE DES BADGES */}
+                        {/* BADGES ROLES EPURÉS */}
                         <div className="flex flex-col items-end gap-1.5">
                           {person.roles?.sort().map((role: string) => (
-                              <div key={role}>
-                                {role === 'athlete' && (
-                                    <span className="bg-red-600 text-white text-[9px] font-black px-3 py-1.5 rounded-lg uppercase italic flex items-center gap-1.5 shadow-md shadow-red-50">
-                            <Trophy size={11}/> Athlète
-                          </span>
-                                )}
-                                {role === 'entraineur' && (
-                                    <span className="bg-blue-600 text-white text-[9px] font-black px-3 py-1.5 rounded-lg uppercase italic flex items-center gap-1.5 shadow-md shadow-blue-50">
-                            <HardHat size={11}/> Entraîneur
-                          </span>
-                                )}
-                                {role === 'officiel' && (
-                                    <span className="bg-amber-500 text-white text-[9px] font-black px-3 py-1.5 rounded-lg uppercase italic flex items-center gap-1.5 shadow-md shadow-amber-50">
-                            <ShieldCheck size={11}/> Officiel
-                          </span>
-                                )}
-                              </div>
+                              <span key={role} className={`text-[8px] font-black px-3 py-1.5 rounded-lg uppercase italic tracking-widest flex items-center gap-2 shadow-sm ${
+                                  role === 'athlete' ? 'bg-red-600 text-white' :
+                                      role === 'entraineur' ? 'bg-blue-600 text-white' : 'bg-amber-500 text-white'
+                              }`}>
+                        {role === 'athlete' && <Trophy size={10}/>}
+                                {role === 'entraineur' && <HardHat size={10}/>}
+                                {role === 'officiel' && <ShieldCheck size={10}/>}
+                                {role}
+                      </span>
                           ))}
                         </div>
                       </div>
 
                       <div className="space-y-4">
-                        <h3 className="text-2xl font-black uppercase italic text-slate-900 leading-none tracking-tighter">
-                          {person.dispPrenom} <span className="text-red-600">{person.dispNom}</span>
+                        <h3 className="text-2xl font-black uppercase italic text-slate-900 leading-none tracking-tighter group-hover:text-red-600 transition-colors">
+                          {person.dispPrenom} <br />
+                          <span className="text-3xl">{person.dispNom}</span>
                         </h3>
 
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-2 pt-2">
                           {person.num_dossard && (
-                              <span className="text-[10px] font-black text-red-600 bg-red-50 px-3 py-1 rounded-full uppercase border border-red-100 italic">
+                              <span className="text-[9px] font-black text-red-600 bg-red-50 px-3 py-1.5 rounded-full uppercase italic border border-red-100">
                         Dossard: {person.num_dossard}
                       </span>
                           )}
                           {person.specialite && (
-                              <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase border border-blue-100 italic">
+                              <span className="text-[9px] font-black text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full uppercase italic border border-blue-100">
                         {person.specialite}
                       </span>
                           )}
                           {person.grade && (
-                              <span className="text-[10px] font-black text-amber-600 bg-amber-50 px-3 py-1 rounded-full uppercase border border-amber-100 italic">
+                              <span className="text-[9px] font-black text-amber-600 bg-amber-50 px-3 py-1.5 rounded-full uppercase italic border border-amber-100">
                         {person.grade}
                       </span>
                           )}
@@ -183,16 +178,17 @@ export default function SearchPage() {
                       </div>
                     </div>
 
-                    {/* INFOS ATHLÈTE */}
+                    {/* FOOTER DE CARTE ATHLÈTE */}
                     {person.roles?.includes('athlete') && (
-                        <div className="mt-8 flex items-center gap-8 border-t border-slate-50 pt-6">
+                        <div className="mt-10 flex items-center gap-6 border-t border-slate-100 pt-6">
                           <div>
-                            <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1.5">Catégorie</p>
-                            <p className="font-black text-slate-700 italic text-sm leading-none">{person.categorie || "—"}</p>
+                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Catégorie</p>
+                            <p className="font-black text-slate-900 italic text-xs uppercase tracking-tighter">{person.categorie || "—"}</p>
                           </div>
-                          <div className="border-l border-slate-100 pl-8">
-                            <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1.5">Année</p>
-                            <p className="font-black text-slate-700 italic text-sm leading-none">{person.annee_naissance || "—"}</p>
+                          <div className="h-8 w-px bg-slate-100" />
+                          <div>
+                            <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Année</p>
+                            <p className="font-black text-slate-900 italic text-xs tracking-tighter">{person.annee_naissance || "—"}</p>
                           </div>
                         </div>
                     )}
@@ -201,12 +197,18 @@ export default function SearchPage() {
             </div>
         )}
 
-        {/* ETAT VIDE */}
+        {/* ÉTAT VIDE DESIGNÉ */}
         {!loading && results.length === 0 && (
-            <div className="text-center py-40 bg-white rounded-[3rem] border border-slate-50">
-              <p className="text-slate-400 font-black uppercase italic tracking-widest text-sm">
-                Aucun résultat trouvé
+            <div className="text-center py-40 bg-white/50 backdrop-blur-md rounded-[3rem] border border-white shadow-xl">
+              <div className="bg-slate-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <SearchIcon className="text-slate-300" size={32} />
+              </div>
+              <p className="text-slate-400 font-black uppercase italic tracking-[0.3em] text-sm">
+                Aucun membre trouvé pour <span className="text-red-600">"{query}"</span>
               </p>
+              <button onClick={() => window.history.back()} className="mt-8 text-xs font-black uppercase italic text-red-600 hover:underline">
+                ← Retourner à l'accueil
+              </button>
             </div>
         )}
       </main>
