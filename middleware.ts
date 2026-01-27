@@ -1,11 +1,10 @@
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
+  // 1. On crée une réponse de base
+  let supabaseResponse = NextResponse.next({
+    request,
   })
 
   const supabase = createServerClient(
@@ -13,30 +12,32 @@ export async function middleware(request: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
-          get(name: string) {
-            return request.cookies.get(name)?.value
+          getAll() {
+            return request.cookies.getAll()
           },
-          set(name: string, value: string, options: CookieOptions) {
-            // On applique les cookies à la requête pour le serveur
-            request.cookies.set({ name, value, ...options })
-            // ET à la réponse pour le navigateur
-            response.cookies.set({ name, value, ...options })
-          },
-          remove(name: string, options: CookieOptions) {
-            request.cookies.set({ name, value: '', ...options })
-            response.cookies.set({ name, value: '', ...options })
+          setAll(cookiesToSet) {
+            // On met à jour la requête pour que les Server Components voient les cookies
+            cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+            // On recrée la réponse avec la requête mise à jour
+            supabaseResponse = NextResponse.next({
+              request,
+            })
+            // On écrit les cookies dans la réponse finale pour le navigateur
+            cookiesToSet.forEach(({ name, value, options }) =>
+                supabaseResponse.cookies.set(name, value, options)
+            )
           },
         },
       }
   )
 
-  // CRUCIAL : getUser() rafraîchit la session si elle expire.
-  // On ne stocke pas le résultat, on laisse Supabase gérer les cookies via les fonctions set/remove définies au-dessus.
+  // IMPORTANT : On vérifie l'utilisateur.
+  // Si le token est expiré, setAll() sera appelé automatiquement au-dessus.
   await supabase.auth.getUser()
 
-  return response
+  return supabaseResponse
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
 }
