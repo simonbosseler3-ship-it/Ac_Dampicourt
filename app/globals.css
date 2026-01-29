@@ -115,12 +115,28 @@
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
+@layer utilities {
+  .bg-honeycomb {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='208' viewBox='0 0 120 208'%3E%3Cpath d='M60 156l-60-34.6V51.4L60 16.8l60 34.6v69.9L60 156z' fill='none' stroke='%23ef4444' stroke-opacity='0.4' stroke-width='2'/%3E%3C/svg%3E");
+    background-size: 120px 208px;
+  }
+
+  .animate-float-slow {
+    animation: float 40s linear infinite;
+  }
+
+  @keyframes float {
+    from { background-position: 0 0; }
+    to { background-position: 120px 208px; }
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
-    background-color: transparent;
+    background-color: transparent !important;
     @apply text-foreground min-h-screen antialiased;
   }
 }

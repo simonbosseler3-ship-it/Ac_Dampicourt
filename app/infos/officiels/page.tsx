@@ -11,7 +11,6 @@ export default function OfficielsPage() {
   const [officials, setOfficials] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
 
-  // Vérification admin via le Context
   const isAdmin = profile?.role?.toLowerCase().trim() === 'admin';
 
   useEffect(() => {

@@ -1,7 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
-import { Navbar } from "@/components/navbar/navbar";
 import { Save, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 

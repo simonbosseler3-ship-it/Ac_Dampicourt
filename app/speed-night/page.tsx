@@ -37,7 +37,6 @@ const AdminForm = ({ initialData, activeId, onSave, onCancel, showNotification }
   const [editData, setEditData] = useState(initialData);
   const [loading, setLoading] = useState(false);
 
-  // Upload d'image de fond
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -57,7 +56,6 @@ const AdminForm = ({ initialData, activeId, onSave, onCancel, showNotification }
     }
   };
 
-  // Fonctions de gestion du programme (JSONB)
   const addCategory = () => {
     const newTable = [...(editData.events_table || [])];
     newTable.push({ category: "", tests: [{ name: "", sub: "", price: "6,00" }] });
@@ -80,8 +78,6 @@ const AdminForm = ({ initialData, activeId, onSave, onCancel, showNotification }
     setLoading(true);
 
     try {
-      // On prépare l'objet à sauvegarder.
-      // NOTE: gallery_links n'est pas inclus ici pour ne pas écraser tes modifs manuelles en base de données.
       const payload = {
         description: editData.description,
         competition_type: editData.competition_type,

@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/app/context/authContext";
-import { Loader2, ArrowLeft, Edit2, Trash2 } from "lucide-react";
-import Link from "next/link";
+import { Loader2, Edit2 } from "lucide-react";
 
 export default function ArticlePage() {
   const { id } = useParams();
@@ -15,7 +14,6 @@ export default function ArticlePage() {
   const [article, setArticle] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // Vérification des droits admin/rédacteur pour la fluidité
   const canEdit = profile?.role === 'admin' || profile?.role === 'redacteur';
 
   useEffect(() => {

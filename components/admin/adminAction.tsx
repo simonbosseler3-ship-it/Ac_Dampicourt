@@ -4,10 +4,9 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import { Trash2, Edit, AlertTriangle, EyeOff, Eye } from "lucide-react"; // Ajout de Eye
+import { Trash2, Edit, AlertTriangle, EyeOff, Eye } from "lucide-react";
 import Link from "next/link";
 
-// On ajoute isHidden dans les props pour savoir quel bouton afficher
 export function AdminActions({ id, isHidden }: { id: string, isHidden?: boolean }) {
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false); // Renommé pour être plus générique

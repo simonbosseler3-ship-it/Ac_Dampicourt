@@ -12,13 +12,11 @@ export default function ClubPage() {
   const [comite, setComite] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
 
-  // Vérification du rôle admin
   const isAdmin = profile?.role?.toLowerCase().trim() === 'admin';
 
   useEffect(() => {
     async function fetchData() {
       try {
-        // On lance les deux requêtes en parallèle pour gagner du temps
         const [infoRes, comiteRes] = await Promise.all([
           supabase.from('club_info').select('*').single(),
           supabase.from('club_comite').select('*').order('order_index', { ascending: true })
@@ -35,7 +33,6 @@ export default function ClubPage() {
     fetchData();
   }, []);
 
-  // Skeleton screen pendant le chargement initial des données pour la fluidité
   if (dataLoading) {
     return (
         <div className="min-h-screen flex items-center justify-center">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Calculator, Trophy, Zap, Clock, ChevronDown, Info } from "lucide-react";
+import { Zap, Clock, ChevronDown, Info } from "lucide-react";
 
 /**
  * COEFFICIENTS OFFICIELS WORLD ATHLETICS (TABLES SPIRIEV)
@@ -11,7 +11,7 @@ import { Calculator, Trophy, Zap, Clock, ChevronDown, Info } from "lucide-react"
 const COEFFICIENTS: any = {
   homme: {
     "100m": { a: 25.4347, b: 18.0, type: "track" },
-    "200m": { a: 5.8425, b: 38.0, type: "track" }, // 23.20 -> ~760 pts (Correct)
+    "200m": { a: 5.8425, b: 38.0, type: "track" },
     "400m": { a: 1.53775, b: 82.0, type: "track" },
     "800m": { a: 0.13279, b: 235.0, type: "track" },
     "1500m": { a: 0.03768, b: 480.0, type: "track" },
@@ -25,7 +25,7 @@ const COEFFICIENTS: any = {
   femme: {
     "100m": { a: 17.857, b: 21.5, type: "track" },
     "200m": { a: 4.9908, b: 46.5, type: "track" },
-    "400m": { a: 1.342, b: 103.0, type: "track" }, // 55.50 -> ~1020 pts (Correct)
+    "400m": { a: 1.342, b: 103.0, type: "track" },
     "800m": { a: 0.11193, b: 310.0, type: "track" },
     "1500m": { a: 0.03524, b: 615.0, type: "track" },
     "100m Haies": { a: 9.2307, b: 30.0, type: "track" },
@@ -45,14 +45,12 @@ export default function TableHongroiseFinale() {
     const clean = input.trim().replace(",", ".");
     if (!clean) return NaN;
 
-    // Format MM:SS.cc
     if (clean.includes(":")) {
       const parts = clean.split(":");
       return parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
     }
 
     const val = parseFloat(clean);
-    // Aide pour le demi-fond (ex: 2.10 -> 130s)
     if (["800m", "1500m"].includes(currentEvent) && clean.includes(".") && val < 10) {
       const p = clean.split(".");
       return parseInt(p[0]) * 60 + parseFloat(p[1] || "0");

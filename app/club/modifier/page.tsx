@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import { Navbar } from "@/components/navbar/navbar";
 import { Save, ArrowLeft, Plus, Trash2, Loader2, Check } from "lucide-react";
 
 export default function ModifierClubPage() {
@@ -13,7 +12,6 @@ export default function ModifierClubPage() {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  // États pour les données
   const [info, setInfo] = useState({
     history_text: "",
     quote_text: "",
@@ -44,7 +42,6 @@ export default function ModifierClubPage() {
           return;
         }
 
-        // Récupération des données
         const { data: infoData } = await supabase.from('club_info').select('*').single();
         const { data: comiteData } = await supabase.from('club_comite').select('*').order('order_index', { ascending: true });
 
@@ -64,10 +61,7 @@ export default function ModifierClubPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      // 1. Mise à jour des infos textuelles
       await supabase.from('club_info').update(info).eq('id', 'main_info');
-
-      // 2. Mise à jour du comité (on vide et on réinsère pour gérer l'ordre et les suppressions)
       await supabase.from('club_comite').delete().neq('role', 'FORCE_DELETE_CATCH_ALL');
 
       const comiteToInsert = comite.map((member, index) => ({

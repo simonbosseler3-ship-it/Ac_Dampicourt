@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createBrowserClient } from "@supabase/ssr";
-import { Navbar } from "@/components/navbar/navbar";
-import { Trash2, ArrowLeft, ShieldCheck, UserPlus, AlertTriangle, X } from "lucide-react";
+import { Trash2, ArrowLeft, ShieldCheck, UserPlus, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Toaster, toast } from "sonner"; // Optionnel : npm install sonner
@@ -19,7 +18,6 @@ export default function GererOfficielsPage() {
   const [loading, setLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
 
-  // États pour la modal de suppression personnalisée
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {

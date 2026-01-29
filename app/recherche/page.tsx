@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { User, Search as SearchIcon, Loader2, Trophy, ShieldCheck, HardHat, ChevronRight } from "lucide-react";
+import { User, Search as SearchIcon, Loader2, Trophy, ShieldCheck, HardHat } from "lucide-react";
 
 export default function SearchPage() {
   const searchParams = useSearchParams();

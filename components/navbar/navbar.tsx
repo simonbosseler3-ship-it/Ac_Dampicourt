@@ -5,10 +5,10 @@ import Image from "next/image";
 import { Search, LogOut, ChevronDown, Menu, X, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter, usePathname } from "next/navigation";
-import { useAuth } from "../../app/context/authContext";
+import { useAuth } from "@/app/context/authContext";
 
 export function Navbar() {
   const { user, profile, loading } = useAuth();

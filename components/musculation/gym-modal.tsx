@@ -3,7 +3,6 @@
 import { createPortal } from "react-dom";
 import { AlertTriangle, Info, LogIn } from "lucide-react";
 import { useEffect, useState } from "react";
-import Link from "next/link";
 
 interface GymModalProps {
   isOpen: boolean;

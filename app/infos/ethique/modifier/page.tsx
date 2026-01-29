@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createBrowserClient } from "@supabase/ssr";
-import { Navbar } from "@/components/navbar/navbar";
-import { ArrowLeft, Save, ShieldCheck, Mail, Info, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Save, ShieldCheck, Mail, Info } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Toaster, toast } from "sonner";
@@ -35,7 +34,6 @@ export default function ModifierEthiquePage() {
         return;
       }
 
-      // Charger la config actuelle
       const { data } = await supabase.from('training_page_config').select('*').single();
       if (data) {
         setConfig({

@@ -54,7 +54,6 @@ export default function MusculationPage() {
 
   // --- RÉCUPÉRATION DES RÉSERVATIONS ---
   const fetchReservations = useCallback(async (dateRef: Date) => {
-    // On ne fetch que si l'utilisateur est potentiellement connecté
     const start = startOfWeek(dateRef, { weekStartsOn: 1 });
     const end = addDays(start, 7);
 

@@ -3,12 +3,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import { Navbar } from "@/components/navbar/navbar";
 import { Upload, Check, ArrowLeft, Loader2, Calendar } from "lucide-react";
 
 export default function NouveauArticle() {
   const [title, setTitle] = useState("");
-  // Initialisation avec la date du jour au format YYYY-MM-DD
   const [dateText, setDateText] = useState(new Date().toISOString().split('T')[0]);
   const [content, setContent] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -86,7 +84,6 @@ export default function NouveauArticle() {
       .from('news-images')
       .getPublicUrl(filePath);
 
-      // L'insertion enverra maintenant une date valide (ex: "2026-01-23")
       const { error: insertError } = await supabase.from('news').insert([
         {
           title,

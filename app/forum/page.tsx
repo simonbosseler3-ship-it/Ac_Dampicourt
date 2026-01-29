@@ -32,12 +32,10 @@ function ForumContent() {
     async function fetchData() {
       setLoading(true);
       try {
-        // 1. Récupérer les catégories uniques
         const { data: catData } = await supabase.from('forum_topics').select('category');
         const uniqueCats = ["Tous", ...new Set(catData?.map(c => c.category) || [])];
         setCategories(uniqueCats);
 
-        // 2. Construire la requête des topics
         let query = supabase
         .from('forum_topics')
         .select(`*, forum_messages ( id )`)

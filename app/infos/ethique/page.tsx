@@ -36,7 +36,6 @@ export default function EthiquePage() {
 
   const contactEmail = config?.referent_email || "referent.ethique@lbfa.be";
 
-  // Optionnel : Un petit skeleton pendant que les données chargent
   if (dataLoading) {
     return (
         <div className="min-h-screen flex items-center justify-center">

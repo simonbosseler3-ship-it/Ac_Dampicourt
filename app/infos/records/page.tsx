@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { FileText, Mail, MapPin, Phone, Award, Settings, Trophy, Zap } from "lucide-react";
+import { FileText, Mail, Phone, Award, Settings, Trophy } from "lucide-react";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +15,6 @@ export default async function RecordsPage() {
 
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Récupération parallèle pour plus de rapidité
   const [maleRes, femaleRes] = await Promise.all([
     supabase.from('club_records').select('*').eq('category', 'Masculin').order('display_order', { ascending: true }),
     supabase.from('club_records').select('*').eq('category', 'Féminin').order('display_order', { ascending: true })

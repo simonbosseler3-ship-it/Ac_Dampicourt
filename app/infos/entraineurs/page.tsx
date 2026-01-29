@@ -11,7 +11,6 @@ export default function EntraineursPage() {
   const [trainers, setTrainers] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
 
-  // Vérification admin simplifiée via le Context
   const isAdmin = profile?.role?.toLowerCase().trim() === 'admin';
 
   useEffect(() => {
@@ -34,7 +33,6 @@ export default function EntraineursPage() {
     fetchTrainers();
   }, []);
 
-  // Affichage d'un loader léger pendant le chargement des données
   if (dataLoading) {
     return (
         <div className="min-h-screen flex items-center justify-center">

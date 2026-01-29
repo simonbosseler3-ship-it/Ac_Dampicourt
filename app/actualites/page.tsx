@@ -25,7 +25,6 @@ export default function ActualitesPage() {
   const [redacteurs, setRedacteurs] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
 
-  // Déduction des permissions depuis le Context
   const role = profile?.role?.toLowerCase().trim();
   const isAdmin = role === 'admin';
   const canManage = isAdmin || role === 'redacteur';
@@ -33,21 +32,17 @@ export default function ActualitesPage() {
   useEffect(() => {
     async function fetchNewsData() {
       try {
-        // 1. Récupération des rédacteurs
         const redacteursPromise = supabase
         .from('profiles')
         .select('full_name')
         .eq('role', 'redacteur')
         .order('full_name');
 
-        // 2. Préparation de la requête News
         let newsQuery = supabase
         .from('news')
         .select('*, author:profiles(full_name)')
         .order('date_text', { ascending: false });
 
-        // Si l'utilisateur n'est pas admin, on filtre les actus masquées
-        // Note: On attend que l'auth soit chargée pour être sûr du filtre
         if (!authLoading && !isAdmin) {
           newsQuery = newsQuery.eq('is_hidden', false);
         }

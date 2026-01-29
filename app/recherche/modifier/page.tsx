@@ -4,8 +4,8 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import {
-  User, Search as SearchIcon, Loader2, Plus,
-  Pencil, Trash2, X, Save, ArrowLeft, AlertTriangle
+  Loader2, Plus,
+  Pencil, Trash2, X, ArrowLeft, AlertTriangle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

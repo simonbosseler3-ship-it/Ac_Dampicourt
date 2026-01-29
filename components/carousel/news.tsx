@@ -1,4 +1,3 @@
-// src/components/news.tsx
 "use client";
 
 import * as React from "react";
@@ -18,10 +17,8 @@ export function HeroNews({ newsData }: { newsData: NewsItem[] }) {
       Autoplay({ delay: 10000, stopOnInteraction: false })
   );
 
-  // Si pas de news, on ne rien afficher
   if (!newsData || newsData.length === 0) return null;
 
-  // On limite l'affichage aux 3 actualités les plus récentes
   const latestNews = newsData.slice(0, 3);
 
   return (

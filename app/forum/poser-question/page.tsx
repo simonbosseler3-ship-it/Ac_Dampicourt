@@ -28,7 +28,6 @@ export default function NouveauTopicPage() {
     setLoading(true);
 
     try {
-      // 1. Insertion du sujet
       const { data: topic, error: topicError } = await supabase
       .from('forum_topics')
       .insert({
@@ -43,7 +42,6 @@ export default function NouveauTopicPage() {
       if (topicError) throw topicError;
 
       if (topic && content) {
-        // 2. Insertion du message initial
         await supabase.from('forum_messages').insert({
           topic_id: topic.id,
           author_id: user?.id || null,
@@ -51,8 +49,6 @@ export default function NouveauTopicPage() {
           is_staff_answer: false
         });
 
-        // 3. Notification Email via une API Route (pour ne pas bloquer le client)
-        // On lance l'appel sans attendre le 'await' pour rediriger plus vite
         fetch('/api/forum/notify', {
           method: 'POST',
           body: JSON.stringify({
@@ -64,7 +60,6 @@ export default function NouveauTopicPage() {
         }).catch(err => console.error("Email notification failed", err));
       }
 
-      // Redirection immédiate
       router.push('/forum');
       router.refresh();
     } catch (err) {

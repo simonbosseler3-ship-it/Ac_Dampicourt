@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { createBrowserClient } from "@supabase/ssr";
-import { Navbar } from "@/components/navbar/navbar";
-import { Plus, Trash2, ArrowLeft, AlertTriangle, UserPlus } from "lucide-react";
+import { Trash2, ArrowLeft, AlertTriangle, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Toaster, toast } from "sonner"; // Pense à faire : npm install sonner
+import { Toaster, toast } from "sonner";
 
 export default function GererEntraineursPage() {
   const supabase = createBrowserClient(

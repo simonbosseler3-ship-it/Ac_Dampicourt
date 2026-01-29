@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, Calendar, Trophy, Mail, Info, MousePointer2, ArrowRight } from "lucide-react";
+import { ExternalLink, Calendar, Trophy, Info, MousePointer2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function InscriptionsPage() {

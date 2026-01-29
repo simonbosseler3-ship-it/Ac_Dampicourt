@@ -3,20 +3,17 @@
 import { useEffect, useState, use } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import { Navbar } from "@/components/navbar/navbar";
 import { Upload, Check, ArrowLeft, Loader2 } from "lucide-react";
 
 export default function ModifierArticle({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
 
-  // États du formulaire
   const [title, setTitle] = useState("");
   const [dateText, setDateText] = useState("");
   const [content, setContent] = useState(""); // Nouveau champ texte
   const [imageUrl, setImageUrl] = useState("");
 
-  // États techniques
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -24,7 +21,6 @@ export default function ModifierArticle({ params }: { params: Promise<{ id: stri
 
   useEffect(() => {
     const loadArticle = async () => {
-      // 1. Vérifier si l'utilisateur est admin
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         router.push("/actualites");
@@ -81,7 +77,6 @@ export default function ModifierArticle({ params }: { params: Promise<{ id: stri
     try {
       let finalImageUrl = imageUrl;
 
-      // Si une nouvelle image a été sélectionnée, on l'uploade
       if (file) {
         const fileExt = file.name.split('.').pop();
         const fileName = `${Math.random()}.${fileExt}`;
@@ -98,7 +93,6 @@ export default function ModifierArticle({ params }: { params: Promise<{ id: stri
         finalImageUrl = publicUrl;
       }
 
-      // Mise à jour des données dans la table 'news'
       const { error: updateError } = await supabase
       .from('news')
       .update({
@@ -111,7 +105,6 @@ export default function ModifierArticle({ params }: { params: Promise<{ id: stri
 
       if (updateError) throw updateError;
 
-      // Retour à la page des actualités avec rafraîchissement
       router.push("/actualites");
       router.refresh();
     } catch (error: any) {

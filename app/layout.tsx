@@ -23,12 +23,42 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
       <html lang="fr">
-      {/* On applique les polices et le dégradé directement sur le body */}
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-linear-to-b from-white via-red-50/50 to-red-600/60`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen relative`}>
+
+      {/* --- ARRIÈRE-PLAN "RED RISE" --- */}
+      <div className="fixed inset-0 -z-50 overflow-hidden bg-white">
+
+        {/* 1. Dégradé de fond : Le rouge monte plus haut (via-red-100) */}
+        <div className="absolute inset-0 bg-linear-to-b from-white via-red-100/40 via-40% to-red-600/40"></div>
+
+        {/* 2. Première couche d'hexagones (Plus présente dès le milieu) */}
+        <div
+            className="absolute inset-0 bg-honeycomb opacity-50"
+            style={{
+              // On monte le dégradé du masque : les hexagones deviennent bien nets plus tôt
+              maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 30%, rgba(0,0,0,1) 100%)',
+              WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 30%, rgba(0,0,0,1) 100%)'
+            }}
+        ></div>
+
+        {/* 3. Deuxième couche d'hexagones (Dynamique) */}
+        <div
+            className="absolute inset-0 bg-honeycomb opacity-30 animate-float-slow"
+            style={{
+              marginLeft: '60px',
+              marginTop: '104px',
+              maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.8) 100%)',
+              WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.8) 100%)'
+            }}
+        ></div>
+
+        {/* 4. Halo de lisibilité (On le réduit pour laisser monter le rouge) */}
+        <div className="absolute inset-0 bg-radial from-white/30 via-transparent to-transparent opacity-40"></div>
+      </div>
+
       <AuthProvider>
         <div className="flex flex-col min-h-screen">
           <Navbar />
-          {/* Le contenu (children) sera transparent par défaut, laissant voir le dégradé derrière */}
           <main className="flex-grow pt-20 relative">
             {children}
           </main>
