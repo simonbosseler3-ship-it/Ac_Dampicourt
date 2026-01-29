@@ -1,18 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { User, Search as SearchIcon, Loader2, Trophy, ShieldCheck, HardHat } from "lucide-react";
 
-export default function SearchPage() {
+function SearchResults() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q");
 
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // --- LOGIQUE DE FUSION UNIVERSELLE ---
   const createUnificationKey = (text1: string, text2: string = "") => {
     return (text1 + text2)
     .toLowerCase()
@@ -26,7 +25,10 @@ export default function SearchPage() {
 
   useEffect(() => {
     const fetchGlobalSearch = async () => {
-      if (!query) return;
+      if (!query) {
+        setLoading(false);
+        return;
+      }
       setLoading(true);
 
       try {
@@ -92,8 +94,7 @@ export default function SearchPage() {
   }, [query]);
 
   return (
-      <main className="container mx-auto px-4 pt-32 pb-20 min-h-screen bg-transparent animate-in fade-in duration-700">
-
+      <>
         {/* HEADER FLUIDE */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
           <div className="flex items-center gap-6">
@@ -103,7 +104,7 @@ export default function SearchPage() {
             <div>
               <span className="text-red-600 font-black uppercase italic tracking-[0.3em] text-[10px] mb-2 block">Base de données membres</span>
               <h1 className="text-4xl md:text-5xl font-black uppercase italic tracking-tighter text-slate-900 leading-none">
-                RÉSULTATS : <span className="text-red-600">"{query}"</span>
+                RÉSULTATS : <span className="text-red-600">"{query || ""}"</span>
               </h1>
               <p className="text-slate-400 font-bold text-[10px] mt-2 uppercase tracking-widest">
                 {results.length} membre(s) identifié(s)
@@ -124,9 +125,7 @@ export default function SearchPage() {
                       key={index}
                       className="group bg-white/70 backdrop-blur-md border border-white p-8 rounded-[2.5rem] shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 flex flex-col justify-between overflow-hidden relative"
                   >
-                    {/* Effet de brillance au survol */}
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-600 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-
                     <div>
                       <div className="flex justify-between items-start mb-10">
                         <div className={`p-4 rounded-2xl shadow-inner ${
@@ -135,29 +134,25 @@ export default function SearchPage() {
                         }`}>
                           <User size={24} />
                         </div>
-
-                        {/* BADGES ROLES EPURÉS */}
                         <div className="flex flex-col items-end gap-1.5">
                           {person.roles?.sort().map((role: string) => (
                               <span key={role} className={`text-[8px] font-black px-3 py-1.5 rounded-lg uppercase italic tracking-widest flex items-center gap-2 shadow-sm ${
                                   role === 'athlete' ? 'bg-red-600 text-white' :
                                       role === 'entraineur' ? 'bg-blue-600 text-white' : 'bg-amber-500 text-white'
                               }`}>
-                        {role === 'athlete' && <Trophy size={10}/>}
-                                {role === 'entraineur' && <HardHat size={10}/>}
-                                {role === 'officiel' && <ShieldCheck size={10}/>}
+                        {role === 'athlete' && <Trophy size={10} />}
+                                {role === 'entraineur' && <HardHat size={10} />}
+                                {role === 'officiel' && <ShieldCheck size={10} />}
                                 {role}
                       </span>
                           ))}
                         </div>
                       </div>
-
                       <div className="space-y-4">
                         <h3 className="text-2xl font-black uppercase italic text-slate-900 leading-none tracking-tighter group-hover:text-red-600 transition-colors">
                           {person.dispPrenom} <br />
                           <span className="text-3xl">{person.dispNom}</span>
                         </h3>
-
                         <div className="flex flex-wrap gap-2 pt-2">
                           {person.num_dossard && (
                               <span className="text-[9px] font-black text-red-600 bg-red-50 px-3 py-1.5 rounded-full uppercase italic border border-red-100">
@@ -177,8 +172,6 @@ export default function SearchPage() {
                         </div>
                       </div>
                     </div>
-
-                    {/* FOOTER DE CARTE ATHLÈTE */}
                     {person.roles?.includes('athlete') && (
                         <div className="mt-10 flex items-center gap-6 border-t border-slate-100 pt-6">
                           <div>
@@ -197,20 +190,34 @@ export default function SearchPage() {
             </div>
         )}
 
-        {/* ÉTAT VIDE DESIGNÉ */}
         {!loading && results.length === 0 && (
             <div className="text-center py-40 bg-white/50 backdrop-blur-md rounded-[3rem] border border-white shadow-xl">
               <div className="bg-slate-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
                 <SearchIcon className="text-slate-300" size={32} />
               </div>
               <p className="text-slate-400 font-black uppercase italic tracking-[0.3em] text-sm">
-                Aucun membre trouvé pour <span className="text-red-600">"{query}"</span>
+                Aucun membre trouvé pour <span className="text-red-600">"{query || ""}"</span>
               </p>
               <button onClick={() => window.history.back()} className="mt-8 text-xs font-black uppercase italic text-red-600 hover:underline">
                 ← Retourner à l'accueil
               </button>
             </div>
         )}
+      </>
+  );
+}
+
+export default function SearchPage() {
+  return (
+      <main className="container mx-auto px-4 pt-32 pb-20 min-h-screen bg-transparent animate-in fade-in duration-700">
+        <Suspense fallback={
+          <div className="flex flex-col items-center justify-center py-40 gap-4">
+            <Loader2 className="animate-spin text-red-600" size={48} />
+            <p className="text-slate-500 font-black uppercase italic text-xs tracking-widest">Initialisation...</p>
+          </div>
+        }>
+          <SearchResults />
+        </Suspense>
       </main>
   );
 }
