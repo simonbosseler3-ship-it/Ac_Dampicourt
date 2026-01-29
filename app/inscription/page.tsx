@@ -11,7 +11,7 @@ export default function InscriptionsPage() {
           {/* HERO SECTION */}
           <div className="max-w-4xl mx-auto text-center mb-20">
           <span className="text-red-600 font-black uppercase italic tracking-[0.3em] text-xs mb-2 block">
-            Engagement & Performance
+            Inscriptions
           </span>
             <h1 className="text-5xl md:text-7xl font-black text-slate-900 uppercase italic tracking-tighter leading-none mb-6">
               PRÊT POUR LA <br /><span className="text-red-600">COMPÉTITION ?</span>

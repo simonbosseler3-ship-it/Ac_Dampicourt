@@ -381,7 +381,7 @@ export default function SpeedNightPage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
       const { data } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
-      if (data?.role === 'admin' || data?.role === 'redacteur') setIsAdmin(true);
+      if (data?.role === 'admin') setIsAdmin(true);
     } catch (e) { console.warn("Auth check failed", e); }
   }, []);
 

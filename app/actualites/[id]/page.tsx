@@ -50,23 +50,6 @@ export default function ArticlePage() {
 
   return (
       <div className="min-h-screen">
-        {/* Barre d'action Admin - Apparaît dynamiquement sans rechargement */}
-        {canEdit && (
-            <div
-                className="bg-slate-900 text-white py-3 px-4 sticky top-0 z-50 flex justify-between items-center shadow-lg border-b border-red-600">
-          <span className="text-[10px] font-black uppercase tracking-widest italic">
-            Mode Administration <span className="text-red-500 ml-2">● En ligne</span>
-          </span>
-              <div className="flex gap-4">
-                <button
-                    onClick={() => router.push(`/admin/news/edit/${id}`)}
-                    className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded text-xs font-bold uppercase transition-all"
-                >
-                  <Edit2 size={12}/> Modifier
-                </button>
-              </div>
-            </div>
-        )}
 
         <main className="container mx-auto px-4 py-12 max-w-4xl">
           {/* Badge Date (Donnée originale conservée) */}

@@ -1,6 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 
-// Typage pour ton profil
 interface StaffProfile {
   private_email: string | null;
 }
