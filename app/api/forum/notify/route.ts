@@ -2,7 +2,6 @@ import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 
-// On initialise à l'intérieur ou on vérifie l'existence
 const resend = new Resend(process.env.RESEND_API_KEY);
 const supabaseAdmin = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

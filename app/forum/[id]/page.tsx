@@ -47,12 +47,10 @@ export default function TopicDetailPage({ params }: { params: Promise<{ id: stri
       table: 'forum_messages',
       filter: `topic_id=eq.${id}`
     }, async (payload) => {
-      // 1. On vérifie si le message n'est pas déjà là (pour l'auteur)
       setMessages(prev => {
         const exists = prev.some(m => m.id === payload.new.id);
         if (exists) return prev;
 
-        // 2. Si c'est un nouveau message d'un autre utilisateur, on récupère son profil
         const fetchAndAdd = async () => {
           const { data } = await supabase
           .from('forum_messages')

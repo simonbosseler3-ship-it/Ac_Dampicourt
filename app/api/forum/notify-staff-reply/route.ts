@@ -24,10 +24,6 @@ export async function POST(req: Request) {
     ?.map(s => s.email?.toLowerCase())
     .filter(email => email && email.endsWith('@acdampicourt.be')) as string[];
 
-    // --- CORRECTION POUR LE TEST ---
-    // Tant que ton domaine n'est pas "Verified", tu DOIS utiliser onboarding@resend.dev
-    // Et envoyer uniquement à ton adresse de compte (simon.bosseler@acdampicourt.be)
-
     const { data, error: resendError } = await resend.emails.send({
       from: 'onboarding@resend.dev',
       to: 'simon.bosseler@acdampicourt.be', // Force ton mail pour le test

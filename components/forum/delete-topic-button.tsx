@@ -52,7 +52,6 @@ export function DeleteTopicButton({ topicId, onDelete }: DeleteTopicButtonProps)
     }
   };
 
-  // 1. État : Chargement
   if (status === "deleting") {
     return (
         <div className="p-3 bg-slate-100 text-slate-400 rounded-2xl animate-pulse">
@@ -61,7 +60,6 @@ export function DeleteTopicButton({ topicId, onDelete }: DeleteTopicButtonProps)
     );
   }
 
-  // 2. État : Demande de confirmation esthétique
   if (status === "confirm") {
     return (
         <div className="flex items-center gap-2 animate-in zoom-in duration-200">
@@ -81,7 +79,6 @@ export function DeleteTopicButton({ topicId, onDelete }: DeleteTopicButtonProps)
     );
   }
 
-  // 3. État : Normal (Idle)
   return (
       <button
           onClick={handleInitialClick}
