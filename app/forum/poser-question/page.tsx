@@ -100,7 +100,7 @@ export default function NouveauTopicPage() {
                     name="title"
                     required
                     disabled={loading}
-                    placeholder="Ex: Horaires du car pour le cross d'Etalle"
+                    placeholder="Ex: Heure démarrage compétition samedi"
                     className="w-full bg-slate-50/50 border-2 border-slate-100 rounded-2xl py-4 px-6 font-bold focus:border-red-600 focus:bg-white outline-none transition-all placeholder:text-slate-300 text-slate-900"
                 />
               </div>

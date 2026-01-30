@@ -1,79 +1,94 @@
-'use client'
+"use client";
 
-import { Trash2, AlertTriangle, Loader2 } from "lucide-react"
-import { useState } from "react"
-import { deleteTopic } from "@/actions/user-actions"
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import { Trash2, Loader2, X, Check } from "lucide-react";
 
-export function DeleteTopicButton({ topicId }: { topicId: string }) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
+interface DeleteTopicButtonProps {
+  topicId: string;
+  onDelete: () => void;
+}
 
-  const openModal = (e: React.MouseEvent) => {
+export function DeleteTopicButton({ topicId, onDelete }: DeleteTopicButtonProps) {
+  const [status, setStatus] = useState<"idle" | "confirm" | "deleting">("idle");
+
+  // Réinitialise le bouton si on ne clique pas sur "Confirmer" après 3 secondes
+  useEffect(() => {
+    if (status === "confirm") {
+      const timer = setTimeout(() => setStatus("idle"), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [status]);
+
+  const handleInitialClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsOpen(true);
-  }
+    setStatus("confirm");
+  };
 
-  const handleDelete = async (e: React.MouseEvent) => {
+  const handleCancel = (e: React.MouseEvent) => {
     e.preventDefault();
-    e.stopPropagation(); // CRUCIAL : empêche le lien de s'ouvrir au moment de confirmer
+    e.stopPropagation();
+    setStatus("idle");
+  };
 
-    setIsDeleting(true)
-    const result = await deleteTopic(topicId)
+  const handleConfirmDelete = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
 
-    if (result?.error) {
-      alert("Erreur: " + result.error)
-      setIsDeleting(false)
-    } else {
-      setIsOpen(false)
+    setStatus("deleting");
+
+    try {
+      // Suppression des messages puis du topic
+      await supabase.from("forum_messages").delete().eq("topic_id", topicId);
+      const { error } = await supabase.from("forum_topics").delete().eq("id", topicId);
+
+      if (error) throw error;
+      onDelete();
+    } catch (error) {
+      console.error("Erreur:", error);
+      alert("Erreur lors de la suppression");
+      setStatus("idle");
     }
+  };
+
+  // 1. État : Chargement
+  if (status === "deleting") {
+    return (
+        <div className="p-3 bg-slate-100 text-slate-400 rounded-2xl animate-pulse">
+          <Loader2 size={18} className="animate-spin" />
+        </div>
+    );
   }
 
+  // 2. État : Demande de confirmation esthétique
+  if (status === "confirm") {
+    return (
+        <div className="flex items-center gap-2 animate-in zoom-in duration-200">
+          <button
+              onClick={handleConfirmDelete}
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-[10px] font-black uppercase italic tracking-widest rounded-xl hover:bg-red-700 shadow-lg shadow-red-200 transition-all active:scale-95"
+          >
+            <Check size={14} /> Confirmer
+          </button>
+          <button
+              onClick={handleCancel}
+              className="p-2 bg-slate-100 text-slate-500 rounded-xl hover:bg-slate-200 transition-all"
+          >
+            <X size={14} />
+          </button>
+        </div>
+    );
+  }
+
+  // 3. État : Normal (Idle)
   return (
-      <>
-        <button
-            onClick={openModal}
-            className="p-3 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all z-40 relative"
-        >
-          <Trash2 size={18} />
-        </button>
-
-        {isOpen && (
-            <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-              <div
-                  className="bg-white rounded-[2rem] p-8 max-w-sm w-full shadow-2xl border border-slate-100 animate-in zoom-in-95 duration-200"
-                  onClick={(e) => e.stopPropagation()}
-              >
-                <div className="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mb-6">
-                  <AlertTriangle size={32} />
-                </div>
-
-                <h3 className="text-2xl font-black uppercase italic text-slate-900 mb-2">
-                  Supprimer le <span className="text-red-600">Sujet ?</span>
-                </h3>
-                <p className="text-slate-500 font-medium mb-8">
-                  Cette action supprimera également tous les messages liés en base de données.
-                </p>
-
-                <div className="flex gap-3">
-                  <button
-                      disabled={isDeleting}
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsOpen(false); }}
-                      className="flex-1 py-4 rounded-xl font-bold text-slate-500 hover:bg-slate-100 transition-colors"
-                  >
-                    Annuler
-                  </button>
-                  <button
-                      disabled={isDeleting}
-                      onClick={handleDelete}
-                      className="flex-1 py-4 bg-red-600 text-white rounded-xl font-black uppercase italic tracking-widest hover:bg-slate-900 transition-all flex items-center justify-center"
-                  >
-                    {isDeleting ? <Loader2 className="animate-spin" size={20} /> : "Confirmer"}
-                  </button>
-                </div>
-              </div>
-            </div>
-        )}
-      </>
-  )
+      <button
+          onClick={handleInitialClick}
+          className="p-3 bg-white border-2 border-slate-100 text-slate-400 hover:text-red-600 hover:border-red-600 hover:bg-red-50 rounded-2xl transition-all shadow-sm group/btn"
+          title="Supprimer la discussion"
+      >
+        <Trash2 size={18} className="group-hover/btn:scale-110 transition-transform" />
+      </button>
+  );
 }

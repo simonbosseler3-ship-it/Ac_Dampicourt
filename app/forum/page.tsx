@@ -69,6 +69,11 @@ function ForumContent() {
     router.push(`/forum?${params.toString()}`);
   };
 
+  // Fonction pour supprimer le topic de l'affichage localement
+  const handleRemoveTopicLocally = (id: string) => {
+    setTopics((prev) => prev.filter((topic) => topic.id !== id));
+  };
+
   return (
       <main className="container mx-auto px-4 pt-32 pb-20 animate-in fade-in duration-500">
         {/* HEADER */}
@@ -132,9 +137,10 @@ function ForumContent() {
               </div>
           ) : topics.length > 0 ? (
               topics.map((topic) => (
-                  <div key={topic.id} className="relative group">
-                    <Link href={`/forum/${topic.id}`} className="block">
-                      <div className="bg-white/80 backdrop-blur-sm border-2 border-transparent p-6 rounded-[2.5rem] hover:border-red-200 hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-300 flex items-center justify-between">
+                  <div key={topic.id} className="flex items-center gap-4 group">
+                    {/* ZONE DE LIEN : OCCUPE TOUT L'ESPACE RESTANT */}
+                    <Link href={`/forum/${topic.id}`} className="flex-1 block">
+                      <div className="bg-white/80 backdrop-blur-sm border-2 border-transparent p-6 rounded-[2.5rem] group-hover:border-red-200 group-hover:shadow-2xl group-hover:shadow-slate-200/50 transition-all duration-300 flex items-center justify-between">
                         <div className="flex items-start gap-6">
                           <div className="hidden sm:flex h-14 w-14 rounded-2xl bg-slate-50 items-center justify-center text-slate-400 group-hover:bg-red-50 group-hover:text-red-600 transition-colors">
                             <User size={24}/>
@@ -142,9 +148,9 @@ function ForumContent() {
 
                           <div className="space-y-1">
                             <div className="flex items-center gap-3">
-                        <span className="text-[9px] font-black uppercase tracking-widest text-red-600 bg-red-50 px-2 py-0.5 rounded">
-                          {topic.category}
-                        </span>
+                              <span className="text-[9px] font-black uppercase tracking-widest text-red-600 bg-red-50 px-2 py-0.5 rounded">
+                                {topic.category}
+                              </span>
                             </div>
                             <h3 className="text-xl font-black uppercase italic text-slate-900 group-hover:text-red-600 transition-colors leading-tight">
                               {topic.title}
@@ -156,12 +162,6 @@ function ForumContent() {
                         </div>
 
                         <div className="flex items-center gap-4 md:gap-8">
-                          {profile?.role === 'admin' && (
-                              <div onClick={(e) => e.preventDefault()}>
-                                <DeleteTopicButton topicId={topic.id} />
-                              </div>
-                          )}
-
                           <div className="hidden md:flex flex-col items-center">
                             <span className="text-xl font-black text-slate-900">{topic.forum_messages?.length || 0}</span>
                             <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Réponses</span>
@@ -172,6 +172,16 @@ function ForumContent() {
                         </div>
                       </div>
                     </Link>
+
+                    {/* BOUTON SUPPRESSION : ISOLÉ À DROITE */}
+                    {profile?.role === 'admin' && (
+                        <div className="flex-shrink-0 pr-2">
+                          <DeleteTopicButton
+                              topicId={topic.id}
+                              onDelete={() => handleRemoveTopicLocally(topic.id)}
+                          />
+                        </div>
+                    )}
                   </div>
               ))
           ) : (
