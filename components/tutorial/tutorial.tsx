@@ -1,18 +1,16 @@
 'use client'
 
-import { Rocket, CheckCircle, Loader2, Dumbbell, MessageSquare, ShieldCheck, PenTool, Star } from 'lucide-react'
+import { Rocket, CheckCircle, Loader2, Dumbbell, MessageSquare, ShieldCheck, PenTool } from 'lucide-react'
 import { createBrowserClient } from '@supabase/ssr'
-import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
 interface TutorialProps {
   role: string;
   userId: string;
-  userName: string; // Nouvelle prop pour le prénom
+  userName: string;
 }
 
 export function TutorialOverlay({ role, userId, userName }: TutorialProps) {
-  const router = useRouter()
   const [isUpdating, setIsUpdating] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
 
@@ -23,16 +21,20 @@ export function TutorialOverlay({ role, userId, userName }: TutorialProps) {
 
   const handleFinish = async () => {
     setIsUpdating(true)
+
+    // 1. Mise à jour dans la base de données
     const { error } = await supabase
     .from('profiles')
     .update({ has_seen_tutorial: true })
     .eq('id', userId)
 
     if (!error) {
+      // 2. On cache immédiatement l'overlay pour le visuel
       setIsVisible(false)
-      router.refresh()
+
+      window.location.reload()
     } else {
-      console.error(error)
+      console.error("Erreur tutoriel:", error)
       setIsUpdating(false)
     }
   }
@@ -84,6 +86,8 @@ export function TutorialOverlay({ role, userId, userName }: TutorialProps) {
   };
 
   const content = getContent();
+
+  // Si on a cliqué ou que les données disent que c'est vu, on ne rend rien
   if (!isVisible) return null;
 
   return (
