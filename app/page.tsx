@@ -19,23 +19,43 @@ import { TutorialOverlay } from "@/components/tutorial/tutorial";
 export default function Home() {
   const { user, profile, loading: authLoading } = useAuth();
   const [news, setNews] = useState<any[]>([]);
+  const [latestEvent, setLatestEvent] = useState<any>(null);
   const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
     async function fetchHomeData() {
       try {
-        // Récupération des 3 dernières actualités publiques
-        const { data, error } = await supabase
+        // 1. News
+        const newsPromise = supabase
         .from('news')
         .select('*')
         .eq('is_hidden', false)
         .order('date_text', { ascending: false })
         .limit(3);
 
-        if (error) throw error;
-        setNews(data || []);
+        // 2. Événement le plus récent (updated_at ou created_at) qui n'est pas caché
+        const eventPromise = supabase
+        .from('competition_config')
+        .select('title')
+        .neq('hidden', true)
+        .order('updated_at', { ascending: false })
+        .limit(1);
+
+        const [newsRes, eventRes] = await Promise.all([newsPromise, eventPromise]);
+
+        if (newsRes.error) throw newsRes.error;
+        setNews(newsRes.data || []);
+
+        if (eventRes.data && eventRes.data.length > 0) {
+          setLatestEvent(eventRes.data[0]);
+        } else {
+          setLatestEvent(null);
+        }
+
+        if (eventRes.error) console.error("Erreur event:", eventRes.error);
+
       } catch (err) {
-        console.error("Erreur chargement news accueil:", err);
+        console.error("Erreur chargement données accueil:", err);
       } finally {
         setDataLoading(false);
       }
@@ -47,7 +67,7 @@ export default function Home() {
   return (
       <main className="container mx-auto px-4 pt-10 pb-12 animate-in fade-in duration-700">
 
-        {/* POP-UP TUTORIEL (Apparaît dès que l'auth est chargée) */}
+        {/* POP-UP TUTORIEL */}
         {!authLoading && user && profile && !profile.has_seen_tutorial && (
             <TutorialOverlay
                 role={profile.role}
@@ -56,7 +76,7 @@ export default function Home() {
             />
         )}
 
-        {/* CAROUSEL (Skeleton pendant le chargement) */}
+        {/* CAROUSEL */}
         <div className="mb-10 min-h-[400px]">
           {dataLoading ? (
               <div className="w-full h-[400px] bg-slate-200/50 animate-pulse rounded-[3rem] flex items-center justify-center">
@@ -74,7 +94,7 @@ export default function Home() {
           <Link href="/infos/records" className="group relative h-48 rounded-[2.5rem] bg-white/80 backdrop-blur-sm border-2 border-slate-100 hover:border-slate-900 overflow-hidden transition-all duration-500 hover:shadow-2xl">
             <div className="absolute inset-0 bg-slate-900 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0"></div>
             <div className="absolute -bottom-6 -left-6 text-slate-100 group-hover:text-slate-800 transition-colors duration-500 z-0 group-hover:scale-125 group-hover:rotate-12 transition-transform origin-bottom-left">
-              <Trophy size={140} strokeWidth={0.5}/>
+              <Trophy size={140} strokeWidth={0.5} />
             </div>
             <div className="relative z-10 h-full flex flex-col justify-between p-8">
               <div className="flex justify-between items-start">
@@ -96,7 +116,7 @@ export default function Home() {
           <Link href="/inscription" className="group relative h-48 rounded-[2.5rem] bg-red-600 border-2 border-red-600 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-red-200 hover:-translate-y-1">
             <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
             <div className="absolute top-1/2 -translate-y-1/2 right-[-2rem] text-black/10 group-hover:text-white/20 z-0 transition-transform group-hover:scale-110">
-              <CalendarCheck size={160} strokeWidth={1}/>
+              <CalendarCheck size={160} strokeWidth={1} />
             </div>
             <div className="relative z-10 h-full flex flex-col justify-between p-8">
               <div className="bg-black/20 p-3 rounded-2xl w-fit group-hover:bg-white text-white group-hover:text-red-600 transition-all">
@@ -112,11 +132,11 @@ export default function Home() {
             </div>
           </Link>
 
-          {/* CARTE 3 : SPEED NIGHT */}
+          {/* CARTE 3 : ÉVÉNEMENT DYNAMIQUE (Speed Night etc) */}
           <Link href="/speed-night" className="group relative h-48 rounded-[2.5rem] bg-white/80 backdrop-blur-sm border-2 border-slate-100 hover:border-red-600 overflow-hidden transition-all duration-500 hover:shadow-2xl">
             <div className="absolute inset-0 bg-red-600 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0"></div>
             <div className="absolute -top-6 -right-6 text-slate-100 group-hover:text-red-700 z-0 group-hover:scale-125 group-hover:-rotate-12 transition-transform origin-top-right">
-              <Timer size={140} strokeWidth={0.5}/>
+              <Timer size={140} strokeWidth={0.5} />
             </div>
             <div className="relative z-10 h-full flex flex-col justify-between p-8">
               <div className="flex justify-between items-start">
@@ -128,8 +148,12 @@ export default function Home() {
                 </div>
               </div>
               <div>
-                <h3 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter group-hover:text-white transition-colors">Speed Night/Race</h3>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 group-hover:text-red-200 mt-1">Événement Majeur</p>
+                <h3 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter group-hover:text-white transition-colors line-clamp-1">
+                  {latestEvent ? latestEvent.title : "Événement"}
+                </h3>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 group-hover:text-red-200 mt-1">
+                  {latestEvent ? "Événement Majeur" : "Bientôt de retour"}
+                </p>
               </div>
             </div>
           </Link>
