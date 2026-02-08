@@ -27,7 +27,6 @@ export function Navbar() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    // On force un rechargement complet de la page pour vider le cache d'authentification de Next.js
     window.location.assign('/');
   };
 
@@ -56,7 +55,7 @@ export function Navbar() {
             </button>
 
             <div className="flex items-center">
-              <Link href="/" className="flex items-center group">
+              <Link href="/" prefetch={false} className="flex items-center group">
                 <div className="relative h-10 w-40 md:h-14 md:w-64 transition-transform group-hover:scale-105">
                   <Image src="/Logo-ACD-1024x193.svg" alt="Logo ACD" fill className="object-contain object-left" priority />
                 </div>
@@ -64,8 +63,8 @@ export function Navbar() {
             </div>
 
             <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-black uppercase tracking-wider h-full">
-              <Link href="/club" className={linkStyle("/club")}>Le Club</Link>
-              <Link href="/actualites" className={linkStyle("/actualites")}>Actualités</Link>
+              <Link href="/club" prefetch={false} className={linkStyle("/club")}>Le Club</Link>
+              <Link href="/actualites" prefetch={false} className={linkStyle("/actualites")}>Actualités</Link>
 
               <div className="flex items-center gap-4 border-l-2 border-slate-100 pl-4 lg:pl-6 h-8 mx-2">
                 <Link href="https://www.beathletics.be/calendar" target="_blank" className="text-slate-600 hover:text-red-600 transition-colors">Calendrier</Link>
@@ -81,16 +80,15 @@ export function Navbar() {
                   <div className="bg-white border-t-4 border-red-600 rounded-b-2xl shadow-2xl overflow-hidden p-2 ring-1 ring-black/5">
                     <Link href="https://forms.office.com/Pages/ResponsePage.aspx?id=8NDtava2GUyioHDog0RKA5OE9wvWsX5JlJ8w-lY0WKlURjNDMllWMkdEWUYzVFEwMFRQREZWU1NKWi4u" target="_blank" className="block px-4 py-3 text-[11px] font-black uppercase italic text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all">Affiliation au club</Link>
                     <Link href="https://allures-libres-de-gaume.be/" target="_blank" className="block px-4 py-3 text-[11px] font-black uppercase italic text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all border-t">Allures libres</Link>
-                    <Link href="/infos/kbpm" className="block px-4 py-3 text-[11px] font-black uppercase italic text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all border-t">K.B.P.M</Link>
-                    <Link href="/infos/entraineurs" className="block px-4 py-3 text-[11px] font-black uppercase italic text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all border-t">Entraîneurs</Link>
-                    <Link href="/infos/officiels" className="block px-4 py-3 text-[11px] font-black uppercase italic text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all border-t">Officiels</Link>
-                    <Link href="/infos/ethique" className="block px-4 py-3 text-[11px] font-black uppercase italic text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all border-t">Éthique & Dopage</Link>
-                    {/*<Link href="/infos/table-hongroise" className={`block px-4 py-3 text-[11px] font-black uppercase italic rounded-xl border-t ${pathname === "/infos/table-hongroise" ? "bg-red-50 text-red-600" : "text-slate-600 hover:bg-red-50 hover:text-red-600"}`}>Table hongroise</Link>]]*/}
+                    <Link href="/infos/kbpm" prefetch={false} className="block px-4 py-3 text-[11px] font-black uppercase italic text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all border-t">K.B.P.M</Link>
+                    <Link href="/infos/entraineurs" prefetch={false} className="block px-4 py-3 text-[11px] font-black uppercase italic text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all border-t">Entraîneurs</Link>
+                    <Link href="/infos/officiels" prefetch={false} className="block px-4 py-3 text-[11px] font-black uppercase italic text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all border-t">Officiels</Link>
+                    <Link href="/infos/ethique" prefetch={false} className="block px-4 py-3 text-[11px] font-black uppercase italic text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all border-t">Éthique & Dopage</Link>
                   </div>
                 </div>
               </div>
 
-              <Link href="/musculation" className={linkStyle("/musculation")}>Musculation</Link>
+              <Link href="/musculation" prefetch={false} className={linkStyle("/musculation")}>Musculation</Link>
             </nav>
 
             <div className="flex items-center gap-4">
@@ -120,14 +118,14 @@ export function Navbar() {
                           </Button>
                         </div>
                     ) : (
-                        <Link href="/login">
+                        <Link href="/login" prefetch={false}>
                           <Button className="bg-red-600 hover:bg-red-700 text-white font-black rounded-xl px-6 h-10 shadow-lg shadow-red-200 uppercase italic text-xs transition-all active:scale-95">
                             Connexion
                           </Button>
                         </Link>
                     )
                 ) : (
-                    <div className="h-10 w-24 bg-slate-100 animate-pulse rounded-xl" /> // Skeleton discret pendant le chargement
+                    <div className="h-10 w-24 bg-slate-100 animate-pulse rounded-xl" />
                 )}
               </div>
             </div>
@@ -157,11 +155,11 @@ export function Navbar() {
                 <Input type="search" placeholder="Rechercher..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-10 bg-slate-100 border-none rounded-xl" />
               </form>
 
-              <Link href="/club" onClick={() => setIsMenuOpen(false)} className="p-3 border-b border-slate-50">Le Club</Link>
-              <Link href="/actualites" onClick={() => setIsMenuOpen(false)} className="p-3 border-b border-slate-50">Actualités</Link>
+              <Link href="/club" prefetch={false} onClick={() => setIsMenuOpen(false)} className="p-3 border-b border-slate-50">Le Club</Link>
+              <Link href="/actualites" prefetch={false} onClick={() => setIsMenuOpen(false)} className="p-3 border-b border-slate-50">Actualités</Link>
               <Link href="https://www.beathletics.be/calendar" target="_blank" className="p-3 border-b border-slate-50 text-red-600">📅 Calendrier</Link>
               <Link href="https://www.beathletics.be/results" target="_blank" className="p-3 border-b border-slate-50 text-red-600">🏆 Résultats</Link>
-              <Link href="/musculation" onClick={() => setIsMenuOpen(false)} className="p-3 border-b border-slate-50">Musculation</Link>
+              <Link href="/musculation" prefetch={false} onClick={() => setIsMenuOpen(false)} className="p-3 border-b border-slate-50">Musculation</Link>
 
               <div className="h-px bg-slate-100 my-2" />
               <button onClick={() => setIsMobileInfosOpen(!isMobileInfosOpen)} className="w-full flex items-center justify-between p-3">Infos <ChevronDown size={16} className={isMobileInfosOpen ? "rotate-180 text-red-600" : ""} /></button>
@@ -169,11 +167,10 @@ export function Navbar() {
                   <div className="bg-slate-50 rounded-lg flex flex-col pl-4 text-[10px] text-slate-600">
                     <Link href="https://forms.office.com/Pages/ResponsePage.aspx?id=8NDtava2GUyioHDog0RKA5OE9wvWsX5JlJ8w-lY0WKlURjNDMllWMkdEWUYzVFEwMFRQREZWU1NKWi4u" target="_blank" className="p-3 border-b border-white">Affiliation</Link>
                     <Link href="https://allures-libres-de-gaume.be/" target="_blank" className="p-3 border-b border-white">Allures libres</Link>
-                    <Link href="/infos/kbpm" className="p-3 border-b border-white">K.B.P.M</Link>
-                    <Link href="/infos/entraineurs" className="p-3 border-b border-white">Entraîneurs</Link>
-                    <Link href="/infos/officiels" className="p-3 border-b border-white">Officiels</Link>
-                    <Link href="/infos/ethique" className="p-3 border-b border-white">Éthique</Link>
-                    {/*<Link href="/infos/table-hongroise" className="p-3">Table hongroise</Link>*/}
+                    <Link href="/infos/kbpm" prefetch={false} className="p-3 border-b border-white">K.B.P.M</Link>
+                    <Link href="/infos/entraineurs" prefetch={false} className="p-3 border-b border-white">Entraîneurs</Link>
+                    <Link href="/infos/officiels" prefetch={false} className="p-3 border-b border-white">Officiels</Link>
+                    <Link href="/infos/ethique" prefetch={false} className="p-3 border-b border-white">Éthique</Link>
                   </div>
               )}
 

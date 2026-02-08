@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, Calendar, Trophy, Info, MousePointer2, ArrowRight } from "lucide-react";
+import { ExternalLink, Calendar, Trophy, Info, MousePointer2, ArrowRight, Flag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function InscriptionsPage() {
@@ -19,7 +19,8 @@ export default function InscriptionsPage() {
             <div className="h-2 w-32 bg-red-600 mx-auto shadow-lg shadow-red-200"></div>
           </div>
 
-          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+          {/* SECTION PLATEFORMES (Haut) */}
+          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
 
             {/* PLATEFORME 1 : BEATHLETICS (LBFA) */}
             <div className="bg-white/70 backdrop-blur-md rounded-[3rem] p-10 border border-white shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all group relative overflow-hidden">
@@ -84,38 +85,62 @@ export default function InscriptionsPage() {
             </div>
           </div>
 
-          {/* SECTION CHAMPIONNATS (BERNARD THOMAS) */}
-          <div className="max-w-6xl mx-auto">
-            <div className="bg-slate-900 rounded-[3rem] p-10 md:p-16 text-white relative overflow-hidden shadow-2xl">
-              <Trophy className="absolute right-[-30px] bottom-[-30px] text-white/5 w-80 h-80 -rotate-12" />
+          {/* SECTION RESPONSABLES (Bas) */}
+          <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-              <div className="relative z-10 flex flex-col lg:flex-row items-center gap-12">
-                <div className="flex-grow">
-                  <div className="inline-flex items-center gap-2 bg-red-600 px-5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-8 shadow-lg shadow-red-900/20">
-                    <Trophy size={14} /> Championnats Officiels
-                  </div>
-                  <h2 className="text-4xl md:text-5xl font-black uppercase italic tracking-tighter mb-6 leading-none">
-                    Provinciaux, <br /><span className="text-red-600">LBFA & Nationaux</span>
-                  </h2>
-                  <p className="text-slate-400 text-sm font-bold max-w-xl leading-relaxed uppercase tracking-tight italic">
-                    Attention : pour les championnats officiels, la procédure est centralisée. L'inscription individuelle n'est pas autorisée.
-                  </p>
+            {/* CARTE 1 : CHAMPIONNATS (Bernard Thomas) */}
+            <div className="bg-slate-900 rounded-[3rem] p-10 text-white relative overflow-hidden shadow-2xl flex flex-col justify-between">
+              <Trophy className="absolute right-[-20px] bottom-[-20px] text-white/5 w-64 h-64 -rotate-12" />
+
+              <div className="relative z-10">
+                <div className="inline-flex items-center gap-2 bg-red-600 px-5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-6 shadow-lg shadow-red-900/20">
+                  <Trophy size={14} /> Championnats
                 </div>
+                <h2 className="text-3xl md:text-4xl font-black uppercase italic tracking-tighter mb-4 leading-none">
+                  Provinciaux <br /><span className="text-red-600">& LBFA</span>
+                </h2>
+                <p className="text-slate-400 text-sm font-bold mb-8 leading-relaxed uppercase tracking-tight italic">
+                  Pour les championnats officiels, l'inscription est centralisée par le club.
+                </p>
 
-                <div className="shrink-0 w-full lg:w-auto">
-                  <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-10 rounded-[2.5rem] text-center group hover:border-red-600 transition-colors">
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-red-500 mb-2">Responsable Club</p>
-                    <p className="text-3xl font-black uppercase italic mb-8 tracking-tighter">Bernard Thomas</p>
-                    <div className="flex items-center justify-center gap-2 text-xs font-black uppercase italic text-slate-400 group-hover:text-white transition-colors">
-                      Contact via le club <ArrowRight size={14} />
-                    </div>
+                <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-[2rem] group hover:border-red-600 transition-colors">
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-red-500 mb-1">Responsable</p>
+                  <p className="text-2xl font-black uppercase italic tracking-tighter mb-4">Bernard Thomas</p>
+                  <div className="flex items-center gap-2 text-[10px] font-black uppercase italic text-slate-400 group-hover:text-white transition-colors">
+                    Contact via le club <ArrowRight size={12} />
                   </div>
                 </div>
               </div>
             </div>
+
+            {/* CARTE 2 : FLA / LUXEMBOURG (Michel Rausch) */}
+            <div className="bg-red-600 rounded-[3rem] p-10 text-white relative overflow-hidden shadow-2xl flex flex-col justify-between">
+              <Flag className="absolute right-[-20px] bottom-[-20px] text-slate-900/10 w-64 h-64 -rotate-12" />
+
+              <div className="relative z-10">
+                <div className="inline-flex items-center gap-2 bg-white text-slate-900 px-5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-6 shadow-lg">
+                  <Flag size={14} /> FLA (Luxembourg)
+                </div>
+                <h2 className="text-3xl md:text-4xl font-black uppercase italic tracking-tighter mb-4 leading-none">
+                  Compétitions <br /><span className="text-slate-900">Grand-Ducales</span>
+                </h2>
+                <p className="text-red-100 text-sm font-bold mb-8 leading-relaxed uppercase tracking-tight italic">
+                  Gestion des inscriptions pour les compétitions de la fédération luxembourgeoise.
+                </p>
+
+                <div className="bg-slate-900/10 backdrop-blur-xl border border-slate-900/10 p-6 rounded-[2rem] group hover:bg-slate-900/20 transition-colors">
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-900 mb-1">Responsable</p>
+                  <p className="text-2xl font-black uppercase italic tracking-tighter mb-4">Michel Rausch</p>
+                  <div className="flex items-center gap-2 text-[10px] font-black uppercase italic text-red-100 group-hover:text-white transition-colors">
+                    Contact via le club <ArrowRight size={12} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
 
-          {/* INFO RAPPEL (MODERNE) */}
+          {/* INFO RAPPEL */}
           <div className="max-w-4xl mx-auto mt-20 bg-white/50 backdrop-blur-md p-8 rounded-[2rem] border border-white shadow-lg flex items-center gap-6 group hover:border-blue-500 transition-all">
             <div className="bg-blue-600 p-4 rounded-2xl text-white shadow-lg shadow-blue-200">
               <Info size={24} />

@@ -32,13 +32,9 @@ export function Footer() {
                 <div className="flex items-start gap-3 text-gray-400">
                   <MapPin size={20} className="text-red-600 shrink-0 mt-1"/>
                   <div>
-                    <p className="font-black text-white uppercase italic leading-none mb-1">Stade Daniel Thiry</p>
+                    <p className="font-black text-white uppercase italic leading-none mb-1">Piste Daniel Thiry</p>
                     <p>Rue du Stade 7, 6762 SAINT-MARD</p>
                   </div>
-                </div>
-                <div className="flex items-center gap-3 text-gray-400">
-                  <Phone size={18} className="text-red-600 shrink-0"/>
-                  <a href="tel:+3263576974" className="hover:text-white transition-colors font-bold">+32 63 57 69 74</a>
                 </div>
               </div>
             </div>

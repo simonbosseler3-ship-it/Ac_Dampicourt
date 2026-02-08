@@ -16,13 +16,10 @@ export async function middleware(request: NextRequest) {
             return request.cookies.getAll()
           },
           setAll(cookiesToSet) {
-            // On met à jour la requête pour que les Server Components voient les cookies
             cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
-            // On recrée la réponse avec la requête mise à jour
             supabaseResponse = NextResponse.next({
               request,
             })
-            // On écrit les cookies dans la réponse finale pour le navigateur
             cookiesToSet.forEach(({ name, value, options }) =>
                 supabaseResponse.cookies.set(name, value, options)
             )
@@ -31,13 +28,25 @@ export async function middleware(request: NextRequest) {
       }
   )
 
-  // IMPORTANT : On vérifie l'utilisateur.
-  // Si le token est expiré, setAll() sera appelé automatiquement au-dessus.
-  await supabase.auth.getUser()
+  // --- MODIFICATION POUR LWS ---
+  // On ne déclenche getUser() que pour les routes protégées ou sensibles.
+  // Cela évite de faire ramer (et planter en 503) les pages publiques comme /club ou /actualites.
+  const isProtectedRoute =
+      request.nextUrl.pathname.startsWith('/admin') ||
+      request.nextUrl.pathname.startsWith('/recherche/modifier') ||
+      request.nextUrl.pathname.startsWith('/mon-compte'); // Ajoute tes routes privées ici
+
+  if (isProtectedRoute) {
+    await supabase.auth.getUser()
+  }
+  // -----------------------------
 
   return supabaseResponse
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'],
+  // On renforce le matcher pour exclure absolument tout ce qui est statique
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|api|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 }

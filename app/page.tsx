@@ -90,8 +90,8 @@ export default function Home() {
         {/* SECTION LIENS PRINCIPAUX */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 px-2 mb-10">
 
-          {/* CARTE 1 : RECORDS DU CLUB */}
-          <Link href="/infos/records" className="group relative h-48 rounded-[2.5rem] bg-white/80 backdrop-blur-sm border-2 border-slate-100 hover:border-slate-900 overflow-hidden transition-all duration-500 hover:shadow-2xl">
+          {/* CARTE 1 : RECORDS DU CLUB - Ajout prefetch={false} */}
+          <Link href="/infos/records" prefetch={false} className="group relative h-48 rounded-[2.5rem] bg-white/80 backdrop-blur-sm border-2 border-slate-100 hover:border-slate-900 overflow-hidden transition-all duration-500 hover:shadow-2xl">
             <div className="absolute inset-0 bg-slate-900 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0"></div>
             <div className="absolute -bottom-6 -left-6 text-slate-100 group-hover:text-slate-800 transition-colors duration-500 z-0 group-hover:scale-125 group-hover:rotate-12 transition-transform origin-bottom-left">
               <Trophy size={140} strokeWidth={0.5} />
@@ -112,8 +112,8 @@ export default function Home() {
             </div>
           </Link>
 
-          {/* CARTE 2 : INSCRIPTIONS */}
-          <Link href="/inscription" className="group relative h-48 rounded-[2.5rem] bg-red-600 border-2 border-red-600 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-red-200 hover:-translate-y-1">
+          {/* CARTE 2 : INSCRIPTIONS - Ajout prefetch={false} */}
+          <Link href="/inscription" prefetch={false} className="group relative h-48 rounded-[2.5rem] bg-red-600 border-2 border-red-600 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-red-200 hover:-translate-y-1">
             <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
             <div className="absolute top-1/2 -translate-y-1/2 right-[-2rem] text-black/10 group-hover:text-white/20 z-0 transition-transform group-hover:scale-110">
               <CalendarCheck size={160} strokeWidth={1} />
@@ -132,8 +132,8 @@ export default function Home() {
             </div>
           </Link>
 
-          {/* CARTE 3 : ÉVÉNEMENT DYNAMIQUE (Speed Night etc) */}
-          <Link href="/speed-night" className="group relative h-48 rounded-[2.5rem] bg-white/80 backdrop-blur-sm border-2 border-slate-100 hover:border-red-600 overflow-hidden transition-all duration-500 hover:shadow-2xl">
+          {/* CARTE 3 : ÉVÉNEMENT DYNAMIQUE - Ajout prefetch={false} */}
+          <Link href="/speed-night" prefetch={false} className="group relative h-48 rounded-[2.5rem] bg-white/80 backdrop-blur-sm border-2 border-slate-100 hover:border-red-600 overflow-hidden transition-all duration-500 hover:shadow-2xl">
             <div className="absolute inset-0 bg-red-600 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0"></div>
             <div className="absolute -top-6 -right-6 text-slate-100 group-hover:text-red-700 z-0 group-hover:scale-125 group-hover:-rotate-12 transition-transform origin-top-right">
               <Timer size={140} strokeWidth={0.5} />
@@ -159,9 +159,9 @@ export default function Home() {
           </Link>
         </section>
 
-        {/* SECTION : FORUM */}
+        {/* SECTION : FORUM - Ajout prefetch={false} */}
         <section className="px-2">
-          <Link href="/forum" className="group block w-full bg-white/80 backdrop-blur-sm border-2 border-slate-100 rounded-[2.5rem] p-8 hover:border-red-600 transition-all duration-300 shadow-sm hover:shadow-xl relative overflow-hidden">
+          <Link href="/forum" prefetch={false} className="group block w-full bg-white/80 backdrop-blur-sm border-2 border-slate-100 rounded-[2.5rem] p-8 hover:border-red-600 transition-all duration-300 shadow-sm hover:shadow-xl relative overflow-hidden">
             <div className="absolute -right-10 -bottom-10 text-slate-50 group-hover:text-red-50 transition-colors duration-500 -rotate-12">
               <MessageSquare size={200} strokeWidth={1} />
             </div>

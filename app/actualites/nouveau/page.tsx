@@ -3,14 +3,20 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import { Upload, Check, ArrowLeft, Loader2, Calendar } from "lucide-react";
+import { Upload, Check, ArrowLeft, Loader2, Calendar, Trophy, FileText, X, Paperclip } from "lucide-react";
 
 export default function NouveauArticle() {
   const [title, setTitle] = useState("");
   const [dateText, setDateText] = useState(new Date().toISOString().split('T')[0]);
   const [content, setContent] = useState("");
+
+  // Image principale
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  // Compétition & Fichiers
+  const [isCompetition, setIsCompetition] = useState(false);
+  const [scheduleFile, setScheduleFile] = useState<File | null>(null);
 
   const [userId, setUserId] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -46,6 +52,7 @@ export default function NouveauArticle() {
     checkAccess();
   }, [router]);
 
+  // GESTION IMAGE COUVERTURE
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
@@ -54,24 +61,33 @@ export default function NouveauArticle() {
     }
   };
 
+  // GESTION FICHIER JOINT (TOUT TYPE)
+  const handleScheduleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setScheduleFile(selectedFile);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!file) {
-      alert("Veuillez sélectionner une image pour l'article.");
+      alert("Veuillez sélectionner une image de couverture pour l'article.");
       return;
     }
 
     if (!userId) {
-      alert("Session utilisateur introuvable. Veuillez vous reconnecter.");
+      alert("Session utilisateur introuvable.");
       return;
     }
 
     setIsUploading(true);
 
     try {
+      // 1. UPLOAD IMAGE PRINCIPALE
       const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
+      const fileName = `cover_${Date.now()}.${fileExt}`;
       const filePath = `articles/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
@@ -80,17 +96,42 @@ export default function NouveauArticle() {
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
+      const { data: { publicUrl: imageUrl } } = supabase.storage
       .from('news-images')
       .getPublicUrl(filePath);
 
+
+      // 2. UPLOAD DOCUMENT JOINT (SI PRÉSENT)
+      let scheduleUrl = null;
+
+      if (isCompetition && scheduleFile) {
+        // On garde le nom d'origine pour que l'extension soit propre (ex: resultat.pdf, info.docx)
+        const originalExt = scheduleFile.name.split('.').pop();
+        const docName = `doc_${Date.now()}.${originalExt}`;
+        const docPath = `files/${docName}`; // Stockage dans un dossier 'files' pour séparer des images
+
+        const { error: scheduleUploadError } = await supabase.storage
+        .from('news-images')
+        .upload(docPath, scheduleFile);
+
+        if (scheduleUploadError) throw scheduleUploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+        .from('news-images')
+        .getPublicUrl(docPath);
+
+        scheduleUrl = publicUrl;
+      }
+
+      // 3. INSERTION DB
       const { error: insertError } = await supabase.from('news').insert([
         {
           title,
-          image_url: publicUrl,
+          image_url: imageUrl,
           date_text: dateText,
           content,
-          author_id: userId
+          author_id: userId,
+          schedule_url: scheduleUrl // Stocke l'URL du fichier quel que soit son type
         }
       ]);
 
@@ -144,15 +185,24 @@ export default function NouveauArticle() {
             {/* IMAGE */}
             <div>
               <label className="block text-xs font-black uppercase italic text-slate-400 mb-2 tracking-widest">Image de couverture</label>
-              <div className="border-4 border-dashed border-slate-100 rounded-3xl p-6 text-center bg-slate-50/50">
+              <div className="border-4 border-dashed border-slate-100 rounded-3xl p-6 text-center bg-slate-50/50 hover:bg-slate-50 transition-colors">
                 {previewUrl ? (
-                    <img
-                        src={previewUrl}
-                        alt="Preview"
-                        className="h-56 w-full object-cover rounded-2xl mb-6 shadow-lg"
-                    />
+                    <div className="relative">
+                      <img
+                          src={previewUrl}
+                          alt="Preview"
+                          className="h-56 w-full object-cover rounded-2xl mb-4 shadow-lg"
+                      />
+                      <button
+                          type="button"
+                          onClick={() => { setFile(null); setPreviewUrl(null); }}
+                          className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
                 ) : (
-                    <div className="py-10 text-slate-300">Aucune image sélectionnée</div>
+                    <div className="py-8 text-slate-300">Aucune image sélectionnée</div>
                 )}
                 <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" id="file-upload" />
                 <label
@@ -164,7 +214,66 @@ export default function NouveauArticle() {
               </div>
             </div>
 
-            {/* DATE (MODIFIÉE EN TYPE DATE) */}
+            {/* TOGGLE COMPETITION / FICHIER */}
+            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+              <div className="flex items-center justify-between mb-4">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <div className={`w-12 h-7 rounded-full p-1 transition-colors ${isCompetition ? 'bg-red-600' : 'bg-slate-300'}`}>
+                    <div className={`bg-white w-5 h-5 rounded-full shadow-md transform transition-transform ${isCompetition ? 'translate-x-5' : 'translate-x-0'}`}></div>
+                  </div>
+                  <span className="font-black uppercase italic text-sm text-slate-700 flex items-center gap-2">
+                            <Trophy size={16} className={isCompetition ? "text-red-600" : "text-slate-400"} />
+                            Lier une compétition / un fichier ?
+                        </span>
+                  <input
+                      type="checkbox"
+                      className="hidden"
+                      checked={isCompetition}
+                      onChange={(e) => setIsCompetition(e.target.checked)}
+                  />
+                </label>
+              </div>
+
+              {/* UPLOAD DOCUMENT (Apparait seulement si compétition/activé) */}
+              {isCompetition && (
+                  <div className="animate-in fade-in slide-in-from-top-2 duration-300 pt-4 border-t border-slate-200">
+                    <label className="block text-xs font-black uppercase italic text-slate-400 mb-2 tracking-widest">
+                      Document joint (Horaire, Résultats, Info...)
+                    </label>
+                    <div className="flex items-center gap-4">
+                      {/* Note: Pas d'attribut accept ici, donc tous les fichiers sont autorisés */}
+                      <input
+                          type="file"
+                          onChange={handleScheduleChange}
+                          className="hidden"
+                          id="schedule-upload"
+                      />
+                      <label
+                          htmlFor="schedule-upload"
+                          className="cursor-pointer bg-slate-900 text-white px-4 py-3 rounded-xl font-bold text-xs uppercase inline-flex items-center gap-2 hover:bg-red-600 transition-all"
+                      >
+                        <Paperclip size={16} />
+                        {scheduleFile ? "Changer le fichier" : "Joindre un fichier"}
+                      </label>
+                      {scheduleFile && (
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium text-green-600 flex items-center gap-1">
+                                <Check size={14} /> Fichier prêt
+                            </span>
+                            <span className="text-[10px] text-slate-500 truncate max-w-[150px]">
+                                {scheduleFile.name}
+                            </span>
+                          </div>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-slate-400 mt-2 italic">
+                      Formats acceptés : PDF, Image, Word, Excel, etc. Un bouton de téléchargement apparaîtra sur l'article.
+                    </p>
+                  </div>
+              )}
+            </div>
+
+            {/* DATE */}
             <div>
               <label className="block text-xs font-black uppercase italic text-slate-400 mb-2 tracking-widest flex items-center gap-2">
                 <Calendar size={14} /> Date de l'actualité
