@@ -99,7 +99,7 @@ export default function ClubPage() {
                 { title: "Endurance", desc: "Circuit de copeaux de 1 km pour l'entraînement (2006)." },
                 { title: "Perche", desc: "Portique multifonctionnel pour l'entraînement (2010)." },
                 { title: "Musculation", desc: "Salle de musculation intérieur équipée" },
-                { title: "Cage de lancer", desc: "Cages de lancers équipée" }
+                { title: "Cage de lancer", desc: "Cages de lancers équipées" }
               ].map((item, idx) => (
                   <div key={idx} className="p-6 bg-slate-50 rounded-2xl border border-slate-100 hover:border-red-200 transition-colors">
                     <h3 className="text-red-600 font-black text-xs uppercase italic mb-2 tracking-tighter">{item.title}</h3>
