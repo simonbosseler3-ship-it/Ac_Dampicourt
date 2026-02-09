@@ -59,8 +59,9 @@ export default function ArticlePage() {
             </span>
 
             {/* Bouton Modifier (Visible uniquement pour admin/rédacteur) */}
-            {canEdit && (
-                <Link href={`/admin/news/edit/${article.id}`}>
+            {/* Bouton Modifier (Visible uniquement pour admin/rédacteur) */}
+            {canEdit && article?.id && (
+                <Link href={`/actualites/modifier/${article.id}`}>
                   <button className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-black uppercase italic hover:bg-red-600 transition-all shadow-lg">
                     <Edit2 size={14} /> Modifier l'article
                   </button>
