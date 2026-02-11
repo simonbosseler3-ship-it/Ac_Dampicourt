@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/app/context/authContext";
 import { AdminActions } from "@/components/admin/adminAction";
@@ -20,62 +20,60 @@ interface NewsItem {
 }
 
 export default function ActualitesPage() {
-  const { profile, loading: authLoading } = useAuth();
+  const { profile } = useAuth(); // On ne récupère plus authLoading ici pour ne pas bloquer le rendu
   const [news, setNews] = useState<NewsItem[]>([]);
   const [redacteurs, setRedacteurs] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
-
-  // État pour gérer le cadrage dynamique de chaque image
   const [imagePositions, setImagePositions] = useState<Record<string, string>>({});
 
   const role = profile?.role?.toLowerCase().trim();
   const isAdmin = role === 'admin';
   const canManage = isAdmin || role === 'redacteur';
 
-  // Fonction pour détecter l'orientation de l'image
   const handleImageLoad = (id: string, event: React.SyntheticEvent<HTMLImageElement>) => {
     const { naturalWidth, naturalHeight } = event.currentTarget;
-    // Si Portrait : focus à 35% (haut), sinon Milieu
     const position = naturalHeight > naturalWidth ? "center 35%" : "center center";
     setImagePositions(prev => ({ ...prev, [id]: position }));
   };
 
-  useEffect(() => {
-    async function fetchNewsData() {
-      try {
-        const redacteursPromise = supabase
-        .from('profiles')
-        .select('full_name')
-        .eq('role', 'redacteur')
-        .order('full_name');
+  // On mémorise la fonction pour éviter des boucles infinies
+  const fetchNewsData = useCallback(async () => {
+    try {
+      // 1. Promesse pour les rédacteurs
+      const redacteursPromise = supabase
+      .from('profiles')
+      .select('full_name')
+      .eq('role', 'redacteur')
+      .order('full_name');
 
-        let newsQuery = supabase
-        .from('news')
-        .select('*, author:profiles(full_name)')
-        .order('date_text', { ascending: false });
+      // 2. Construction de la requête des news
+      let newsQuery = supabase
+      .from('news')
+      .select('*, author:profiles(full_name)')
+      .order('date_text', { ascending: false });
 
-        if (!authLoading && !isAdmin) {
-          newsQuery = newsQuery.eq('is_hidden', false);
-        }
-
-        const [redacRes, newsRes] = await Promise.all([
-          redacteursPromise,
-          newsQuery
-        ]);
-
-        if (redacRes.data) setRedacteurs(redacRes.data);
-        if (newsRes.data) setNews(newsRes.data);
-      } catch (err) {
-        console.error("Erreur news:", err);
-      } finally {
-        setDataLoading(false);
+      // Si l'utilisateur n'est pas Admin (ou pas encore reconnu comme tel), on ne prend que le public
+      if (!isAdmin) {
+        newsQuery = newsQuery.eq('is_hidden', false);
       }
-    }
 
-    if (!authLoading) {
-      fetchNewsData();
+      const [redacRes, newsRes] = await Promise.all([
+        redacteursPromise,
+        newsQuery
+      ]);
+
+      if (redacRes.data) setRedacteurs(redacRes.data);
+      if (newsRes.data) setNews(newsRes.data);
+    } catch (err) {
+      console.error("Erreur news:", err);
+    } finally {
+      setDataLoading(false);
     }
-  }, [authLoading, isAdmin]);
+  }, [isAdmin]); // Se recharge si isAdmin change
+
+  useEffect(() => {
+    fetchNewsData();
+  }, [fetchNewsData]);
 
   if (dataLoading) {
     return (
@@ -89,9 +87,9 @@ export default function ActualitesPage() {
       <div className="min-h-screen">
         <main className="container mx-auto px-4 py-12 pt-24 animate-in fade-in duration-500">
 
-          {/* BOUTON NOUVELLE ACTU */}
+          {/* BOUTON NOUVELLE ACTU - Apparaît dynamiquement */}
           {canManage && (
-              <Link href="/actualites/nouveau" className="block w-fit mb-8">
+              <Link href="/actualites/nouveau" className="block w-fit mb-8 animate-in zoom-in duration-300">
                 <button className="bg-green-600 text-white px-6 py-2 rounded-full font-bold hover:bg-green-700 transition-all flex items-center gap-2 shadow-md active:scale-95 text-xs uppercase italic">
                   + Nouvelle actu
                 </button>
@@ -116,6 +114,7 @@ export default function ActualitesPage() {
                       </div>
                   )}
 
+                  {/* Actions Admin : chargées dynamiquement sans bloquer la page */}
                   {canManage && (
                       <div className="absolute top-4 right-4 z-50 scale-90">
                         <AdminActions id={item.id} isHidden={item.is_hidden} />
@@ -124,8 +123,6 @@ export default function ActualitesPage() {
 
                   <Link href={`/actualites/${item.id}`} className="block h-full">
                     <div className="h-full bg-white rounded-2xl overflow-hidden border border-slate-100 hover:border-red-100 hover:shadow-xl transition-all duration-300 flex flex-col">
-
-                      {/* CONTAINER IMAGE */}
                       <div className="relative h-48 overflow-hidden bg-slate-100">
                         <img
                             src={item.image_url}
@@ -133,7 +130,6 @@ export default function ActualitesPage() {
                             onLoad={(e) => handleImageLoad(item.id, e)}
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                             style={{
-                              // Application de la position calculée
                               objectPosition: imagePositions[item.id] || "center 40%"
                             }}
                         />
@@ -178,7 +174,6 @@ export default function ActualitesPage() {
                   <Heart size={16} className="text-red-600/40" />
                   <span className="text-[10px] font-bold uppercase tracking-[0.2em] italic">Équipe de rédaction</span>
                 </div>
-
                 <div className="flex flex-wrap justify-center md:justify-end gap-x-6 gap-y-2">
                   {redacteurs.map((redac, idx) => (
                       <span key={idx} className="text-[11px] font-black text-slate-500 uppercase italic tracking-tighter hover:text-red-600 transition-colors cursor-default">

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import { Upload, Check, ArrowLeft, Loader2, Calendar, Trophy, FileText, X, Paperclip } from "lucide-react";
+import { Upload, Check, ArrowLeft, Loader2, Calendar, Trophy, X, Paperclip } from "lucide-react";
 
 export default function NouveauArticle() {
   const [title, setTitle] = useState("");
@@ -25,67 +25,76 @@ export default function NouveauArticle() {
 
   useEffect(() => {
     const checkAccess = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      try {
+        // 1. On vérifie la session de manière légère
+        const { data: { session } } = await supabase.auth.getSession();
 
-      if (!user) {
-        router.push("/login");
-        return;
-      }
+        if (!session) {
+          router.replace("/login");
+          return;
+        }
 
-      setUserId(user.id);
+        // 2. Vérification du rôle
+        const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .single();
 
-      const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single();
+        if (error || !profile) {
+          router.replace("/");
+          return;
+        }
 
-      const role = profile?.role?.toLowerCase().trim();
-
-      if (role === 'admin' || role === 'redacteur') {
-        setLoading(false);
-      } else {
-        router.push("/");
+        const role = profile.role?.toLowerCase().trim();
+        if (role === 'admin' || role === 'redacteur') {
+          setUserId(session.user.id);
+          setLoading(false);
+        } else {
+          router.replace("/");
+        }
+      } catch (err) {
+        console.error("Erreur accès:", err);
+        router.replace("/");
       }
     };
 
     checkAccess();
   }, [router]);
 
-  // GESTION IMAGE COUVERTURE
+  // Nettoyage de l'URL de preview pour éviter les fuites mémoire
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
       setFile(selectedFile);
       setPreviewUrl(URL.createObjectURL(selectedFile));
     }
   };
 
-  // GESTION FICHIER JOINT (TOUT TYPE)
   const handleScheduleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setScheduleFile(selectedFile);
-    }
+    if (selectedFile) setScheduleFile(selectedFile);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!file) {
-      alert("Veuillez sélectionner une image de couverture pour l'article.");
-      return;
-    }
-
-    if (!userId) {
-      alert("Session utilisateur introuvable.");
+    if (!file || !userId) {
+      alert("Veuillez vérifier l'image et votre connexion.");
       return;
     }
 
     setIsUploading(true);
 
     try {
-      // 1. UPLOAD IMAGE PRINCIPALE
+      // 1. Upload Image de couverture
       const fileExt = file.name.split('.').pop();
       const fileName = `cover_${Date.now()}.${fileExt}`;
       const filePath = `articles/${fileName}`;
@@ -100,21 +109,18 @@ export default function NouveauArticle() {
       .from('news-images')
       .getPublicUrl(filePath);
 
-
-      // 2. UPLOAD DOCUMENT JOINT (SI PRÉSENT)
+      // 2. Upload Document Joint
       let scheduleUrl = null;
-
       if (isCompetition && scheduleFile) {
-        // On garde le nom d'origine pour que l'extension soit propre (ex: resultat.pdf, info.docx)
         const originalExt = scheduleFile.name.split('.').pop();
         const docName = `doc_${Date.now()}.${originalExt}`;
-        const docPath = `files/${docName}`; // Stockage dans un dossier 'files' pour séparer des images
+        const docPath = `files/${docName}`;
 
-        const { error: scheduleUploadError } = await supabase.storage
+        const { error: docError } = await supabase.storage
         .from('news-images')
         .upload(docPath, scheduleFile);
 
-        if (scheduleUploadError) throw scheduleUploadError;
+        if (docError) throw docError;
 
         const { data: { publicUrl } } = supabase.storage
         .from('news-images')
@@ -123,7 +129,7 @@ export default function NouveauArticle() {
         scheduleUrl = publicUrl;
       }
 
-      // 3. INSERTION DB
+      // 3. Insertion DB
       const { error: insertError } = await supabase.from('news').insert([
         {
           title,
@@ -131,7 +137,7 @@ export default function NouveauArticle() {
           date_text: dateText,
           content,
           author_id: userId,
-          schedule_url: scheduleUrl // Stocke l'URL du fichier quel que soit son type
+          schedule_url: scheduleUrl
         }
       ]);
 
@@ -140,22 +146,22 @@ export default function NouveauArticle() {
       router.push("/actualites");
       router.refresh();
     } catch (error: any) {
-      alert("Erreur lors de la publication : " + error.message);
-    } finally {
+      alert("Erreur : " + error.message);
       setIsUploading(false);
     }
   };
 
   if (loading) {
     return (
-        <div className="min-h-screen flex items-center justify-center">
-          <Loader2 className="animate-spin h-8 w-8 text-red-600" />
+        <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+          <Loader2 className="animate-spin h-10 w-10 text-red-600" />
+          <p className="text-xs font-black uppercase italic text-slate-400 animate-pulse">Vérification des droits...</p>
         </div>
     );
   }
 
   return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-slate-50/50">
         <main className="container mx-auto px-4 py-12 max-w-3xl">
           <button
               onClick={() => router.back()}
@@ -168,11 +174,11 @@ export default function NouveauArticle() {
             Nouvelle <span className="text-red-600">Actualité</span>
           </h1>
 
-          <form onSubmit={handleSubmit} className="bg-white/90 backdrop-blur-md p-8 rounded-[2rem] shadow-2xl border-t-8 border-green-500 space-y-8">
+          <form onSubmit={handleSubmit} className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100 space-y-8">
 
-            {/* TITRE */}
+            {/* Titre */}
             <div>
-              <label className="block text-xs font-black uppercase italic text-slate-400 mb-2 tracking-widest">Titre de l'article</label>
+              <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 tracking-[0.2em]">Titre de l'article</label>
               <input
                   className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl font-bold text-lg focus:ring-2 focus:ring-red-500 outline-none transition-all"
                   placeholder="Ex: Record du club battu au 100m"
@@ -182,134 +188,91 @@ export default function NouveauArticle() {
               />
             </div>
 
-            {/* IMAGE */}
+            {/* Image */}
             <div>
-              <label className="block text-xs font-black uppercase italic text-slate-400 mb-2 tracking-widest">Image de couverture</label>
-              <div className="border-4 border-dashed border-slate-100 rounded-3xl p-6 text-center bg-slate-50/50 hover:bg-slate-50 transition-colors">
+              <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 tracking-[0.2em]">Image de couverture</label>
+              <div className="border-4 border-dashed border-slate-100 rounded-3xl p-6 text-center bg-slate-50/50">
                 {previewUrl ? (
-                    <div className="relative">
-                      <img
-                          src={previewUrl}
-                          alt="Preview"
-                          className="h-56 w-full object-cover rounded-2xl mb-4 shadow-lg"
-                      />
+                    <div className="relative mb-4">
+                      <img src={previewUrl} alt="Preview" className="h-64 w-full object-cover rounded-2xl shadow-md" />
                       <button
                           type="button"
                           onClick={() => { setFile(null); setPreviewUrl(null); }}
-                          className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:bg-red-700 transition"
+                          className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full hover:scale-110 transition"
                       >
-                        <X size={14} />
+                        <X size={16} />
                       </button>
                     </div>
                 ) : (
-                    <div className="py-8 text-slate-300">Aucune image sélectionnée</div>
+                    <div className="py-12 text-slate-300 font-bold uppercase italic text-sm">Aucune image sélectionnée</div>
                 )}
                 <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" id="file-upload" />
-                <label
-                    htmlFor="file-upload"
-                    className="cursor-pointer bg-white text-slate-900 border border-slate-200 px-6 py-3 rounded-xl font-black text-sm inline-flex items-center gap-2 hover:bg-slate-900 hover:text-white transition-all shadow-sm"
-                >
-                  <Upload size={18} /> Sélectionner une photo
+                <label htmlFor="file-upload" className="cursor-pointer bg-slate-900 text-white px-8 py-3 rounded-xl font-black text-xs uppercase inline-flex items-center gap-2 hover:bg-red-600 transition-all shadow-lg">
+                  <Upload size={18} /> Choisir une photo
                 </label>
               </div>
             </div>
 
-            {/* TOGGLE COMPETITION / FICHIER */}
-            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-              <div className="flex items-center justify-between mb-4">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <div className={`w-12 h-7 rounded-full p-1 transition-colors ${isCompetition ? 'bg-red-600' : 'bg-slate-300'}`}>
-                    <div className={`bg-white w-5 h-5 rounded-full shadow-md transform transition-transform ${isCompetition ? 'translate-x-5' : 'translate-x-0'}`}></div>
-                  </div>
-                  <span className="font-black uppercase italic text-sm text-slate-700 flex items-center gap-2">
-                            <Trophy size={16} className={isCompetition ? "text-red-600" : "text-slate-400"} />
-                            Lier une compétition / un fichier ?
-                        </span>
-                  <input
-                      type="checkbox"
-                      className="hidden"
-                      checked={isCompetition}
-                      onChange={(e) => setIsCompetition(e.target.checked)}
-                  />
-                </label>
-              </div>
+            {/* Section Document joint */}
+            <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+              <label className="flex items-center gap-3 cursor-pointer mb-4">
+                <input
+                    type="checkbox"
+                    className="hidden"
+                    checked={isCompetition}
+                    onChange={(e) => setIsCompetition(e.target.checked)}
+                />
+                <div className={`w-12 h-6 rounded-full transition-colors relative ${isCompetition ? 'bg-red-600' : 'bg-slate-300'}`}>
+                  <div className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${isCompetition ? 'translate-x-6' : 'translate-x-0'}`} />
+                </div>
+                <span className="font-black uppercase italic text-xs text-slate-700 flex items-center gap-2">
+                <Trophy size={16} /> Joindre un document (Horaire, PDF, etc.)
+              </span>
+              </label>
 
-              {/* UPLOAD DOCUMENT (Apparait seulement si compétition/activé) */}
               {isCompetition && (
-                  <div className="animate-in fade-in slide-in-from-top-2 duration-300 pt-4 border-t border-slate-200">
-                    <label className="block text-xs font-black uppercase italic text-slate-400 mb-2 tracking-widest">
-                      Document joint (Horaire, Résultats, Info...)
-                    </label>
+                  <div className="pt-4 border-t border-slate-200 animate-in fade-in slide-in-from-top-2">
                     <div className="flex items-center gap-4">
-                      {/* Note: Pas d'attribut accept ici, donc tous les fichiers sont autorisés */}
-                      <input
-                          type="file"
-                          onChange={handleScheduleChange}
-                          className="hidden"
-                          id="schedule-upload"
-                      />
-                      <label
-                          htmlFor="schedule-upload"
-                          className="cursor-pointer bg-slate-900 text-white px-4 py-3 rounded-xl font-bold text-xs uppercase inline-flex items-center gap-2 hover:bg-red-600 transition-all"
-                      >
-                        <Paperclip size={16} />
-                        {scheduleFile ? "Changer le fichier" : "Joindre un fichier"}
+                      <input type="file" onChange={handleScheduleChange} className="hidden" id="schedule-upload" />
+                      <label htmlFor="schedule-upload" className="cursor-pointer bg-white border-2 border-slate-900 text-slate-900 px-4 py-2 rounded-xl font-black text-[10px] uppercase inline-flex items-center gap-2 hover:bg-slate-900 hover:text-white transition-all">
+                        <Paperclip size={14} /> {scheduleFile ? "Changer" : "Sélectionner le fichier"}
                       </label>
-                      {scheduleFile && (
-                          <div className="flex flex-col">
-                            <span className="text-sm font-medium text-green-600 flex items-center gap-1">
-                                <Check size={14} /> Fichier prêt
-                            </span>
-                            <span className="text-[10px] text-slate-500 truncate max-w-[150px]">
-                                {scheduleFile.name}
-                            </span>
-                          </div>
-                      )}
+                      {scheduleFile && <span className="text-[10px] font-bold text-green-600 uppercase italic truncate max-w-[200px]">{scheduleFile.name}</span>}
                     </div>
-                    <p className="text-[10px] text-slate-400 mt-2 italic">
-                      Formats acceptés : PDF, Image, Word, Excel, etc. Un bouton de téléchargement apparaîtra sur l'article.
-                    </p>
                   </div>
               )}
             </div>
 
-            {/* DATE */}
-            <div>
-              <label className="block text-xs font-black uppercase italic text-slate-400 mb-2 tracking-widest flex items-center gap-2">
-                <Calendar size={14} /> Date de l'actualité
-              </label>
-              <input
-                  type="date"
-                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl font-bold focus:ring-2 focus:ring-red-500 outline-none text-slate-700"
-                  value={dateText}
-                  onChange={e => setDateText(e.target.value)}
-                  required
-              />
+            {/* Date et Contenu */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="md:col-span-2">
+                <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 tracking-[0.2em]">Date de l'actualité</label>
+                <input
+                    type="date"
+                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl font-bold focus:ring-2 focus:ring-red-500 outline-none"
+                    value={dateText}
+                    onChange={e => setDateText(e.target.value)}
+                    required
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 tracking-[0.2em]">Contenu</label>
+                <textarea
+                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl font-medium h-64 resize-none focus:ring-2 focus:ring-red-500 outline-none leading-relaxed"
+                    placeholder="Écrivez ici..."
+                    value={content}
+                    onChange={e => setContent(e.target.value)}
+                    required
+                />
+              </div>
             </div>
 
-            {/* CONTENU TEXTE */}
-            <div>
-              <label className="block text-xs font-black uppercase italic text-slate-400 mb-2 tracking-widest">Corps de l'article</label>
-              <textarea
-                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl font-medium h-64 resize-none focus:ring-2 focus:ring-red-500 outline-none leading-relaxed"
-                  placeholder="Rédigez l'actualité en détail ici..."
-                  value={content}
-                  onChange={e => setContent(e.target.value)}
-                  required
-              />
-            </div>
-
-            {/* BOUTON PUBLIER */}
             <button
                 type="submit"
                 disabled={isUploading}
-                className="w-full bg-green-600 text-white font-black py-5 rounded-2xl uppercase italic shadow-xl shadow-green-100 hover:bg-green-700 hover:-translate-y-1 active:scale-95 transition-all flex items-center justify-center gap-3 text-lg"
+                className="w-full bg-green-600 text-white font-black py-5 rounded-2xl uppercase italic shadow-lg hover:bg-green-700 hover:-translate-y-1 active:scale-95 transition-all flex items-center justify-center gap-3 text-lg disabled:opacity-50 disabled:translate-y-0"
             >
-              {isUploading ? (
-                  <Loader2 className="animate-spin h-6 w-6" />
-              ) : (
-                  <><Check size={24} /> Publier l'article</>
-              )}
+              {isUploading ? <Loader2 className="animate-spin h-6 w-6" /> : <><Check size={24} /> Publier l'actualité</>}
             </button>
           </form>
         </main>

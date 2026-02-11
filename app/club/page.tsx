@@ -7,16 +7,19 @@ import { Phone, Mail, MapPin, Edit } from "lucide-react";
 import Link from "next/link";
 
 export default function ClubPage() {
-  const { profile, loading: authLoading } = useAuth(); // Récupération instantanée du rôle
+  // 1. On récupère le profil. On n'utilise PLUS authLoading pour bloquer le rendu initial.
+  const { profile } = useAuth();
   const [info, setInfo] = useState<any>(null);
   const [comite, setComite] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
 
+  // isAdmin sera évalué dès que 'profile' sera disponible
   const isAdmin = profile?.role?.toLowerCase().trim() === 'admin';
 
   useEffect(() => {
     async function fetchData() {
       try {
+        // 2. Lancement immédiat des requêtes publiques (très rapide)
         const [infoRes, comiteRes] = await Promise.all([
           supabase.from('club_info').select('*').single(),
           supabase.from('club_comite').select('*').order('order_index', { ascending: true })
@@ -27,12 +30,14 @@ export default function ClubPage() {
       } catch (err) {
         console.error("Erreur chargement données:", err);
       } finally {
+        // 3. On libère l'affichage dès que les textes et le comité sont là
         setDataLoading(false);
       }
     }
     fetchData();
   }, []);
 
+  // Le spinner ne dépend que du chargement des données textuelles, pas de la session
   if (dataLoading) {
     return (
         <div className="min-h-screen flex items-center justify-center">
@@ -54,9 +59,12 @@ export default function ClubPage() {
               <div className="h-2 w-24 bg-red-600 mt-2"></div>
             </div>
 
-            {/* BOUTON MODIFIER : Apparaît instantanément grâce au Context */}
-            {!authLoading && isAdmin && (
-                <Link href="/club/modifier">
+            {/* BOUTON MODIFIER :
+                Il s'affiche de manière "lazy". Si la session met 5s à répondre,
+                le bouton apparaîtra simplement après 5s, mais la page est déjà lisible.
+            */}
+            {isAdmin && (
+                <Link href="/club/modifier" className="animate-in fade-in slide-in-from-right-4 duration-500">
                   <button className="flex items-center gap-2 bg-slate-900 text-white px-6 py-2 rounded-full font-bold hover:bg-red-600 transition-all text-sm uppercase italic shadow-lg">
                     <Edit size={16}/> Modifier la page
                   </button>

@@ -17,15 +17,16 @@ import {
 import { TutorialOverlay } from "@/components/tutorial/tutorial";
 
 export default function Home() {
-  const { user, profile, loading: authLoading } = useAuth();
+  // 1. On récupère les données d'auth, mais on ne les utilise PLUS comme verrou
+  const { user, profile } = useAuth();
   const [news, setNews] = useState<any[]>([]);
   const [latestEvent, setLatestEvent] = useState<any>(null);
   const [dataLoading, setDataLoading] = useState(true);
 
+  // 2. Chargement des données dès le montage, SANS attendre l'auth
   useEffect(() => {
     async function fetchHomeData() {
       try {
-        // 1. News
         const newsPromise = supabase
         .from('news')
         .select('*')
@@ -33,7 +34,6 @@ export default function Home() {
         .order('date_text', { ascending: false })
         .limit(3);
 
-        // 2. Événement le plus récent (updated_at ou created_at) qui n'est pas caché
         const eventPromise = supabase
         .from('competition_config')
         .select('title')
@@ -43,19 +43,12 @@ export default function Home() {
 
         const [newsRes, eventRes] = await Promise.all([newsPromise, eventPromise]);
 
-        if (newsRes.error) throw newsRes.error;
-        setNews(newsRes.data || []);
-
+        if (newsRes.data) setNews(newsRes.data);
         if (eventRes.data && eventRes.data.length > 0) {
           setLatestEvent(eventRes.data[0]);
-        } else {
-          setLatestEvent(null);
         }
-
-        if (eventRes.error) console.error("Erreur event:", eventRes.error);
-
       } catch (err) {
-        console.error("Erreur chargement données accueil:", err);
+        console.error("Erreur accueil:", err);
       } finally {
         setDataLoading(false);
       }
@@ -67,8 +60,12 @@ export default function Home() {
   return (
       <main className="container mx-auto px-4 pt-10 pb-12 animate-in fade-in duration-700">
 
-        {/* POP-UP TUTORIEL */}
-        {!authLoading && user && profile && !profile.has_seen_tutorial && (
+        {/* POP-UP TUTORIEL :
+            Il n'y a plus de "!authLoading".
+            Dès que "profile" devient disponible (même 5s après), le tuto apparaîtra.
+            En attendant, le reste de la page est parfaitement utilisable.
+        */}
+        {user && profile && !profile.has_seen_tutorial && (
             <TutorialOverlay
                 role={profile.role}
                 userId={user.id}
@@ -76,7 +73,7 @@ export default function Home() {
             />
         )}
 
-        {/* CAROUSEL */}
+        {/* CAROUSEL : Ne dépend que de dataLoading (données publiques) */}
         <div className="mb-10 min-h-[400px]">
           {dataLoading ? (
               <div className="w-full h-[400px] bg-slate-200/50 animate-pulse rounded-[3rem] flex items-center justify-center">
@@ -90,7 +87,6 @@ export default function Home() {
         {/* SECTION LIENS PRINCIPAUX */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 px-2 mb-10">
 
-          {/* CARTE 1 : RECORDS DU CLUB - Ajout prefetch={false} */}
           <Link href="/infos/records" prefetch={false} className="group relative h-48 rounded-[2.5rem] bg-white/80 backdrop-blur-sm border-2 border-slate-100 hover:border-slate-900 overflow-hidden transition-all duration-500 hover:shadow-2xl">
             <div className="absolute inset-0 bg-slate-900 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0"></div>
             <div className="absolute -bottom-6 -left-6 text-slate-100 group-hover:text-slate-800 transition-colors duration-500 z-0 group-hover:scale-125 group-hover:rotate-12 transition-transform origin-bottom-left">
@@ -112,7 +108,6 @@ export default function Home() {
             </div>
           </Link>
 
-          {/* CARTE 2 : INSCRIPTIONS - Ajout prefetch={false} */}
           <Link href="/inscription" prefetch={false} className="group relative h-48 rounded-[2.5rem] bg-red-600 border-2 border-red-600 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-red-200 hover:-translate-y-1">
             <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
             <div className="absolute top-1/2 -translate-y-1/2 right-[-2rem] text-black/10 group-hover:text-white/20 z-0 transition-transform group-hover:scale-110">
@@ -132,7 +127,6 @@ export default function Home() {
             </div>
           </Link>
 
-          {/* CARTE 3 : ÉVÉNEMENT DYNAMIQUE - Ajout prefetch={false} */}
           <Link href="/speed-night" prefetch={false} className="group relative h-48 rounded-[2.5rem] bg-white/80 backdrop-blur-sm border-2 border-slate-100 hover:border-red-600 overflow-hidden transition-all duration-500 hover:shadow-2xl">
             <div className="absolute inset-0 bg-red-600 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0"></div>
             <div className="absolute -top-6 -right-6 text-slate-100 group-hover:text-red-700 z-0 group-hover:scale-125 group-hover:-rotate-12 transition-transform origin-top-right">
@@ -159,7 +153,7 @@ export default function Home() {
           </Link>
         </section>
 
-        {/* SECTION : FORUM - Ajout prefetch={false} */}
+        {/* SECTION FORUM */}
         <section className="px-2">
           <Link href="/forum" prefetch={false} className="group block w-full bg-white/80 backdrop-blur-sm border-2 border-slate-100 rounded-[2.5rem] p-8 hover:border-red-600 transition-all duration-300 shadow-sm hover:shadow-xl relative overflow-hidden">
             <div className="absolute -right-10 -bottom-10 text-slate-50 group-hover:text-red-50 transition-colors duration-500 -rotate-12">

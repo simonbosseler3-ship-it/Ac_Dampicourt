@@ -36,7 +36,10 @@ const Toast = ({ show, message, type, onClose }: any) => (
 const AdminForm = ({ initialData, activeId, onCancel, showNotification, onDelete }: any) => {
   const [editData, setEditData] = useState({
     ...initialData,
-    competition_type: initialData.competition_type || 'Compétition' // Valeur par défaut
+    competition_type: initialData.competition_type || 'Compétition', // Valeur par défaut
+    events_table: initialData.events_table || [],
+    gallery_links: initialData.gallery_links || [],
+    extra_info: initialData.extra_info || []
   });
   const [loading, setLoading] = useState(false);
 
@@ -86,6 +89,7 @@ const AdminForm = ({ initialData, activeId, onCancel, showNotification, onDelete
         competition_type: editData.competition_type,
         location: editData.location,
         subtitle: editData.subtitle,
+        subtitle_badge: editData.subtitle_badge, // Ajout du champ manquant
         event_date: editData.event_date,
         registration_url: editData.registration_url,
         background_url: editData.background_url,
@@ -106,7 +110,7 @@ const AdminForm = ({ initialData, activeId, onCancel, showNotification, onDelete
   };
 
   return (
-      <div className="bg-[#0f172a]/95 backdrop-blur-3xl p-6 md:p-10 rounded-[2.5rem] border border-white/10 max-w-6xl mx-auto shadow-2xl space-y-8 animate-in fade-in zoom-in-95 duration-300">
+      <div className="bg-[#0f172a]/95 backdrop-blur-3xl p-6 md:p-10 rounded-[2.5rem] border border-white/10 max-w-6xl mx-auto shadow-2xl space-y-8 animate-in fade-in zoom-in-95 duration-300 relative z-50">
         {/* HEADER */}
         <div className="flex justify-between items-start border-b border-white/5 pb-8">
           <div>
@@ -123,7 +127,7 @@ const AdminForm = ({ initialData, activeId, onCancel, showNotification, onDelete
                     onClick={() => setEditData({
                       ...editData,
                       competition_type: 'Compétition',
-                      subtitle_badge: 'Compétition' // Ajout ici
+                      subtitle_badge: 'Compétition'
                     })}
                     className={`py-3 rounded-lg text-[10px] font-black uppercase italic transition-all ${editData.competition_type === 'Compétition' ? 'bg-red-600 text-white' : 'text-white/40'}`}>Compétition
                 </button>
@@ -390,7 +394,7 @@ const PublicView = memo(({ config }: any) => {
   if (!config) return null;
 
   return (
-      <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000">
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000 relative z-10">
         {/* HERO SECTION REDESSINÉ */}
         <div className="max-w-6xl mb-16">
           <div
@@ -596,12 +600,17 @@ export default function SpeedNightPage() {
       setAllEvents(data || []);
 
       if (data && data.length > 0) {
+        // Chercher le premier événement visible par défaut si non admin
         const firstVisible = data.find(e => !e.hidden);
+
         if (currentAdmin) {
+          // Si admin, on montre le premier de la liste (même caché)
           setActiveId(data[0].id);
         } else if (firstVisible) {
+          // Sinon le premier public
           setActiveId(firstVisible.id);
         } else {
+          // Aucun événement public
           setActiveId(null);
         }
       } else {
@@ -690,13 +699,15 @@ export default function SpeedNightPage() {
   );
 
   const visibleEvents = isAdmin ? allEvents : allEvents.filter(e => !e.hidden);
+  // Correction ici : On vérifie si activeId existe ET si on a une config chargée
   const isViewingActiveEvent = activeId && config && (isAdmin || !config.hidden);
 
   return (
       <div className={`min-h-screen relative text-white selection:bg-red-600 overflow-x-hidden transition-colors duration-1000 ${isViewingActiveEvent ? 'bg-[#050505]' : 'bg-black'}`}>
+
+        {/* FOND D'ÉCRAN GLOBAL */}
         {isViewingActiveEvent && (
             <div className="fixed inset-0 z-0 bg-black pointer-events-none">
-              {/* Si pas d'url et qu'on est admin, on peut afficher un petit indicateur visuel ou rien */}
               {config.background_url ? (
                   <div
                       key={config.background_url}
@@ -707,12 +718,8 @@ export default function SpeedNightPage() {
                       }}
                   />
               ) : (
-                  // Optionnel : Un rappel visuel pour l'admin que le fond est manquant
-                  isAdmin && (
-                      <div className="absolute inset-0 flex items-center justify-center border-4 border-dashed border-red-600/20">
-                        <p className="text-red-600/40 font-black italic uppercase text-4xl rotate-12">Image de fond manquante</p>
-                      </div>
-                  )
+                  // Fallback si pas d'image
+                  <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black opacity-80" />
               )}
               <div className="absolute inset-0 bg-gradient-to-b from-black via-black/40 to-black z-10" />
             </div>
