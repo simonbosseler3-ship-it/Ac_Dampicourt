@@ -101,7 +101,7 @@ export default function ClubPage() {
           {/* SECTION STADE */}
           <div className="mb-24">
             <div className="flex items-center gap-4 mb-8">
-              <h2 className="text-3xl md:text-4xl font-black text-slate-900 uppercase italic">Le Stade des <span className="text-red-600">Fusillés</span></h2>
+              <h2 className="text-3xl md:text-4xl font-black text-slate-900 uppercase italic">Piste <span className="text-red-600">Daniel Thiry</span></h2>
               <div className="h-[2px] grow bg-slate-300 hidden sm:block"></div>
             </div>
 
