@@ -122,7 +122,7 @@ export default function ModifierClubPage() {
   );
 
   return (
-      <div className="min-h-screen bg-slate-50/50">
+      <div className="min-h-screen">
         <main className="container mx-auto px-4 py-32 max-w-6xl">
 
           {/* HEADER FIXE */}

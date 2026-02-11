@@ -1,5 +1,20 @@
 "use client";
-import { Info, Users, Baby, Edit, ShoppingBag, Truck, Zap, Clock, MapPin, Gauge, Timer } from "lucide-react";
+import {
+  Info,
+  Users,
+  Baby,
+  Edit,
+  ShoppingBag,
+  Truck,
+  Zap,
+  Clock,
+  MapPin,
+  Gauge,
+  Timer,
+  CalendarCheck,
+  Megaphone,
+  Award
+} from "lucide-react";
 import Link from "next/link";
 
 const CATEGORIES = [
@@ -12,212 +27,273 @@ const CATEGORIES = [
 export default function KBPMPage() {
   return (
       <div className="min-h-screen">
+        <main className="container mx-auto px-4 pt-32 pb-20 animate-in fade-in duration-700">
 
-        <main className="container mx-auto px-4 pt-32 pb-20 animate-in fade-in duration-500">
-
-          {/* TITRE PRINCIPAL */}
-          <div className="flex flex-col mb-12">
-            <h1 className="text-4xl font-black text-slate-900 uppercase italic">
-              La compétition <span className="text-red-600">en athlétisme (K.B.P.M.)</span>
+          {/* HEADER SECTION */}
+          <div className="flex flex-col mb-16">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="h-[2px] w-10 bg-red-600"></span>
+              <span className="text-red-600 font-black uppercase italic tracking-[0.3em] text-[10px]">Jeunes Athlètes</span>
+            </div>
+            <h1 className="text-5xl md:text-7xl font-black text-slate-900 uppercase italic tracking-tighter leading-[0.9]">
+              COMPÉTITION <br/><span className="text-red-600">K.B.P.M.</span>
             </h1>
-            <div className="h-2 w-24 bg-red-600 mt-2"></div>
+            <p className="text-slate-500 font-bold text-sm mt-6 uppercase tracking-widest max-w-xl leading-relaxed">
+              Kangourous, Benjamins, Pupilles & Minimes : Tout savoir pour accompagner vos futurs champions.
+            </p>
           </div>
 
-          {/* SECTION 1 : INTRODUCTION */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-20">
+          {/* SECTION 1 : INTRO PARENTS */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-24">
             <div className="lg:col-span-2 space-y-8">
-              <h2 className="text-2xl font-black uppercase italic text-slate-800 flex items-center gap-3">
-                <Info className="text-red-600"/> Chers parents,
-              </h2>
-              <div className="space-y-6 text-slate-600 leading-relaxed text-lg">
-                <p>
+              <div className="bg-slate-50 p-10 rounded-[2.5rem] border border-slate-100 shadow-sm relative overflow-hidden">
+                <Info className="text-red-600 mb-6" size={32}/>
+                <h2 className="text-2xl font-black uppercase italic text-slate-900 mb-4 tracking-tight">Chers parents,</h2>
+                <p className="text-slate-600 leading-relaxed text-lg font-medium">
                   Le club encourage vivement ses jeunes athlètes à participer aux compétitions.
-                  C'est l'occasion de mettre en pratique les acquis des entraînements dans une
-                  ambiance conviviale.
+                  C'est l'occasion idéale de mettre en pratique les acquis des entraînements dans une
+                  ambiance conviviale et formatrice.
                 </p>
-                <div
-                    className="bg-slate-50 border-l-4 border-red-600 p-8 rounded-r-3xl italic shadow-sm">
-                  <p className="text-slate-700 text-xl font-medium mb-4">
+
+                <div className="mt-8 pl-6 border-l-4 border-red-600">
+                  <p className="text-slate-800 text-xl font-black italic mb-2 leading-tight">
                     « Le coureur qui ne fait jamais de compétition ressemble fort à cet amoureux qui
                     ne donne jamais de preuve d’amour. »
                   </p>
-                  <cite
-                      className="text-red-600 font-bold not-italic uppercase tracking-widest text-sm">—
-                    J. Joannes, 1984</cite>
+                  <cite className="text-red-600 font-bold not-italic uppercase tracking-widest text-[10px]">— J. Joannes, 1984</cite>
                 </div>
               </div>
             </div>
+
             <div className="space-y-6">
-              <div className="bg-slate-900 text-white p-8 rounded-[2rem] shadow-xl">
-                <Users className="text-red-600 mb-4" size={32}/>
-                <h3 className="text-xl font-black uppercase italic mb-4">Le Comité Spécial</h3>
-                <p className="text-slate-300 text-sm leading-relaxed">Un comité dédié regroupe
-                  parents et entraîneurs pour l'amélioration de l'encadrement des catégories
-                  BPM.</p>
+              <div className="bg-slate-900 text-white p-8 rounded-[2.5rem] shadow-xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-700">
+                  <Users size={100} />
+                </div>
+                <Users className="text-red-600 mb-4 relative z-10" size={32}/>
+                <h3 className="text-xl font-black uppercase italic mb-2 relative z-10">Le Comité Spécial</h3>
+                <p className="text-slate-400 text-xs font-bold uppercase tracking-wider leading-relaxed relative z-10">
+                  Un comité dédié regroupe parents et entraîneurs pour l'amélioration continue de l'encadrement BPM.
+                </p>
               </div>
-              <div className="bg-red-600 p-8 rounded-[2rem] text-white shadow-lg">
-                <Zap size={32} className="mb-4 text-white"/>
-                <h3 className="text-xl font-black uppercase italic mb-2">Récompenses</h3>
-                <p className="text-sm text-red-100">En fin de saison, la participation régulière est
-                  récompensée par la remise d'écussons et trophées.</p>
+
+              <div className="bg-red-600 p-8 rounded-[2.5rem] text-white shadow-lg relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:rotate-12 transition-transform duration-700">
+                  <Award size={100} />
+                </div>
+                <Award size={32} className="mb-4 text-white relative z-10"/>
+                <h3 className="text-xl font-black uppercase italic mb-2 relative z-10">Récompenses</h3>
+                <p className="text-xs font-bold text-red-100 uppercase tracking-wider leading-relaxed relative z-10">
+                  Participation régulière récompensée par la remise d'écussons et trophées en fin de saison.
+                </p>
               </div>
             </div>
           </div>
 
-          {/* LIEN VERS MÉTHODE PÉDAGOGIQUE */}
-          <div className="mb-20">
+          {/* CTA MÉTHODE PÉDAGOGIQUE */}
+          <div className="mb-24">
             <Link href="/infos/kbpm/methode-pedagogique" className="group block">
-              <div
-                  className="bg-slate-50 border-2 border-dashed border-slate-200 p-8 rounded-[2.5rem] flex flex-col md:flex-row items-center justify-between gap-6 hover:border-red-600 hover:bg-white/80 backdrop-blur-md transition-all duration-300">
-                <div className="flex items-center gap-6">
-                  <div
-                      className="bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-sm group-hover:bg-red-600 transition-colors">
-                    <Edit className="text-red-600 group-hover:text-white" size={32}/>
+              <div className="bg-white border-2 border-dashed border-slate-200 p-8 md:p-12 rounded-[3rem] flex flex-col md:flex-row items-center justify-between gap-8 hover:border-red-600 hover:shadow-xl transition-all duration-300">
+                <div className="flex items-center gap-8">
+                  <div className="bg-red-50 p-6 rounded-3xl group-hover:bg-red-600 transition-colors duration-300">
+                    <Edit className="text-red-600 group-hover:text-white transition-colors" size={40}/>
                   </div>
                   <div>
-                    <h3 className="text-xl font-black uppercase italic text-slate-900">
+                    <h3 className="text-2xl md:text-3xl font-black uppercase italic text-slate-900 leading-none mb-2">
                       Notre méthode <span className="text-red-600">pédagogique</span>
                     </h3>
-                    <p className="text-sm text-slate-500 mt-1 italic">
-                      Découvrez comment nous accompagnons le développement moteur et technique de
-                      vos enfants.
+                    <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">
+                      Développement moteur & technique de l'enfant
                     </p>
                   </div>
                 </div>
-                <div
-                    className="bg-slate-900 text-white px-6 py-3 rounded-xl font-black uppercase italic text-xs tracking-widest group-hover:bg-red-600 transition-colors">
-                  En savoir plus →
+                <div className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black uppercase italic text-xs tracking-widest group-hover:bg-red-600 transition-colors shadow-lg">
+                  En savoir plus
                 </div>
               </div>
             </Link>
           </div>
 
-          {/* SECTION : ÉCHAUFFEMENT ET ACCOMPAGNEMENT */}
-          <div
-              className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-20 pt-12 border-t border-slate-100">
-            <div className="bg-slate-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden">
-              <Gauge className="absolute -right-8 -bottom-8 text-white/5 w-64 h-64 rotate-12"/>
-              <div className="relative z-10">
-                <h2 className="text-3xl font-black uppercase italic mb-6">L'importance de <span
-                    className="text-red-600">l'échauffement</span></h2>
-                {/* ON UTILISE text-slate-200 POUR ETRE LISIBLE SUR LE FOND SOMBRE */}
-                <div className="space-y-4 text-slate-200 leading-relaxed text-sm md:text-base">
-                  <p>Nous veillerons à avoir au minimum **un membre attitré** à l’échauffement le
-                    jour des compétitions.</p>
-                  <p>L’échauffement pré-compétition ne diffère pas nécessairement de celui des
-                    entraînements, mais il est **indispensable** d'être prêt physiquement avant de
-                    concourir.</p>
-                  <div
-                      className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 text-sm italic text-white">
-                    Un moniteur/entraîneur sera présent pour encadrer vos enfants sur place.
+          {/* SECTION : ÉCHAUFFEMENT */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-24 items-stretch">
+            <div className="bg-slate-900 rounded-[3rem] p-10 md:p-14 text-white relative overflow-hidden group shadow-2xl">
+              <Gauge className="absolute -right-10 -bottom-10 text-white/5 w-80 h-80 group-hover:rotate-12 transition-transform duration-1000"/>
+
+              <div className="relative z-10 h-full flex flex-col justify-between">
+                <div>
+                  <div className="inline-flex items-center gap-2 bg-red-600 px-4 py-1.5 rounded-full mb-6">
+                    <Zap size={12} className="text-white" />
+                    <span className="text-[9px] font-black uppercase tracking-widest">Performance</span>
                   </div>
+                  <h2 className="text-4xl font-black uppercase italic mb-8 leading-tight">
+                    L'importance de <br/><span className="text-red-600">l'échauffement</span>
+                  </h2>
+
+                  <div className="space-y-6 text-slate-300 font-medium leading-relaxed">
+                    <p>
+                      Nous veillerons à avoir au minimum <strong className="text-white">un membre attitré</strong> à l’échauffement le jour des compétitions.
+                    </p>
+                    <p>
+                      L’échauffement pré-compétition est <strong className="text-white">indispensable</strong> pour être prêt physiquement et éviter les blessures avant de concourir.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-10 bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/10 text-xs font-bold uppercase tracking-wide text-white flex items-center gap-4">
+                  <Users size={20} className="text-red-500" />
+                  Un moniteur sera présent pour encadrer vos enfants sur place.
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col justify-center space-y-8 p-4">
-              <h2 className="text-3xl font-black text-slate-900 uppercase italic">
-                Une compétition, <br/><span
-                  className="text-red-600">ça prend combien de temps ?</span>
-              </h2>
-              <p className="text-slate-600 leading-relaxed">
-                La durée peut varier grandement suivant le choix d’épreuves et le nombre de
-                participants. Voici quelques estimations :
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
-                  <h4 className="font-black text-xs uppercase text-red-600 mb-2 tracking-widest italic">Courses</h4>
-                  <p className="text-sm font-bold">15 à 20 minutes</p>
-                  <p className="text-xs text-slate-500 mt-1">Sprint (60-80m) et Demi-fond
-                    (1000m)</p>
+            <div className="flex flex-col justify-center space-y-10 p-4">
+              <div>
+                <h2 className="text-4xl font-black text-slate-900 uppercase italic leading-none mb-4">
+                  Une compétition, <br/><span className="text-red-600">ça dure combien de temps ?</span>
+                </h2>
+                <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">
+                  Estimations variables selon l'affluence
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 hover:border-red-200 transition-colors group">
+                  <h4 className="font-black text-xs uppercase text-slate-400 mb-2 tracking-widest group-hover:text-red-600 transition-colors">Courses</h4>
+                  <p className="text-2xl font-black italic text-slate-900 mb-2">15-20 min</p>
+                  <p className="text-xs font-bold text-slate-500 uppercase">Sprint (60-80m) et Demi-fond (1000m)</p>
                 </div>
-                <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100">
-                  <h4 className="font-black text-xs uppercase text-red-600 mb-2 tracking-widest italic">Sauts
-                    & Lancers</h4>
-                  <p className="text-sm font-bold">30 à 60 minutes</p>
-                  <p className="text-xs text-slate-500 mt-1">Sauts en hauteur et perche sont plus
-                    longs.</p>
+                <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 hover:border-red-200 transition-colors group">
+                  <h4 className="font-black text-xs uppercase text-slate-400 mb-2 tracking-widest group-hover:text-red-600 transition-colors">Concours</h4>
+                  <p className="text-2xl font-black italic text-slate-900 mb-2">30-60 min</p>
+                  <p className="text-xs font-bold text-slate-500 uppercase">Sauts (hauteur/perche) et lancers</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* SECTION : DÉTAIL DU TEMPS (TIMELINE) */}
-          <div
-              className="mb-20 bg-red-600 rounded-[2.5rem] p-10 text-white shadow-2xl shadow-red-200">
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-6">
-              <div>
-                <h3 className="text-2xl font-black uppercase italic italic">Estimation totale par
-                  épreuve</h3>
-                <p className="text-red-100 italic">Prévoyez environ 1h00 à 1h30 au total sur
-                  place.</p>
-              </div>
-              <div
-                  className="bg-white/80 backdrop-blur-md text-red-600 px-8 py-4 rounded-2xl font-black text-2xl italic shadow-lg">
-                1H30 MAX
-              </div>
+          {/* TIMELINE ROUGE */}
+          <div className="mb-24 bg-red-600 rounded-[3rem] p-10 md:p-16 text-white shadow-2xl shadow-red-600/30 relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-20 opacity-10 pointer-events-none">
+              <Timer size={200} />
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="space-y-2 border-l-2 border-white/20 pl-6">
-                <span className="text-4xl font-black opacity-30 italic">10'</span>
-                <h4 className="font-bold uppercase text-xs tracking-widest">Inscription</h4>
+            <div className="relative z-10">
+              <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
+                <div>
+                  <h3 className="text-3xl md:text-5xl font-black uppercase italic leading-none mb-2">Timing Total</h3>
+                  <p className="text-red-100 font-bold uppercase tracking-widest text-xs">Estimation moyenne sur place</p>
+                </div>
+                <div className="bg-white text-red-600 px-8 py-4 rounded-2xl font-black text-3xl italic shadow-lg transform -rotate-2">
+                  1H30 MAX
+                </div>
               </div>
-              <div className="space-y-2 border-l-2 border-white/20 pl-6">
-                <span className="text-4xl font-black opacity-30 italic">30'</span>
-                <h4 className="font-bold uppercase text-xs tracking-widest">Échauffement</h4>
-              </div>
-              <div className="space-y-2 border-l-2 border-white/20 pl-6">
-                <span className="text-4xl font-black opacity-30 italic">15-60'</span>
-                <h4 className="font-bold uppercase text-xs tracking-widest">Participation</h4>
-              </div>
-              <div className="space-y-2 border-l-2 border-white/20 pl-6">
-                <span className="text-4xl font-black opacity-30 italic">10'</span>
-                <h4 className="font-bold uppercase text-xs tracking-widest">Relâchement</h4>
+
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-10">
+                {[
+                  { time: "10'", label: "Inscription" },
+                  { time: "30'", label: "Échauffement" },
+                  { time: "60'", label: "Participation" },
+                  { time: "10'", label: "Relâchement" },
+                ].map((item, i) => (
+                    <div key={i} className="space-y-2 border-l-4 border-white/20 pl-6">
+                      <span className="text-5xl font-black opacity-40 italic block">{item.time}</span>
+                      <h4 className="font-bold uppercase text-xs tracking-[0.2em]">{item.label}</h4>
+                    </div>
+                ))}
               </div>
             </div>
           </div>
 
           {/* SECTION 3 : CATÉGORIES */}
-          <div className="mb-20 pt-12 border-t border-slate-100">
-            <h2 className="text-3xl font-black text-slate-900 uppercase italic mb-8">
-              Quelle est la <span className="text-red-600">catégorie de mon enfant ?</span>
-            </h2>
+          <div className="mb-24">
+            <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+              <div>
+                <h2 className="text-4xl font-black text-slate-900 uppercase italic leading-none">
+                  Quelle est la <br/><span className="text-red-600">catégorie de mon enfant ?</span>
+                </h2>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
               <div className="space-y-6">
-                <div
-                    className="p-8 bg-slate-900 rounded-[2rem] text-white flex flex-col items-center text-center">
-                  <Baby className="text-red-600 mb-4" size={40}/>
-                  <p className="font-medium">Les catégories regroupent les athlètes par tranche
-                    de <span className="text-red-600 font-black">deux ans</span>.</p>
+                <div className="p-10 bg-slate-900 rounded-[2.5rem] text-white flex flex-col items-center text-center shadow-xl">
+                  <Baby className="text-red-600 mb-6" size={48}/>
+                  <p className="font-bold text-lg leading-tight">
+                    Les catégories regroupent les athlètes par tranche de <span className="text-red-600 font-black italic">deux ans</span>.
+                  </p>
                 </div>
-                <div
-                    className="p-8 border border-slate-100 rounded-[2rem] bg-slate-50/50 italic text-slate-500 text-sm leading-relaxed">
-                  "La notion de « toute catégorie » s'entend à partir de Cadet(te). Les BPM ne sont
-                  pas concernés par cette dénomination."
+                <div className="p-8 border-2 border-dashed border-slate-200 rounded-[2.5rem] italic text-slate-500 text-xs font-bold uppercase tracking-wide leading-relaxed text-center">
+                  "La notion de « toute catégorie » ne concerne pas les BPM."
                 </div>
               </div>
 
-              <div className="lg:col-span-2 overflow-x-auto rounded-[2rem] border border-slate-100 shadow-sm bg-white/80 backdrop-blur-md">
-                <table className="w-full text-left border-collapse text-sm min-w-[600px]">
+              <div className="lg:col-span-2 overflow-hidden rounded-[2.5rem] border border-slate-200 shadow-xl bg-white">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse min-w-[600px]">
+                    <thead>
+                    <tr className="bg-slate-50 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 border-b border-slate-100">
+                      <th className="p-6">Catégorie</th>
+                      <th className="p-6 text-center text-red-600">Code</th>
+                      <th className="p-6">Ages</th>
+                      <th className="p-6">Années</th>
+                      <th className="p-6 text-right">Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {CATEGORIES.map((cat, idx) => (
+                        <tr key={idx} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors group">
+                          <td className="p-6 font-black italic text-slate-900 text-lg">{cat.name}</td>
+                          <td className="p-6 text-center font-black text-slate-300 group-hover:text-red-600 transition-colors">{cat.acro}</td>
+                          <td className="p-6 font-bold text-slate-600 text-sm">{cat.ages}</td>
+                          <td className="p-6 font-black text-red-600 italic">{cat.years}</td>
+                          <td className={`p-6 text-right font-black text-[9px] uppercase tracking-widest ${cat.color}`}>{cat.trad}</td>
+                        </tr>
+                    ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION 4 : ÉPREUVES */}
+          <div className="mb-24">
+            <h2 className="text-4xl font-black text-slate-900 uppercase italic mb-10">
+              Les épreuves <span className="text-red-600">BPM</span>
+            </h2>
+
+            <div className="overflow-hidden rounded-[2.5rem] border border-slate-200 shadow-xl bg-white">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse min-w-[900px]">
                   <thead>
-                  <tr className="bg-slate-50/50 text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-100">
-                    <th className="p-6">Catégorie</th>
-                    <th className="p-6 text-red-600 text-center">Acro.</th>
-                    <th className="p-6">Ages</th>
-                    <th className="p-6">Années de naissance</th>
-                    <th className="p-6 text-right">Compétitions</th>
+                  <tr className="bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.2em]">
+                    <th className="p-6">Cat.</th>
+                    <th className="p-6 border-l border-white/10">Courses</th>
+                    <th className="p-6 border-l border-white/10">Sauts</th>
+                    <th className="p-6 border-l border-white/10">Lancers</th>
+                    <th className="p-6 border-l border-white/10">Relais</th>
+                    <th className="p-6 border-l border-white/10">Combinées</th>
                   </tr>
                   </thead>
-                  <tbody>
-                  {CATEGORIES.map((cat, idx) => (
-                      <tr key={idx}
-                          className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                        <td className="p-6 font-black italic text-slate-800">{cat.name}</td>
-                        <td className="p-6 text-center font-bold text-slate-400">{cat.acro}</td>
-                        <td className="p-6 font-medium text-slate-500">{cat.ages}</td>
-                        <td className="p-6 font-black text-red-600 italic">{cat.years}</td>
-                        <td className={`p-6 text-right font-black text-[10px] tracking-widest ${cat.color}`}>{cat.trad}</td>
+                  <tbody className="text-slate-600 font-medium text-sm leading-relaxed">
+                  {[
+                    { cat: "BEN", run: ["60m", "600m"], jump: ["Longueur", "Hauteur"], throw: ["Balle", "Poids"], relay: "4x60m", comb: "Tétrathlon" },
+                    { cat: "PUP", run: ["60m", "60m Haies", "1000m"], jump: ["Longueur", "Hauteur"], throw: ["Balle", "Poids", "Disque"], relay: "4x60m", comb: "Tétrathlon" },
+                    { cat: "MIN", run: ["80m", "150m", "300m", "1000m", "Haies"], jump: ["Longueur", "Hauteur", "Perche"], throw: ["Javelot", "Poids", "Disque"], relay: "4x80m", comb: "Pentathlon" },
+                  ].map((row, i) => (
+                      <tr key={i} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                        <td className="p-6 font-black text-red-600 bg-slate-50/50 italic text-lg">{row.cat}</td>
+                        <td className="p-6 border-l border-slate-100">
+                          {row.run.map(r => <div key={r} className="mb-1">{r}</div>)}
+                        </td>
+                        <td className="p-6 border-l border-slate-100">
+                          {row.jump.map(j => <div key={j} className="mb-1">{j}</div>)}
+                        </td>
+                        <td className="p-6 border-l border-slate-100">
+                          {row.throw.map(t => <div key={t} className="mb-1">{t}</div>)}
+                        </td>
+                        <td className="p-6 border-l border-slate-100 font-bold">{row.relay}</td>
+                        <td className="p-6 border-l border-slate-100 font-black italic text-slate-900">{row.comb}</td>
                       </tr>
                   ))}
                   </tbody>
@@ -226,360 +302,195 @@ export default function KBPMPage() {
             </div>
           </div>
 
-          {/* SECTION 4 : ÉPREUVES */}
-          <div className="mb-20 pt-12 border-t border-slate-100">
-            <h2 className="text-3xl font-black text-slate-900 uppercase italic mb-8">
-              Quelles sont les épreuves <span className="text-red-600">pour les BPM ?</span>
-            </h2>
-            <div className="overflow-x-auto rounded-[2rem] border border-slate-200 shadow-xl bg-white/80 backdrop-blur-md">
-              <table className="w-full text-left border-collapse text-sm min-w-[800px]">
-                <thead>
-                <tr className="bg-white/80 backdrop-blur-md border-b border-slate-100 text-red-600 font-black uppercase text-xs italic">
-                  <th className="p-6 border-r border-slate-100">Catégorie</th>
-                  <th className="p-6 border-r border-slate-100">Courses</th>
-                  <th className="p-6 border-r border-slate-100">Concours : Sauts</th>
-                  <th className="p-6 border-r border-slate-100">Concours : Lancers</th>
-                  <th className="p-6 border-r border-slate-100">Relais</th>
-                  <th className="p-6">Épreuves Combinées</th>
-                </tr>
-                </thead>
-                <tbody className="text-slate-700 font-medium leading-relaxed">
-                <tr className="border-b border-slate-50">
-                  <td className="p-6 font-black bg-slate-50/30 border-r">BEN</td>
-                  <td className="p-6 border-r">60m<br/>600m</td>
-                  <td className="p-6 border-r">L = Longueur<br/>H = Hauteur</td>
-                  <td className="p-6 border-r">Ba (ou BH) = Balle de hockey<br/>Po = Poids</td>
-                  <td className="p-6 border-r">4x60m</td>
-                  <td className="p-6 font-bold">Tétrathlon</td>
-                </tr>
-                <tr className="border-b border-slate-50">
-                  <td className="p-6 font-black bg-slate-50/30 border-r">PUP</td>
-                  <td className="p-6 border-r">60m<br/>60m haies<br/>1000m</td>
-                  <td className="p-6 border-r">L = Longueur<br/>H = Hauteur</td>
-                  <td className="p-6 border-r">Ba (ou BH) = Balle de hockey<br/>Po = Poids<br/>D =
-                    Disque
-                  </td>
-                  <td className="p-6 border-r">4x60m<br/>4x1000m</td>
-                  <td className="p-6 font-bold">Tétrathlon</td>
-                </tr>
-                <tr>
-                  <td className="p-6 font-black bg-slate-50/30 border-r">MIN</td>
-                  <td className="p-6 border-r whitespace-pre-line">80m{"\n"}60m haies (F){"\n"}80m
-                    haies (G){"\n"}150m{"\n"}150m haies{"\n"}300m{"\n"}1000m
-                  </td>
-                  <td className="p-6 border-r whitespace-pre-line">L = Longueur{"\n"}H =
-                    Hauteur{"\n"}Pe = Perche
-                  </td>
-                  <td className="p-6 border-r whitespace-pre-line">J = Javelot{"\n"}Po = Poids{"\n"}D
-                    = Disque
-                  </td>
-                  <td className="p-6 border-r">4x80m<br/>4x1000m</td>
-                  <td className="p-6 font-bold">Pentathlon</td>
-                </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* SECTION 5 : COMMENT LIRE UN HORAIRE */}
-          <div className="mb-20 pt-12 border-t border-slate-100">
+          {/* SECTION 5 : LIRE UN HORAIRE */}
+          <div className="mb-24">
             <div className="flex flex-col mb-12">
-              <h2 className="text-3xl font-black text-slate-900 uppercase italic">
-                Comment lire <span className="text-red-600">une grille horaire ?</span>
+              <h2 className="text-4xl font-black text-slate-900 uppercase italic">
+                Lire une <span className="text-red-600">grille horaire</span>
               </h2>
-              <div className="h-1.5 w-16 bg-red-600 mt-2"></div>
+              <div className="h-2 w-20 bg-red-600 mt-4"></div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
               <div className="space-y-6 lg:sticky lg:top-32">
-                <div className="p-8 bg-slate-50 rounded-[2rem] border border-slate-100 space-y-6">
+                <div className="p-10 bg-slate-50 rounded-[2.5rem] border border-slate-100 space-y-8">
                   <div className="space-y-2">
-                    <h4 className="font-black uppercase text-sm text-red-600 italic">L'heure de
-                      début</h4>
-                    <p className="text-sm text-slate-600 leading-relaxed">
-                      L'heure indiquée est celle du **début effectif** de l'épreuve. L'athlète doit
-                      être échauffé et prêt à concourir à ce moment précis.
+                    <h4 className="font-black uppercase text-xs text-red-600 italic tracking-widest flex items-center gap-2">
+                      <Clock size={16} /> Heure de début
+                    </h4>
+                    <p className="text-sm font-medium text-slate-600 leading-relaxed">
+                      L'heure indiquée est celle du <strong className="text-slate-900">début effectif</strong>. L'athlète doit être échauffé et prêt à l'appel.
                     </p>
                   </div>
                   <div className="space-y-2">
-                    <h4 className="font-black uppercase text-sm text-red-600 italic">Les
-                      abréviations</h4>
-                    <p className="text-sm text-slate-600 leading-relaxed italic">
-                      "MH" = Minimes Hommes, "PF" = Pupilles Filles, etc. Vérifiez bien votre
-                      colonne !
+                    <h4 className="font-black uppercase text-xs text-red-600 italic tracking-widest flex items-center gap-2">
+                      <Info size={16} /> Abréviations
+                    </h4>
+                    <p className="text-sm font-medium text-slate-600 leading-relaxed">
+                      <span className="font-bold">MH</span> = Minimes Hommes <br/>
+                      <span className="font-bold">PF</span> = Pupilles Filles <br/>
+                      Vérifiez bien votre colonne !
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="lg:col-span-2 group relative">
-                <div
-                    className="overflow-hidden rounded-[2.5rem] border-4 border-slate-900 shadow-2xl bg-white/80 backdrop-blur-md">
+              <div className="lg:col-span-2 relative group">
+                <div className="overflow-hidden rounded-[2.5rem] border-4 border-slate-900 shadow-2xl bg-white">
                   <img
                       src="/Grille-de-lecture.gif"
-                      alt="Exemple de grille horaire Meeting BPM"
-                      className="w-full h-auto cursor-zoom-in hover:scale-105 transition-transform duration-500"
+                      alt="Exemple Grille Horaire"
+                      className="w-full h-auto"
                   />
                 </div>
-                <div
-                    className="absolute -bottom-4 -right-4 bg-red-600 text-white px-6 py-3 rounded-2xl font-black uppercase italic text-xs shadow-xl">
-                  Exemple de meeting
+                <div className="absolute -bottom-6 -right-6 bg-red-600 text-white px-8 py-4 rounded-3xl font-black uppercase italic text-xs tracking-widest shadow-xl rotate-3">
+                  Exemple Type
                 </div>
               </div>
             </div>
           </div>
 
-          {/* SECTION 6 : LOGISTIQUE */}
-          <div className="pt-12 border-t border-slate-100">
-            <h2 className="text-3xl font-black text-slate-900 uppercase italic mb-12">Infos
-              pratiques <span className="text-red-600">& Logistique</span></h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
-              <div className="bg-slate-50 p-8 rounded-[2.5rem] space-y-4">
-                <ShoppingBag className="text-red-600" size={32}/>
-                <h4 className="font-black uppercase italic">Ce qu'il faut emporter</h4>
-                <ul className="text-slate-600 space-y-2 list-disc list-inside">
-                  <li>Maillot et dossard obligatoire</li>
-                  <li>Spikes (pointes de 6mm)</li>
-                  <li>Épingles de sûreté (x4)</li>
-                  <li>Vêtements chauds / de rechange</li>
+          {/* LOGISTIQUE */}
+          <div className="mb-24">
+            <h2 className="text-4xl font-black text-slate-900 uppercase italic mb-12">
+              Logistique <span className="text-red-600">& Pratique</span>
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="bg-slate-50 p-10 rounded-[2.5rem] space-y-6 hover:bg-white hover:shadow-xl transition-all duration-300 border border-transparent hover:border-slate-100">
+                <div className="p-4 bg-white rounded-2xl w-fit shadow-sm"><ShoppingBag className="text-red-600" size={24}/></div>
+                <h4 className="font-black uppercase italic text-xl">Dans le sac</h4>
+                <ul className="text-slate-600 space-y-3 text-sm font-medium">
+                  <li className="flex gap-2"><span className="text-red-600 font-bold">•</span> Maillot & dossard</li>
+                  <li className="flex gap-2"><span className="text-red-600 font-bold">•</span> Spikes (6mm)</li>
+                  <li className="flex gap-2"><span className="text-red-600 font-bold">•</span> 4 Épingles</li>
+                  <li className="flex gap-2"><span className="text-red-600 font-bold">•</span> Vêtements chauds</li>
                 </ul>
               </div>
-              <div
-                  className="bg-slate-50 p-8 rounded-[2.5rem] space-y-4 border-2 border-red-600 shadow-xl">
-                <Clock className="text-red-600" size={32}/>
-                <h4 className="font-black uppercase italic">Timing à respecter</h4>
-                <p className="text-slate-600">Présentez-vous au secrétariat au moins 45 minutes
-                  avant votre première épreuve pour confirmer votre présence.</p>
-              </div>
-              <div className="bg-slate-50 p-8 rounded-[2.5rem] space-y-4">
-                <Truck className="text-red-600" size={32}/>
-                <h4 className="font-black uppercase italic">Déplacement</h4>
-                <p className="text-slate-600">Le club favorise le co-voiturage. N'hésitez pas à
-                  contacter les autres parents ou les entraîneurs via le groupe WhatsApp.</p>
-              </div>
-            </div>
-          </div>
 
-          {/* BANDEAU ESTIMATION TOTALE */}
-          <div
-              className="mb-20 bg-red-600 rounded-[2.5rem] p-10 text-white shadow-2xl shadow-red-200">
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-6">
-              <div>
-                <h3 className="text-2xl font-black uppercase italic">Estimation totale par
-                  épreuve</h3>
-                <p className="text-red-100 text-sm italic">Prévoyez environ 1h00 à 1h30 au total sur
-                  place.</p>
+              <div className="bg-slate-900 p-10 rounded-[2.5rem] space-y-6 text-white shadow-xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform"><Clock size={100} /></div>
+                <div className="p-4 bg-white/10 rounded-2xl w-fit"><Clock className="text-red-500" size={24}/></div>
+                <h4 className="font-black uppercase italic text-xl relative z-10">Timing</h4>
+                <p className="text-slate-300 text-sm font-medium leading-relaxed relative z-10">
+                  Présentez-vous au secrétariat au moins <strong className="text-white">45 minutes</strong> avant votre première épreuve pour confirmer votre présence.
+                </p>
               </div>
-              <div
-                  className="bg-white/80 backdrop-blur-md text-red-600 px-8 py-4 rounded-2xl font-black text-2xl italic shadow-lg flex items-center gap-3">
-                <Timer size={32}/> 1H30 MAX
-              </div>
-            </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="space-y-1 border-l-2 border-white/20 pl-6">
-                <span className="text-4xl font-black opacity-30 italic">10'</span>
-                <h4 className="font-bold uppercase text-[10px] tracking-widest">Inscription</h4>
-              </div>
-              <div className="space-y-1 border-l-2 border-white/20 pl-6">
-                <span className="text-4xl font-black opacity-30 italic">30'</span>
-                <h4 className="font-bold uppercase text-[10px] tracking-widest">Échauffement</h4>
-              </div>
-              <div className="space-y-1 border-l-2 border-white/20 pl-6">
-                <span className="text-4xl font-black opacity-30 italic">15-60'</span>
-                <h4 className="font-bold uppercase text-[10px] tracking-widest">Participation</h4>
-              </div>
-              <div className="space-y-1 border-l-2 border-white/20 pl-6">
-                <span className="text-4xl font-black opacity-30 italic">10'</span>
-                <h4 className="font-bold uppercase text-[10px] tracking-widest">Relâchement</h4>
+              <div className="bg-slate-50 p-10 rounded-[2.5rem] space-y-6 hover:bg-white hover:shadow-xl transition-all duration-300 border border-transparent hover:border-slate-100">
+                <div className="p-4 bg-white rounded-2xl w-fit shadow-sm"><Truck className="text-red-600" size={24}/></div>
+                <h4 className="font-black uppercase italic text-xl">Déplacement</h4>
+                <p className="text-slate-600 text-sm font-medium leading-relaxed">
+                  Le club favorise le co-voiturage. Organisez-vous avec les autres parents ou via le groupe WhatsApp officiel.
+                </p>
               </div>
             </div>
           </div>
 
-          {/* SECTION 6 : ASSISTER ET RÉSULTATS */}
-          <div
-              className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20 pt-12 border-t border-slate-100">
+          {/* SECTION PARENTS & RÉSULTATS */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-24 items-start">
 
-            {/* CÔTÉ PARENTS */}
             <div className="space-y-8">
-              <h2 className="text-3xl font-black text-slate-900 uppercase italic">
-                Pendant ce temps, <span className="text-red-600">que font les parents ?</span>
+              <h2 className="text-3xl font-black text-slate-900 uppercase italic leading-tight">
+                Pendant ce temps, <br/><span className="text-red-600">que font les parents ?</span>
               </h2>
 
-              <div className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 space-y-6">
-                <div className="flex gap-4">
-                  <div className="bg-white/80 backdrop-blur-md p-3 rounded-2xl shadow-sm h-fit"><Users size={20}
-                                                                                   className="text-red-600"/>
-                  </div>
+              <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-sm space-y-6">
+                <div className="flex gap-6 items-start">
+                  <div className="p-3 bg-red-50 rounded-2xl text-red-600 shrink-0"><Users size={24}/></div>
                   <div>
-                    <h4 className="font-black uppercase italic text-sm">Gradins & Cafétaria</h4>
-                    <p className="text-sm text-slate-600 mt-1 leading-relaxed">Tous les parents sont
-                      les bienvenus ! Les gradins et la cafétéria sont à votre disposition pour
-                      suivre les épreuves confortablement.</p>
+                    <h4 className="font-black uppercase italic text-sm mb-2">Gradins & Cafétaria</h4>
+                    <p className="text-sm text-slate-500 font-medium leading-relaxed">Installez-vous confortablement pour suivre les exploits.</p>
                   </div>
                 </div>
-
-                <div className="flex gap-4">
-                  <div className="bg-white/80 backdrop-blur-md p-3 rounded-2xl shadow-sm h-fit"><MapPin size={20}
-                                                                                    className="text-red-600"/>
-                  </div>
+                <div className="flex gap-6 items-start">
+                  <div className="p-3 bg-red-50 rounded-2xl text-red-600 shrink-0"><MapPin size={24}/></div>
                   <div>
-                    <h4 className="font-black uppercase italic text-sm">Zones de concours</h4>
-                    <p className="text-sm text-slate-600 mt-1 leading-relaxed">Il est permis de
-                      s'approcher des sautoirs (longueur, hauteur, perche) et lancers, à condition
-                      de rester derrière la main courante.</p>
+                    <h4 className="font-black uppercase italic text-sm mb-2">Zones autorisées</h4>
+                    <p className="text-sm text-slate-500 font-medium leading-relaxed">Restez derrière la main courante près des sautoirs et lancers.</p>
                   </div>
                 </div>
-
-                <div className="bg-red-50 p-5 rounded-2xl border-l-4 border-red-600 italic">
-                  <p className="text-xs text-red-900 font-bold">⚠️ Règle d'or : Il n'est pas
-                    autorisé de courir à côté des athlètes pour les encourager, même hors de la
-                    piste.</p>
-                </div>
-
-                <div className="pt-4 border-t border-slate-200">
-                  <p className="text-xs font-bold text-slate-500 uppercase">Envie d'aider ?</p>
-                  <p className="text-sm text-slate-600 mt-2 italic">Toute aide spontanée (cafétaria,
-                    officiel de terrain) est la bienvenue et n'empêche pas de voir son enfant
-                    concourir !</p>
+                <div className="bg-red-600 p-6 rounded-3xl text-white text-xs font-bold uppercase tracking-wide leading-relaxed">
+                  ⚠️ Il est interdit de courir à côté des athlètes pour les encourager.
                 </div>
               </div>
             </div>
 
-            {/* CÔTÉ RÉSULTATS */}
             <div className="space-y-8">
-              <h2 className="text-3xl font-black text-slate-900 uppercase italic">
-                Les résultats <span className="text-red-600">de compétition</span>
+              <h2 className="text-3xl font-black text-slate-900 uppercase italic leading-tight">
+                Les résultats <br/><span className="text-red-600">de compétition</span>
               </h2>
 
-              <div className="space-y-6">
-                <div
-                    className="p-8 bg-slate-900 rounded-[2.5rem] text-white relative overflow-hidden">
-                  <Zap className="absolute -right-4 -top-4 text-white/5 w-32 h-32"/>
-                  <h4 className="font-black uppercase italic mb-4 text-red-600">Annonces en
-                    direct</h4>
-                  <p className="text-sm text-slate-300 leading-relaxed">
-                    Les résultats sont annoncés au micro quelques minutes après la fin de l'épreuve.
-                    En cas de doute, demandez au **secrétariat** (et non à la tour de chrono).
-                  </p>
-                </div>
+              <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden">
+                <Megaphone className="text-red-600 mb-4" size={32} />
+                <h4 className="font-black uppercase italic mb-2">Annonces Live</h4>
+                <p className="text-slate-400 text-sm font-medium mb-6">Résultats au micro ou affichés au secrétariat.</p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Link
-                      href="https://www.beathletics.be/res/calendrier"
-                      target="_blank"
-                      className="p-6 bg-white/80 backdrop-blur-md border-2 border-slate-900 rounded-3xl hover:bg-red-600 hover:border-red-600 hover:text-white transition-all group shadow-sm"
-                  >
-                    <h4 className="font-black uppercase italic text-xs mb-2 text-red-600 group-hover:text-white transition-colors">BeAthletics</h4>
-                    <p className="text-[10px] opacity-70 uppercase font-bold group-hover:text-white transition-colors leading-tight">
-                      Consulter les résultats officiels →
-                    </p>
+                  <Link href="https://www.beathletics.be/res/calendrier" target="_blank" className="bg-white text-slate-900 px-6 py-4 rounded-2xl font-black uppercase italic text-xs tracking-wider hover:bg-red-600 hover:text-white transition-all text-center">
+                    BeAthletics
                   </Link>
-
-                  <div className="p-6 bg-slate-50 border border-slate-200 rounded-3xl">
-                    <h4 className="font-black uppercase italic text-xs mb-2">L'ACDiste</h4>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">Le
-                      journal officiel du club</p>
+                  <div className="bg-white/10 text-white px-6 py-4 rounded-2xl font-black uppercase italic text-xs tracking-wider text-center border border-white/10">
+                    Journal ACDiste
                   </div>
                 </div>
-
-                <p className="text-xs text-slate-400 italic px-4 leading-relaxed">
-                  Certains résultats sont également mis en avant dans la chronique du club, les
-                  petits journaux locaux ou le quotidien régional hebdomadaire.
-                </p>
               </div>
             </div>
           </div>
 
-          {/* SECTION 7 : ENTRAÎNEMENTS ESTIVAUX */}
-          <div className="mb-20 pt-12 border-t border-slate-100">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-              <div className="lg:col-span-1 space-y-6">
-                <h2 className="text-3xl font-black text-slate-900 uppercase italic">
-                  L'entraînement <span className="text-red-600">estival</span>
-                </h2>
-                <p className="text-slate-600 leading-relaxed text-sm">
-                  L’entraînement ne s'arrête pas pendant la saison des compétitions. Au contraire,
-                  nos entraîneurs s'efforcent de préparer les athlètes aux épreuves techniques
-                  prévues au calendrier.
-                </p>
-                <div className="p-6 bg-red-50 rounded-3xl border border-red-100">
-                  <p className="text-xs text-red-600 font-bold italic underline mb-2 text-center uppercase">Important</p>
-                  <p className="text-xs text-red-800 leading-relaxed text-center">
-                    La psychomotricité à Virton continue pour les plus petits le mercredi.
-                  </p>
-                </div>
-              </div>
-
-              <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* SAINT-MARD */}
-                <div className="p-6 bg-slate-900 rounded-[2rem] text-white">
-                  <h4 className="font-black uppercase italic text-red-600 mb-3">Saint-Mard</h4>
-                  <ul className="text-xs space-y-2 opacity-90">
-                    <li><span className="font-bold">Mercredi :</span> 18h00 - 19h15 (Piste)</li>
-                    <li className="text-red-400 italic font-bold">Mercredi : 17h45 - 18h45 (Psycho
-                      Virton - KAN/BEN1)
-                    </li>
-                    <li><span className="font-bold">Vendredi :</span> 18h00 - 19h15 (Piste)</li>
-                  </ul>
-                </div>
-
-                {/* IZEL */}
-                <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
-                  <h4 className="font-black uppercase italic text-slate-900 mb-3 underline decoration-red-600">Izel</h4>
-                  <ul className="text-xs space-y-2 text-slate-600">
-                    <li><span className="font-bold">Mercredi :</span> 17h30 - 18h30 (BEN / PUP1)
-                    </li>
-                    <li><span className="font-bold">Mercredi :</span> 18h00 - 19h30 (MIN2)</li>
-                  </ul>
-                </div>
-
-                {/* BASTOGNE */}
-                <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
-                  <h4 className="font-black uppercase italic text-slate-900 mb-3 underline decoration-red-600">Bastogne</h4>
-                  <ul className="text-xs space-y-2 text-slate-600">
-                    <li><span className="font-bold">Mardi :</span> 16h00 - 17h30 (Piste)</li>
-                  </ul>
-                </div>
-
-                {/* HABAY */}
-                <div className="p-6 bg-slate-50 rounded-[2rem] border border-slate-100">
-                  <h4 className="font-black uppercase italic text-slate-900 mb-3 underline decoration-red-600">Habay-la-Neuve</h4>
-                  <ul className="text-xs space-y-2 text-slate-600">
-                    <li><span className="font-bold">Lundi :</span> 18h00 - 19h00 (Piste du Châtelet)
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* SECTION 8 : RÉSUMÉ & CONCLUSION */}
-          <div className="mb-20 bg-slate-50 rounded-[3rem] p-12 border border-slate-200">
-            <h2 className="text-2xl font-black text-slate-900 uppercase italic mb-8 flex items-center gap-3">
-              En résumé : <span className="text-red-600 text-sm font-bold tracking-widest">Ma checklist</span>
+          {/* ENTRAÎNEMENTS D'ÉTÉ */}
+          <div className="mb-24">
+            <h2 className="text-4xl font-black text-slate-900 uppercase italic mb-10">
+              L'entraînement <span className="text-red-600">estival</span>
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {[
-                {t: "Agenda", d: "Notez les dates et organisez votre déplacement."},
-                {t: "Vérification", d: "Lieu, horaire, épreuves et contenu du sac."},
-                {t: "Anticipation", d: "Arrivez tôt pour l'inscription et l'échauffement."},
-                {t: "Plaisir", d: "Admirez les progrès de votre enfant et des autres."}
-              ].map((item, i) => (
-                  <div key={i} className="space-y-2">
-                    <div className="h-1 w-8 bg-red-600 mb-4"></div>
-                    <h4 className="font-black uppercase text-sm italic">{item.t}</h4>
-                    <p className="text-xs text-slate-500 leading-relaxed">{item.d}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="p-8 bg-slate-900 rounded-[2.5rem] text-white shadow-xl">
+                <h4 className="font-black uppercase italic text-red-600 text-xl mb-4">Saint-Mard</h4>
+                <div className="space-y-3 text-xs font-bold uppercase tracking-wider text-slate-300">
+                  <p>Mercredi <span className="text-white">18h00</span></p>
+                  <p>Vendredi <span className="text-white">18h00</span></p>
+                  <p className="text-red-500 pt-2 border-t border-white/10">Psycho : Mer 17h45</p>
+                </div>
+              </div>
+
+              <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100">
+                <h4 className="font-black uppercase italic text-slate-900 text-xl mb-4">Izel</h4>
+                <div className="space-y-3 text-xs font-bold uppercase tracking-wider text-slate-500">
+                  <p>Mer (BEN/PUP) <span className="text-slate-900">17h30</span></p>
+                  <p>Mer (MIN) <span className="text-slate-900">18h00</span></p>
+                </div>
+              </div>
+
+              <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100">
+                <h4 className="font-black uppercase italic text-slate-900 text-xl mb-4">Bastogne</h4>
+                <div className="space-y-3 text-xs font-bold uppercase tracking-wider text-slate-500">
+                  <p>Mardi <span className="text-slate-900">16h00</span></p>
+                </div>
+              </div>
+
+              <div className="p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100">
+                <h4 className="font-black uppercase italic text-slate-900 text-xl mb-4">Habay</h4>
+                <div className="space-y-3 text-xs font-bold uppercase tracking-wider text-slate-500">
+                  <p>Lundi <span className="text-slate-900">18h00</span></p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* CHECKLIST FINALE */}
+          <div className="bg-white border-2 border-dashed border-slate-200 rounded-[3rem] p-12 text-center">
+            <h2 className="text-2xl font-black text-slate-900 uppercase italic mb-8">
+              Prêts pour le <span className="text-red-600">départ ?</span>
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+              {["Agenda", "Sac", "Horaire", "Plaisir"].map((item, i) => (
+                  <div key={i} className="flex flex-col items-center gap-3">
+                    <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center text-red-600">
+                      <CalendarCheck size={20} />
+                    </div>
+                    <span className="font-black uppercase italic text-sm">{item}</span>
                   </div>
               ))}
-            </div>
-
-            <div className="mt-12 pt-8 border-t border-slate-200 text-center">
-              <p className="text-lg font-black uppercase italic text-slate-800">
-                On se retrouve au bord de la <span
-                  className="text-red-600">piste très bientôt !</span>
-              </p>
             </div>
           </div>
 
