@@ -25,9 +25,20 @@ export default function ActualitesPage() {
   const [redacteurs, setRedacteurs] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
 
+  // État pour gérer le cadrage dynamique de chaque image
+  const [imagePositions, setImagePositions] = useState<Record<string, string>>({});
+
   const role = profile?.role?.toLowerCase().trim();
   const isAdmin = role === 'admin';
   const canManage = isAdmin || role === 'redacteur';
+
+  // Fonction pour détecter l'orientation de l'image
+  const handleImageLoad = (id: string, event: React.SyntheticEvent<HTMLImageElement>) => {
+    const { naturalWidth, naturalHeight } = event.currentTarget;
+    // Si Portrait : focus à 35% (haut), sinon Milieu
+    const position = naturalHeight > naturalWidth ? "center 35%" : "center center";
+    setImagePositions(prev => ({ ...prev, [id]: position }));
+  };
 
   useEffect(() => {
     async function fetchNewsData() {
@@ -101,25 +112,33 @@ export default function ActualitesPage() {
 
                   {item.is_hidden && (
                       <div className="absolute top-4 left-4 z-40 flex items-center gap-2 bg-slate-900 text-white text-[8px] font-black px-2 py-1 rounded-full uppercase tracking-tighter">
-                        <EyeOff size={10} className="text-orange-400"/> Masqué
+                        <EyeOff size={10} className="text-orange-400" /> Masqué
                       </div>
                   )}
 
                   {canManage && (
                       <div className="absolute top-4 right-4 z-50 scale-90">
-                        <AdminActions id={item.id} isHidden={item.is_hidden}/>
+                        <AdminActions id={item.id} isHidden={item.is_hidden} />
                       </div>
                   )}
 
                   <Link href={`/actualites/${item.id}`} className="block h-full">
                     <div className="h-full bg-white rounded-2xl overflow-hidden border border-slate-100 hover:border-red-100 hover:shadow-xl transition-all duration-300 flex flex-col">
-                      <div className="relative h-48 overflow-hidden">
+
+                      {/* CONTAINER IMAGE */}
+                      <div className="relative h-48 overflow-hidden bg-slate-100">
                         <img
                             src={item.image_url}
                             alt={item.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            onLoad={(e) => handleImageLoad(item.id, e)}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                            style={{
+                              // Application de la position calculée
+                              objectPosition: imagePositions[item.id] || "center 40%"
+                            }}
                         />
                       </div>
+
                       <div className="p-5 flex flex-col flex-grow">
                         <h2 className="text-lg font-bold text-slate-800 mb-2 group-hover:text-red-600 transition-colors uppercase italic tracking-tighter line-clamp-2">
                           {item.title}
@@ -130,13 +149,13 @@ export default function ActualitesPage() {
 
                         <div className="mt-auto pt-3 border-t border-slate-50 flex items-center gap-4 text-slate-400">
                           <div className="flex items-center gap-1">
-                            <User size={12} className="text-red-600"/>
+                            <User size={12} className="text-red-600" />
                             <span className="text-[9px] font-black uppercase italic tracking-tighter">
                           {item.author?.full_name || "ACD"}
                         </span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <Calendar size={12} className="text-red-600"/>
+                            <Calendar size={12} className="text-red-600" />
                             <span className="text-[9px] font-black uppercase italic tracking-tighter">
                           {new Date(item.date_text).toLocaleDateString('fr-FR', {
                             day: '2-digit',
@@ -156,7 +175,7 @@ export default function ActualitesPage() {
           {redacteurs.length > 0 && (
               <footer className="mt-20 pt-10 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 px-4">
                 <div className="flex items-center gap-3 text-slate-400">
-                  <Heart size={16} className="text-red-600/40"/>
+                  <Heart size={16} className="text-red-600/40" />
                   <span className="text-[10px] font-bold uppercase tracking-[0.2em] italic">Équipe de rédaction</span>
                 </div>
 
