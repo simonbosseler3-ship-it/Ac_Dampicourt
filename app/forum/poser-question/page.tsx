@@ -4,28 +4,20 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/context/authContext";
-import { ArrowLeft, Send, AlertCircle, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, Send, AlertCircle, Check, Loader2, Globe } from "lucide-react";
 import Link from "next/link";
 
 const CATEGORIES = ["Inscriptions", "Entraînements", "Compétitions", "Matériel", "Autre"];
 
 export default function NouveauTopicPage() {
   const router = useRouter();
-  const { profile } = useAuth();
+  const { profile, user } = useAuth(); // On utilise le contexte pour identifier le staff
   const [loading, setLoading] = useState(false);
   const [selectedCat, setSelectedCat] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (loading) return;
-
-    // 1. Vérification de la session actuelle
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      alert("Vous devez être connecté pour poser une question.");
-      router.push("/login");
-      return;
-    }
 
     const formData = new FormData(e.currentTarget);
     const title = (formData.get('title') as string).trim();
@@ -39,13 +31,13 @@ export default function NouveauTopicPage() {
     setLoading(true);
 
     try {
-      // 2. Création du Topic
+      // 1. Création du Topic (author_id sera null si visiteur non connecté)
       const { data: topic, error: topicError } = await supabase
       .from('forum_topics')
       .insert({
         title,
         category: selectedCat,
-        author_id: session.user.id,
+        author_id: user?.id || null,
         is_closed: false
       })
       .select()
@@ -53,20 +45,21 @@ export default function NouveauTopicPage() {
 
       if (topicError) throw topicError;
 
-      // 3. Création du premier message
+      // 2. Création du premier message
       if (topic) {
+        // Identification du staff (uniquement si connecté avec le bon rôle)
         const isStaff = profile?.role === 'admin' || profile?.role === 'redacteur';
 
         const { error: msgError } = await supabase.from('forum_messages').insert({
           topic_id: topic.id,
-          author_id: session.user.id,
+          author_id: user?.id || null,
           content: content,
-          is_staff_answer: isStaff // Marqué comme staff si l'auteur l'est
+          is_staff_answer: isStaff
         });
 
         if (msgError) throw msgError;
 
-        // 4. Notification (optionnel, ne bloque pas la réussite)
+        // 3. Notification (optionnel)
         fetch('/api/forum/notify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -75,12 +68,12 @@ export default function NouveauTopicPage() {
             title,
             category: selectedCat,
             content,
-            authorName: profile?.full_name || "Un membre"
+            authorName: profile?.full_name || "Un visiteur"
           }),
         }).catch(err => console.error("Notification non envoyée", err));
       }
 
-      // 5. Succès et redirection
+      // 4. Succès et redirection
       router.push(`/forum/${topic.id}`);
       router.refresh();
     } catch (err: any) {
@@ -103,21 +96,22 @@ export default function NouveauTopicPage() {
 
           <div
               className="bg-slate-50/50 rounded-[3rem] p-8 md:p-14 border border-slate-100 shadow-sm relative overflow-hidden">
+
             {/* Déco subtile */}
-            <div
-                className="absolute top-0 right-0 w-32 h-32 bg-red-600/5 rounded-full -mr-16 -mt-16"></div>
+            <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/5 rounded-full -mr-16 -mt-16"></div>
 
             <div className="mb-12 relative z-10">
               <div className="flex items-center gap-3 mb-4">
                 <span className="h-1 w-10 bg-red-600"></span>
-                <span
-                    className="text-red-600 font-black uppercase italic text-[10px] tracking-[0.3em]">Nouveau Sujet</span>
+                <span className="text-red-600 font-black uppercase italic text-[10px] tracking-[0.3em]">
+                    {user ? "Nouveau Sujet" : "Question Publique"}
+                </span>
               </div>
               <h1 className="text-5xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">
                 Poser une <span className="text-red-600">Question</span>
               </h1>
-              <p className="text-slate-500 font-bold uppercase italic text-[11px] mt-4 tracking-widest leading-relaxed">
-                Le staff ACD vous répondra directement ici.
+              <p className="text-slate-500 font-bold uppercase italic text-[11px] mt-4 tracking-widest leading-relaxed flex items-center gap-2">
+                <Globe size={14} className="text-red-600" /> Ouvert à tous. Le staff ACD vous répondra ici.
               </p>
             </div>
 
@@ -125,8 +119,7 @@ export default function NouveauTopicPage() {
 
               {/* TITRE */}
               <div className="space-y-4">
-                <label
-                    className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-2">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-2">
                   Objet de votre demande
                 </label>
                 <input
@@ -141,8 +134,7 @@ export default function NouveauTopicPage() {
 
               {/* CATÉGORIES */}
               <div className="space-y-4">
-                <label
-                    className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-2">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-2">
                   Catégorie concernée
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -167,8 +159,7 @@ export default function NouveauTopicPage() {
 
               {/* MESSAGE */}
               <div className="space-y-4">
-                <label
-                    className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-2">
+                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-2">
                   Détails de la question
                 </label>
                 <textarea
@@ -176,19 +167,18 @@ export default function NouveauTopicPage() {
                     required
                     disabled={loading}
                     rows={8}
-                    placeholder="Décrivez votre situation avec précision pour obtenir une réponse rapide..."
+                    placeholder="Décrivez votre situation avec précision..."
                     className="w-full bg-white border-2 border-slate-100 rounded-[2rem] py-6 px-8 font-medium focus:border-red-600 outline-none transition-all shadow-sm resize-none text-slate-700 leading-relaxed"
                 ></textarea>
               </div>
 
               {/* ALERTE */}
-              <div
-                  className="bg-red-50 p-6 rounded-2xl flex gap-4 items-center border border-red-100/50">
+              <div className="bg-red-50 p-6 rounded-2xl flex gap-4 items-center border border-red-100/50">
                 <div className="bg-red-600 p-2 rounded-lg text-white">
                   <AlertCircle size={18}/>
                 </div>
                 <p className="text-[10px] font-black text-red-900 uppercase italic tracking-widest leading-tight">
-                  Attention : Votre question sera visible par <br/> l'ensemble des membres du club.
+                  Note : Votre question sera publiée publiquement <br/> et visible par l'ensemble du club.
                 </p>
               </div>
 
@@ -204,8 +194,7 @@ export default function NouveauTopicPage() {
                     </>
                 ) : (
                     <>
-                      <Send size={22}
-                            className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"/>
+                      <Send size={22} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"/>
                       Publier sur le forum
                     </>
                 )}
