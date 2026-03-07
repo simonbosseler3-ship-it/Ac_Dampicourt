@@ -3,281 +3,215 @@
 import { useEffect, useState, use } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import { Upload, Check, ArrowLeft, Loader2, Trophy, Paperclip, X } from "lucide-react";
+import { Upload, Check, ArrowLeft, Loader2, Trophy, Paperclip, Facebook } from "lucide-react";
+
+// Import dynamique de l'éditeur pour éviter les erreurs au chargement
+import dynamic from 'next/dynamic';
+const ReactQuill = dynamic(() => import('react-quill-new'), {
+  ssr: false,
+  loading: () => <div className="h-64 w-full bg-slate-50 animate-pulse rounded-2xl border border-slate-100" />
+});
+import 'react-quill-new/dist/quill.snow.css';
 
 export default function ModifierArticle({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
 
-  // États des champs
   const [title, setTitle] = useState("");
   const [dateText, setDateText] = useState("");
   const [content, setContent] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-
-  // États pour le fichier joint / compétition
+  const [facebookUrl, setFacebookUrl] = useState("");
   const [isCompetition, setIsCompetition] = useState(false);
   const [existingScheduleUrl, setExistingScheduleUrl] = useState<string | null>(null);
   const [scheduleFile, setScheduleFile] = useState<File | null>(null);
-
-  // États pour l'image de couverture
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-
-  // États de chargement
   const [loading, setLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
+
+  // Configuration de la barre d'outils pour les rédacteurs
+  const modules = {
+    toolbar: [
+      [{ 'header': [2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      ['link', 'clean']
+    ],
+  };
 
   useEffect(() => {
     const loadArticle = async () => {
       try {
-        // 1. Vérification rapide de la session
         const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-          router.replace("/login");
-          return;
-        }
+        if (!session) { router.replace("/login"); return; }
 
-        // 2. Vérification du rôle et récupération de l'article en parallèle
         const [profileRes, articleRes] = await Promise.all([
           supabase.from('profiles').select('role').eq('id', session.user.id).single(),
           supabase.from('news').select('*').eq('id', id).single()
         ]);
 
-        const role = profileRes.data?.role?.toLowerCase().trim();
-        if (role !== 'admin' && role !== 'redacteur') {
-          router.replace("/actualites");
-          return;
-        }
-
-        if (articleRes.error || !articleRes.data) {
-          router.replace("/actualites");
-          return;
-        }
-
-        const article = articleRes.data;
-        setTitle(article.title);
-        setDateText(article.date_text);
-        setContent(article.content || "");
-        setImageUrl(article.image_url);
-        setPreviewUrl(article.image_url);
-
-        if (article.schedule_url) {
-          setIsCompetition(true);
-          setExistingScheduleUrl(article.schedule_url);
+        if (articleRes.data) {
+          const article = articleRes.data;
+          setTitle(article.title);
+          setDateText(article.date_text);
+          setContent(article.content || "");
+          setImageUrl(article.image_url);
+          setPreviewUrl(article.image_url);
+          setFacebookUrl(article.facebook_url || "");
+          if (article.schedule_url) {
+            setIsCompetition(true);
+            setExistingScheduleUrl(article.schedule_url);
+          }
         }
       } catch (err) {
-        console.error("Erreur chargement:", err);
-        router.replace("/actualites");
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-
     loadArticle();
   }, [id, router]);
-
-  // Nettoyage des URLs de prévisualisation
-  useEffect(() => {
-    return () => {
-      if (previewUrl && previewUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(previewUrl);
-      }
-    };
-  }, [previewUrl]);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      if (previewUrl && previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl);
-      setFile(selectedFile);
-      setPreviewUrl(URL.createObjectURL(selectedFile));
-    }
-  };
-
-  const handleScheduleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) setScheduleFile(selectedFile);
-  };
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsUpdating(true);
-
     try {
-      // 1. Gestion de l'image de couverture
       let finalImageUrl = imageUrl;
       if (file) {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `cover_${Date.now()}.${fileExt}`;
-        const filePath = `articles/${fileName}`; // Chemin structuré
-
-        const { error: uploadError } = await supabase.storage
-        .from('news-images')
-        .upload(filePath, file);
-
-        if (uploadError) throw uploadError;
-        const { data: { publicUrl } } = supabase.storage.from('news-images').getPublicUrl(filePath);
+        const fileName = `cover_${Date.now()}`;
+        await supabase.storage.from('news-images').upload(`articles/${fileName}`, file);
+        const { data: { publicUrl } } = supabase.storage.from('news-images').getPublicUrl(`articles/${fileName}`);
         finalImageUrl = publicUrl;
       }
 
-      // 2. Gestion du document joint
       let finalScheduleUrl = existingScheduleUrl;
-
-      if (!isCompetition) {
-        finalScheduleUrl = null;
-      } else if (scheduleFile) {
-        const fileExt = scheduleFile.name.split('.').pop();
-        const fileName = `doc_${Date.now()}.${fileExt}`;
-        const filePath = `files/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-        .from('news-images')
-        .upload(filePath, scheduleFile);
-
-        if (uploadError) throw uploadError;
-        const { data: { publicUrl } } = supabase.storage.from('news-images').getPublicUrl(filePath);
+      if (!isCompetition) finalScheduleUrl = null;
+      else if (scheduleFile) {
+        const fileName = `doc_${Date.now()}`;
+        await supabase.storage.from('news-images').upload(`files/${fileName}`, scheduleFile);
+        const { data: { publicUrl } } = supabase.storage.from('news-images').getPublicUrl(`files/${fileName}`);
         finalScheduleUrl = publicUrl;
       }
 
-      // 3. Mise à jour de la base de données
-      const { error: updateError } = await supabase
-      .from('news')
-      .update({
+      const { error } = await supabase.from('news').update({
         title,
         date_text: dateText,
-        content,
+        content, // L'éditeur génère du HTML propre automatiquement
         image_url: finalImageUrl,
         schedule_url: finalScheduleUrl,
-      })
-      .eq('id', id);
+        facebook_url: facebookUrl,
+      }).eq('id', id);
 
-      if (updateError) throw updateError;
-
-      router.push("/actualites");
-      router.refresh();
-    } catch (error: any) {
-      alert("Erreur lors de la mise à jour : " + error.message);
+      if (!error) {
+        router.push("/actualites");
+        router.refresh();
+      }
+    } catch (err) {
+      alert("Erreur");
+    } finally {
       setIsUpdating(false);
     }
   };
 
-  if (loading) {
-    return (
-        <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-          <Loader2 className="animate-spin h-10 w-10 text-red-600" />
-          <p className="text-[10px] font-black uppercase italic text-slate-400">Chargement de l'article...</p>
-        </div>
-    );
-  }
+  if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin text-red-600" /></div>;
 
   return (
-      <div className="min-h-screen bg-slate-50/30">
-        <main className="container mx-auto px-4 py-12 max-w-3xl">
-          <button
-              onClick={() => router.back()}
-              className="flex items-center gap-2 text-slate-500 mb-8 hover:text-red-600 transition-colors uppercase font-black text-sm italic"
-          >
-            <ArrowLeft size={18} /> Retour
+      <div className="min-h-screen bg-slate-50/50">
+        {/* Styles pour que l'éditeur ressemble au rendu final du site */}
+        <style dangerouslySetInnerHTML={{ __html: `
+        .ql-container { font-family: inherit; font-size: 1.1rem; border-bottom-left-radius: 1.5rem; border-bottom-right-radius: 1.5rem; background: white; }
+        .ql-toolbar { border-top-left-radius: 1.5rem; border-top-right-radius: 1.5rem; background: white; border-color: #f1f5f9 !important; }
+        .ql-editor { min-height: 400px; }
+        .ql-editor h2 { color: #dc2626; font-weight: 900; text-transform: uppercase; font-style: italic; }
+      `}} />
+
+        <main className="container mx-auto px-4 py-12 max-w-5xl">
+          <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-400 mb-8 font-black text-[10px] uppercase italic tracking-widest hover:text-red-600 transition-colors">
+            <ArrowLeft size={16} /> Annuler les modifications
           </button>
 
-          <h1 className="text-4xl font-black italic uppercase mb-10 tracking-tighter">
-            Modifier <span className="text-red-600">l'actualité</span>
+          <h1 className="text-4xl md:text-6xl font-black italic uppercase mb-10 tracking-tighter text-slate-900">
+            Modifier <span className="text-red-600">l'actu</span>
           </h1>
 
-          <form onSubmit={handleUpdate} className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100 space-y-8">
+          <form onSubmit={handleUpdate} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-            {/* TITRE */}
-            <div>
-              <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 tracking-[0.2em]">Titre de l'article</label>
-              <input
-                  className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl font-bold text-lg focus:ring-2 focus:ring-red-500 outline-none transition-all"
-                  value={title}
-                  onChange={e => setTitle(e.target.value)}
-                  required
-              />
-            </div>
-
-            {/* IMAGE */}
-            <div>
-              <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 tracking-[0.2em]">Image de couverture</label>
-              <div className="border-4 border-dashed border-slate-100 rounded-3xl p-6 text-center bg-slate-50/50">
-                {previewUrl && (
-                    <div className="relative mb-6">
-                      <img src={previewUrl} alt="Preview" className="h-64 w-full object-cover rounded-2xl shadow-md" />
-                      <div className="absolute top-2 right-2 bg-slate-900/80 text-white text-[8px] px-2 py-1 rounded-full uppercase font-bold">Aperçu</div>
-                    </div>
-                )}
-                <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" id="file-edit" />
-                <label htmlFor="file-edit" className="cursor-pointer bg-slate-900 text-white px-8 py-3 rounded-xl font-black text-xs uppercase inline-flex items-center gap-2 hover:bg-red-600 transition-all shadow-lg">
-                  <Upload size={18} /> Remplacer la photo
-                </label>
-              </div>
-            </div>
-
-            {/* SECTION FICHIER JOINT */}
-            <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
-              <label className="flex items-center gap-3 cursor-pointer mb-4">
-                <input
-                    type="checkbox"
-                    className="hidden"
-                    checked={isCompetition}
-                    onChange={(e) => setIsCompetition(e.target.checked)}
-                />
-                <div className={`w-12 h-6 rounded-full transition-colors relative ${isCompetition ? 'bg-red-600' : 'bg-slate-300'}`}>
-                  <div className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${isCompetition ? 'translate-x-6' : 'translate-x-0'}`} />
+            {/* COLONNE GAUCHE : L'ÉDITEUR VISUEL */}
+            <div className="lg:col-span-2 space-y-6">
+              <div className="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden">
+                <div className="p-4 bg-slate-50 border-bottom border-slate-100">
+                  <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Contenu de l'article</span>
                 </div>
-                <span className="font-black uppercase italic text-xs text-slate-700 flex items-center gap-2">
-                <Trophy size={16} /> Lier un document (Horaire, Résultats...)
-              </span>
-              </label>
-
-              {isCompetition && (
-                  <div className="pt-4 border-t border-slate-200 animate-in fade-in slide-in-from-top-2">
-                    <div className="flex items-center gap-4">
-                      <input type="file" onChange={handleScheduleChange} className="hidden" id="schedule-edit" />
-                      <label htmlFor="schedule-edit" className="cursor-pointer bg-white border-2 border-slate-900 text-slate-900 px-4 py-2 rounded-xl font-black text-[10px] uppercase inline-flex items-center gap-2 hover:bg-slate-900 hover:text-white transition-all">
-                        <Paperclip size={14} /> {scheduleFile || existingScheduleUrl ? "Changer le fichier" : "Joindre"}
-                      </label>
-                      {(scheduleFile || existingScheduleUrl) && (
-                          <span className="text-[10px] font-bold text-green-600 uppercase italic truncate max-w-[200px]">
-                      {scheduleFile ? scheduleFile.name : "Fichier déjà en ligne"}
-                    </span>
-                      )}
-                    </div>
-                  </div>
-              )}
-            </div>
-
-            {/* DATE & CONTENU */}
-            <div className="space-y-8">
-              <div>
-                <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 tracking-[0.2em]">Date (ex: 20 JANV. 2026)</label>
-                <input
-                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl font-bold focus:ring-2 focus:ring-red-500 outline-none"
-                    value={dateText}
-                    onChange={e => setDateText(e.target.value)}
-                    required
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-black uppercase text-slate-400 mb-2 tracking-[0.2em]">Corps de l'article</label>
-                <textarea
-                    className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl font-medium h-64 resize-none focus:ring-2 focus:ring-red-500 outline-none leading-relaxed"
+                <ReactQuill
+                    theme="snow"
                     value={content}
-                    onChange={e => setContent(e.target.value)}
-                    required
+                    onChange={setContent}
+                    modules={modules}
                 />
               </div>
             </div>
 
-            <button
-                type="submit"
-                disabled={isUpdating}
-                className="w-full bg-red-600 text-white font-black py-5 rounded-2xl uppercase italic shadow-lg hover:bg-red-700 hover:-translate-y-1 active:scale-95 transition-all flex items-center justify-center gap-3 text-lg disabled:opacity-50 disabled:translate-y-0"
-            >
-              {isUpdating ? <Loader2 className="animate-spin h-6 w-6" /> : <><Check size={24} /> Enregistrer les modifications</>}
-            </button>
+            {/* COLONNE DROITE : RÉGLAGES ET INFOS */}
+            <div className="space-y-6">
+              <div className="bg-white p-6 rounded-[2.5rem] shadow-xl border border-slate-100 space-y-6 sticky top-24">
+
+                <div>
+                  <label className="block text-[9px] font-black uppercase text-slate-400 mb-2 tracking-widest">Titre</label>
+                  <input className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl font-bold" value={title} onChange={e => setTitle(e.target.value)} required />
+                </div>
+
+                <div>
+                  <label className="block text-[9px] font-black uppercase text-slate-400 mb-2 tracking-widest">Date</label>
+                  <input className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl font-bold" value={dateText} onChange={e => setDateText(e.target.value)} required />
+                </div>
+
+                <div>
+                  <label className="block text-[9px] font-black uppercase text-slate-400 mb-2 tracking-widest">Lien Facebook</label>
+                  <div className="relative">
+                    <Facebook className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600" size={16} />
+                    <input className="w-full p-4 pl-10 bg-slate-50 border border-slate-100 rounded-xl text-sm" placeholder="URL Facebook..." value={facebookUrl} onChange={e => setFacebookUrl(e.target.value)} />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[9px] font-black uppercase text-slate-400 mb-2 tracking-widest">Image</label>
+                  <div className="relative rounded-xl overflow-hidden aspect-video bg-slate-100 border border-slate-200 group">
+                    <img src={previewUrl || ""} className="w-full h-full object-cover" />
+                    <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+                      <input type="file" className="hidden" onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if(f) { setFile(f); setPreviewUrl(URL.createObjectURL(f)); }
+                      }} />
+                      <Upload className="text-white" />
+                    </label>
+                  </div>
+                </div>
+
+                <div className={`p-4 rounded-2xl border-2 transition-all ${isCompetition ? 'border-red-600 bg-red-50/30' : 'border-slate-100 bg-slate-50'}`}>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" className="hidden" checked={isCompetition} onChange={e => setIsCompetition(e.target.checked)} />
+                    <div className={`w-10 h-5 rounded-full relative transition-colors ${isCompetition ? 'bg-red-600' : 'bg-slate-300'}`}>
+                      <div className={`absolute top-1 left-1 bg-white w-3 h-3 rounded-full transition-transform ${isCompetition ? 'translate-x-5' : 'translate-x-0'}`} />
+                    </div>
+                    <span className="font-black uppercase italic text-[10px] text-slate-700">Document joint</span>
+                  </label>
+                  {isCompetition && (
+                      <div className="mt-4 pt-4 border-t border-red-100 flex flex-col gap-2">
+                        <input type="file" id="sch" className="hidden" onChange={e => setScheduleFile(e.target.files?.[0] || null)} />
+                        <label htmlFor="sch" className="bg-white p-2 rounded-lg border border-red-200 text-[9px] font-black uppercase flex items-center justify-center gap-2 cursor-pointer hover:bg-red-600 hover:text-white transition-all">
+                          <Paperclip size={12} /> {scheduleFile ? "Remplacé" : "Modifier le fichier"}
+                        </label>
+                      </div>
+                  )}
+                </div>
+
+                <button type="submit" disabled={isUpdating} className="w-full bg-slate-900 text-white font-black py-4 rounded-2xl uppercase italic shadow-xl hover:bg-red-600 transition-all flex items-center justify-center gap-2 disabled:opacity-50">
+                  {isUpdating ? <Loader2 className="animate-spin h-5 w-5" /> : <><Check size={20} /> Enregistrer</>}
+                </button>
+
+              </div>
+            </div>
           </form>
         </main>
       </div>
