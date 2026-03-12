@@ -29,11 +29,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <div className="fixed inset-0 -z-50 overflow-hidden bg-white">
 
         {/* 1. Dégradé de fond : Le rouge monte plus haut (via-red-100) */}
-        <div className="absolute inset-0 bg-linear-to-b from-white via-red-100/40 via-40% to-red-600/40"></div>
+        <div
+            className="absolute inset-0 bg-linear-to-b from-white via-red-100/80 via-15% to-red-600/60"></div>
 
         {/* 2. Première couche d'hexagones (Plus présente dès le milieu) */}
         <div
-            className="absolute inset-0 bg-honeycomb opacity-50"
+            className="absolute inset-0 bg-honeycomb opacity-80"
             style={{
               // On monte le dégradé du masque : les hexagones deviennent bien nets plus tôt
               maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 30%, rgba(0,0,0,1) 100%)',
@@ -41,28 +42,29 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             }}
         ></div>
 
-        {/* 3. Deuxième couche d'hexagones (Dynamique) */}
+        {/* 3. Deuxième couche d'hexagones (Dynamique) - CORRIGÉE */}
         <div
-            className="absolute inset-0 bg-honeycomb opacity-30 animate-float-slow"
+            className="absolute inset-0 bg-honeycomb opacity-80 animate-float-slow"
             style={{
-              marginLeft: '60px',
-              marginTop: '104px',
+              // On utilise backgroundPosition pour décaler le motif sans déplacer le bloc
+              backgroundPosition: '60px 104px',
               maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.8) 100%)',
               WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.8) 100%)'
             }}
         ></div>
 
         {/* 4. Halo de lisibilité (On le réduit pour laisser monter le rouge) */}
-        <div className="absolute inset-0 bg-radial from-white/30 via-transparent to-transparent opacity-40"></div>
+        <div
+            className="absolute inset-0 bg-radial from-white/30 via-transparent to-transparent opacity-40"></div>
       </div>
 
       <AuthProvider>
         <div className="flex flex-col min-h-screen">
-          <Navbar />
+          <Navbar/>
           <main className="flex-grow pt-20 relative">
             {children}
           </main>
-          <Footer />
+          <Footer/>
         </div>
       </AuthProvider>
       </body>
