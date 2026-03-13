@@ -7,7 +7,6 @@ import {
   ShieldCheck,
   Edit,
   FileText,
-  ExternalLink,
   Scale,
   ShieldAlert,
   Mail,
@@ -63,11 +62,12 @@ export default function EthiquePage() {
 
   return (
       <div className="min-h-screen">
-        <main className="container mx-auto px-4 py-12 pt-32 pb-24 animate-in fade-in duration-1000">
+        <main className="container mx-auto px-4 pt-32 pb-24 animate-in fade-in duration-1000">
 
-          {/* HEADER SECTION */}
-          <div className="flex flex-col lg:flex-row justify-between items-end mb-16 gap-8">
-            <div className="max-w-3xl">
+          {/* HEADER SECTION - CORRIGÉ POUR L'ALIGNEMENT GAUCHE */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6 w-full">
+            {/* Conteneur du titre - Forcé à gauche avec text-left et w-full */}
+            <div className="w-full md:w-auto text-left">
               <div className="flex items-center gap-3 mb-4">
                 <span className="h-[2px] w-10 bg-red-600"></span>
                 <span className="text-red-600 font-black uppercase italic tracking-[0.3em] text-[10px]">Intégrité & Valeurs</span>
@@ -77,13 +77,16 @@ export default function EthiquePage() {
               </h1>
             </div>
 
+            {/* Bouton d'édition (visible uniquement pour les admins) */}
             {!authLoading && isAdmin && (
-                <Link href="/infos/ethique/modifier" className="animate-in slide-in-from-right-4 duration-700">
-                  <button className="flex items-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black hover:bg-red-600 transition-all text-[10px] uppercase italic shadow-2xl active:scale-95 group">
-                    <Edit size={16} className="group-hover:rotate-12 transition-transform" />
-                    Modifier la page
-                  </button>
-                </Link>
+                <div className="w-full md:w-auto mt-4 md:mt-0 flex justify-start md:justify-end">
+                  <Link href="/infos/ethique/modifier" className="animate-in slide-in-from-right-4 duration-700 block">
+                    <button className="flex items-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black hover:bg-red-600 transition-all text-[10px] uppercase italic shadow-2xl active:scale-95 group">
+                      <Edit size={16} className="group-hover:rotate-12 transition-transform" />
+                      Modifier la page
+                    </button>
+                  </Link>
+                </div>
             )}
           </div>
 
@@ -91,13 +94,13 @@ export default function EthiquePage() {
 
             {/* COLONNE GAUCHE : TEXTE RÉGLEMENTAIRE */}
             <div className="lg:col-span-2 space-y-8">
-              <div className="bg-white p-10 md:p-16 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 relative overflow-hidden group">
+              <div className="bg-white p-8 md:p-16 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 relative overflow-hidden group">
                 {/* Filigrane décoratif */}
                 <Scale size={200} className="absolute -right-20 -top-20 text-slate-50/50 pointer-events-none group-hover:rotate-12 transition-transform duration-[2000ms]" />
 
                 <div className="relative z-10">
                   <div className="flex items-center gap-4 mb-10">
-                    <div className="p-4 bg-red-600 rounded-2xl text-white shadow-lg shadow-red-200">
+                    <div className="p-4 bg-red-600 rounded-2xl text-white shadow-lg shadow-red-200 shrink-0">
                       <ShieldCheck size={28} />
                     </div>
                     <div>
@@ -115,7 +118,10 @@ export default function EthiquePage() {
                       <ShieldAlert className="text-red-600" size={20} />
                       <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Fair-play & Respect avant tout</span>
                     </div>
-                    <img src="/logo-acd.png" alt="ACD" className="h-8 opacity-20 grayscale" />
+                    {/* Placeholder image logo pour éviter les erreurs si l'image n'existe pas */}
+                    <div className="h-8 w-24 bg-slate-100 rounded-lg opacity-50 flex items-center justify-center">
+                      <span className="text-[8px] font-bold text-slate-400 uppercase">Logo ACD</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -125,7 +131,7 @@ export default function EthiquePage() {
             <div className="space-y-8">
 
               {/* CARTE CONTACT RÉFÉRENT */}
-              <div className="bg-slate-900 rounded-[2.5rem] p-10 text-white shadow-2xl relative overflow-hidden group">
+              <div className="bg-slate-900 rounded-[2.5rem] p-8 md:p-10 text-white shadow-2xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none group-hover:scale-110 transition-transform duration-700">
                   <Mail size={120} />
                 </div>
@@ -146,8 +152,8 @@ export default function EthiquePage() {
                     Envoyer un message
                   </a>
 
-                  <div className="mt-6 text-center">
-                    <span className="text-[9px] font-black text-red-600 uppercase tracking-[0.3em] italic">
+                  <div className="mt-6 text-center break-all">
+                    <span className="text-[9px] font-black text-red-600 uppercase tracking-[0.2em] italic">
                         {contactEmail}
                     </span>
                   </div>
@@ -155,9 +161,9 @@ export default function EthiquePage() {
               </div>
 
               {/* CARTE DOCUMENTS OFFICIELS */}
-              <div className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50">
+              <div className="bg-white p-8 md:p-10 rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50">
                 <div className="flex items-center gap-3 mb-8">
-                  <div className="p-3 bg-slate-50 text-slate-900 rounded-xl">
+                  <div className="p-3 bg-slate-50 text-slate-900 rounded-xl shrink-0">
                     <FileBox size={20} />
                   </div>
                   <div>
@@ -174,22 +180,22 @@ export default function EthiquePage() {
                               href={doc.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex items-center justify-between p-5 bg-slate-50 rounded-2xl hover:bg-red-600 group transition-all duration-300 border border-transparent"
+                              className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl hover:bg-red-600 group transition-all duration-300 border border-transparent"
                           >
-                            <div className="flex items-center gap-4 overflow-hidden">
+                            <div className="flex items-center gap-3 overflow-hidden">
                               <FileText size={18} className="text-red-600 group-hover:text-white transition-colors shrink-0" />
-                              <span className="text-[11px] font-black uppercase italic text-slate-700 group-hover:text-white transition-colors truncate">
-                          {doc.name}
-                        </span>
+                              <span className="text-[10px] md:text-[11px] font-black uppercase italic text-slate-700 group-hover:text-white transition-colors truncate">
+                                {doc.name}
+                              </span>
                             </div>
-                            <ChevronRight size={16} className="text-slate-300 group-hover:text-white group-hover:translate-x-1 transition-all shrink-0"/>
+                            <ChevronRight size={16} className="text-slate-300 group-hover:text-white group-hover:translate-x-1 transition-all shrink-0 ml-2"/>
                           </a>
                       ))
                   ) : (
                       <div className="p-10 bg-slate-50 rounded-[2rem] text-center border-2 border-dashed border-slate-100">
-                    <span className="text-[10px] font-black uppercase italic text-slate-300 tracking-widest">
-                      Aucun document <br />répertorié
-                    </span>
+                        <span className="text-[10px] font-black uppercase italic text-slate-300 tracking-widest">
+                          Aucun document <br />répertorié
+                        </span>
                       </div>
                   )}
                 </div>
