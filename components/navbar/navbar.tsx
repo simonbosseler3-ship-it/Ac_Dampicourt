@@ -93,13 +93,12 @@ export function Navbar() {
                 <Link href="https://www.beathletics.be/results" target="_blank" className="text-slate-600 hover:text-red-600 transition-colors font-bold uppercase italic whitespace-nowrap">Résultats</Link>
               </div>
 
-              {/* DROPDOWN INFOS RECTIFIÉ */}
+              {/* DROPDOWN INFOS */}
               <div className="relative group h-full flex items-center">
                 <div className={`cursor-default transition-all duration-300 hover:text-red-600 flex items-center gap-1 font-black uppercase tracking-wider text-[11px] lg:text-sm italic whitespace-nowrap ${pathname.startsWith('/infos') ? 'text-red-600' : 'text-slate-600'}`}>
                   Infos <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300"/>
                 </div>
 
-                {/* Le menu déroulant avec Glassmorphism */}
                 <div className="absolute top-[100%] left-0 w-72 pt-0 opacity-0 translate-y-4 invisible group-hover:opacity-100 group-hover:translate-y-0 group-hover:visible transition-all duration-300 ease-out z-[110]">
                   <div className="bg-white shadow-2xl rounded-b-2xl border-t-4 border-red-600 ring-1 ring-black/5 overflow-hidden">
                     <div className="flex flex-col">
@@ -117,14 +116,25 @@ export function Navbar() {
               <Link href="/musculation" prefetch={false} className={linkStyle("/musculation")}>Musculation</Link>
             </nav>
 
-            {/* AUTH SECTION */}
+            {/* AUTH SECTION (CORRIGÉE AVEC LE PROFIL) */}
             <div className="flex items-center gap-2 lg:gap-4 shrink-0 min-w-[120px] justify-end relative z-20">
               {!loading ? (
                   user ? (
-                      <Button onClick={handleLogout} className="bg-slate-900 hover:bg-red-600 text-white font-bold rounded-xl px-3 lg:px-5 h-9 transition-all">
-                        <LogOut className="h-4 w-4 mr-1"/>
-                        <span className="hidden sm:inline italic uppercase text-[10px] lg:text-xs">Quitter</span>
-                      </Button>
+                      <div className="flex items-center gap-2 lg:gap-3">
+                        {/* Bloc d'infos : Nom + Rôle (masqué sur petits écrans pour gagner de la place) */}
+                        <div className="hidden xl:flex flex-col items-end leading-tight mr-1">
+                          <span className="text-[10px] lg:text-[11px] font-black uppercase italic text-slate-900">
+                            {profile?.full_name || user.email?.split('@')[0]}
+                          </span>
+                          <span className={`text-[8px] lg:text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-md mt-0.5 ${profile?.role === 'admin' ? 'bg-slate-900 text-white' : 'bg-red-600 text-white'}`}>
+                            {profile?.role || 'Membre'}
+                          </span>
+                        </div>
+                        <Button onClick={handleLogout} className="bg-slate-900 hover:bg-red-600 text-white font-bold rounded-xl px-3 lg:px-5 h-9 transition-all">
+                          <LogOut className="h-4 w-4 mr-1"/>
+                          <span className="hidden sm:inline italic uppercase text-[10px] lg:text-xs">Quitter</span>
+                        </Button>
+                      </div>
                   ) : (
                       <Link href="/login">
                         <Button className="bg-red-600 hover:bg-red-700 text-white font-black rounded-xl px-4 lg:px-6 h-10 shadow-lg shadow-red-200 uppercase italic text-[10px] lg:text-xs">
@@ -132,12 +142,14 @@ export function Navbar() {
                         </Button>
                       </Link>
                   )
-              ) : null}
+              ) : (
+                  <div className="h-10 w-24 bg-slate-100 animate-pulse rounded-xl" />
+              )}
             </div>
           </div>
         </header>
 
-        {/* MOBILE MENU (Inchangé, mais toujours fonctionnel) */}
+        {/* MOBILE MENU (Inchangé) */}
         <div className={`fixed inset-0 bg-black/50 z-[110] transition-opacity duration-300 md:hidden ${isMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`} onClick={() => setIsMenuOpen(false)} />
         <div className={`fixed top-0 left-0 h-full w-[300px] bg-white z-[120] shadow-2xl transition-transform duration-300 md:hidden ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
           <div className="flex flex-col h-full">

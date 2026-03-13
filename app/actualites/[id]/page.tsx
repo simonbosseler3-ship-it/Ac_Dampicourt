@@ -169,7 +169,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
 
                   <a href={article.schedule_url} target="_blank" rel="noopener noreferrer" className="w-full md:w-auto">
                     <button className="w-full flex items-center justify-center gap-3 bg-white text-slate-900 px-10 py-5 rounded-2xl font-black uppercase italic hover:bg-red-600 hover:text-white transition-all">
-                      <Download size={20}/> Télécharger
+                      <Download size={20}/> Consulter
                     </button>
                   </a>
                 </div>
