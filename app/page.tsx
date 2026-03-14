@@ -12,18 +12,17 @@ import {
   ChevronRight,
   HelpCircle,
   MessageSquare,
-  ArrowUpRight
+  ArrowUpRight,
+  Users
 } from "lucide-react";
 import { TutorialOverlay } from "@/components/tutorial/tutorial";
 
 export default function Home() {
-  // 1. On récupère les données d'auth, mais on ne les utilise PLUS comme verrou
   const { user, profile } = useAuth();
   const [news, setNews] = useState<any[]>([]);
   const [latestEvent, setLatestEvent] = useState<any>(null);
   const [dataLoading, setDataLoading] = useState(true);
 
-  // 2. Chargement des données dès le montage, SANS attendre l'auth
   useEffect(() => {
     async function fetchHomeData() {
       try {
@@ -60,11 +59,6 @@ export default function Home() {
   return (
       <main className="container mx-auto px-4 pt-10 pb-12 animate-in fade-in duration-700">
 
-        {/* POP-UP TUTORIEL :
-            Il n'y a plus de "!authLoading".
-            Dès que "profile" devient disponible (même 5s après), le tuto apparaîtra.
-            En attendant, le reste de la page est parfaitement utilisable.
-        */}
         {user && profile && !profile.has_seen_tutorial && (
             <TutorialOverlay
                 role={profile.role}
@@ -73,7 +67,7 @@ export default function Home() {
             />
         )}
 
-        {/* CAROUSEL : Ne dépend que de dataLoading (données publiques) */}
+        {/* CAROUSEL */}
         <div className="mb-10 min-h-[400px]">
           {dataLoading ? (
               <div className="w-full h-[400px] bg-slate-200/50 animate-pulse rounded-[3rem] flex items-center justify-center">
@@ -87,9 +81,10 @@ export default function Home() {
         {/* SECTION LIENS PRINCIPAUX */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 px-2 mb-10">
 
+          {/* RECORDS CLUB - Icone passée en slate-200 pour visibilité */}
           <Link href="/infos/records" prefetch={false} className="group relative h-48 rounded-[2.5rem] bg-white/80 backdrop-blur-sm border-2 border-slate-100 hover:border-slate-900 overflow-hidden transition-all duration-500 hover:shadow-2xl">
             <div className="absolute inset-0 bg-slate-900 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0"></div>
-            <div className="absolute -bottom-6 -left-6 text-slate-100 group-hover:text-slate-800 transition-colors duration-500 z-0 group-hover:scale-125 group-hover:rotate-12 transition-transform origin-bottom-left">
+            <div className="absolute -bottom-6 -left-6 text-slate-200 group-hover:text-slate-800 transition-colors duration-500 z-0 group-hover:scale-125 group-hover:rotate-12 transition-transform origin-bottom-left">
               <Trophy size={140} strokeWidth={0.5} />
             </div>
             <div className="relative z-10 h-full flex flex-col justify-between p-8">
@@ -108,6 +103,7 @@ export default function Home() {
             </div>
           </Link>
 
+          {/* INSCRIPTIONS */}
           <Link href="/inscription" prefetch={false} className="group relative h-48 rounded-[2.5rem] bg-red-600 border-2 border-red-600 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-red-200 hover:-translate-y-1">
             <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
             <div className="absolute top-1/2 -translate-y-1/2 right-[-2rem] text-black/10 group-hover:text-white/20 z-0 transition-transform group-hover:scale-110">
@@ -127,9 +123,10 @@ export default function Home() {
             </div>
           </Link>
 
+          {/* DAMPICOURT SPEED RACE (SPEED NIGHT) - Icone passée en slate-200 pour visibilité */}
           <Link href="/speed-night" prefetch={false} className="group relative h-48 rounded-[2.5rem] bg-white/80 backdrop-blur-sm border-2 border-slate-100 hover:border-red-600 overflow-hidden transition-all duration-500 hover:shadow-2xl">
             <div className="absolute inset-0 bg-red-600 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0"></div>
-            <div className="absolute -top-6 -right-6 text-slate-100 group-hover:text-red-700 z-0 group-hover:scale-125 group-hover:-rotate-12 transition-transform origin-top-right">
+            <div className="absolute -top-6 -right-6 text-slate-200 group-hover:text-red-700 z-0 group-hover:scale-125 group-hover:-rotate-12 transition-transform origin-top-right">
               <Timer size={140} strokeWidth={0.5} />
             </div>
             <div className="relative z-10 h-full flex flex-col justify-between p-8">
@@ -153,27 +150,53 @@ export default function Home() {
           </Link>
         </section>
 
-        {/* SECTION FORUM */}
-        <section className="px-2">
-          <Link href="/forum" prefetch={false} className="group block w-full bg-white/80 backdrop-blur-sm border-2 border-slate-100 rounded-[2.5rem] p-8 hover:border-red-600 transition-all duration-300 shadow-sm hover:shadow-xl relative overflow-hidden">
+        {/* SECTION FORUM & COMMUNAUTÉ */}
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 px-2">
+
+          {/* CARTE FORUM */}
+          <Link href="/forum" prefetch={false} className="group block w-full bg-white/80 backdrop-blur-sm border-2 border-slate-100 rounded-[2.5rem] p-8 hover:border-red-600 transition-all duration-300 shadow-sm hover:shadow-xl relative overflow-hidden flex flex-col justify-between">
             <div className="absolute -right-10 -bottom-10 text-slate-50 group-hover:text-red-50 transition-colors duration-500 -rotate-12">
               <MessageSquare size={200} strokeWidth={1} />
             </div>
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+
+            <div className="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-6 h-full">
               <div className="flex items-center gap-6">
-                <div className="bg-red-600 p-4 rounded-2xl shadow-lg shadow-red-200 group-hover:scale-110 transition-transform">
+                <div className="bg-red-600 p-4 rounded-2xl shadow-lg shadow-red-200 group-hover:scale-110 transition-transform flex-shrink-0">
                   <HelpCircle className="text-white" size={32} />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-black uppercase italic tracking-tighter text-slate-900">Une question ? <span className="text-red-600">Le Forum ACD</span></h2>
-                  <p className="text-slate-500 font-medium max-w-md">Besoin d'aide pour une inscription ou d'infos sur les entraînements ?</p>
+                  <h2 className="text-2xl font-black uppercase italic tracking-tighter text-slate-900">Une question ? <br/><span className="text-red-600">Le Forum</span></h2>
+                  <p className="text-slate-500 font-medium text-sm mt-1">Besoin d'aide ou d'infos ?</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black uppercase italic tracking-widest text-sm group-hover:bg-red-600 transition-colors shadow-lg">
-                Accéder au forum <ChevronRight size={20} />
+              <div className="flex items-center gap-3 bg-slate-900 text-white px-6 py-3 rounded-2xl font-black uppercase italic tracking-widest text-xs xl:text-sm group-hover:bg-red-600 transition-colors shadow-lg w-fit">
+                Accéder <ChevronRight size={18} />
               </div>
             </div>
           </Link>
+
+          {/* CARTE COMMUNAUTÉ */}
+          <Link href="/sondage" prefetch={false} className="group block w-full bg-slate-900 border-2 border-slate-800 rounded-[2.5rem] p-8 hover:border-red-600 transition-all duration-300 shadow-sm hover:shadow-xl relative overflow-hidden flex flex-col justify-between">
+            <div className="absolute -right-10 -bottom-10 text-slate-800 group-hover:text-red-900/40 transition-colors duration-500 -rotate-12">
+              <Users size={200} strokeWidth={1} />
+            </div>
+
+            <div className="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-6 h-full">
+              <div className="flex items-center gap-6">
+                <div className="bg-red-600 p-4 rounded-2xl shadow-lg shadow-red-900/50 group-hover:scale-110 transition-transform flex-shrink-0">
+                  <Users className="text-white" size={32} />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-black uppercase italic tracking-tighter text-white">La <span className="text-red-500">Communauté</span></h2>
+                  <p className="text-slate-400 font-medium text-sm mt-1">Sondages</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 bg-white text-slate-900 px-6 py-3 rounded-2xl font-black uppercase italic tracking-widest text-xs xl:text-sm group-hover:bg-red-600 group-hover:text-white transition-colors shadow-lg w-fit">
+                Rejoindre <ChevronRight size={18} />
+              </div>
+            </div>
+          </Link>
+
         </section>
       </main>
   );
