@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/app/context/authContext";
 import {
-  BarChart3,
   Plus,
   CheckCircle2,
   X,
@@ -12,25 +11,39 @@ import {
   TrendingUp,
   Trash2,
   Trophy,
-  MessageSquare
+  MessageSquare,
+  Sparkles,
+  Pencil // Ajouté pour l'édition
 } from "lucide-react";
 
 type PollOption = { id: string; text: string; votes_count?: number };
 type Poll = { id: string; question: string; is_active: boolean; options: PollOption[] };
 
+async function createVoterHash(ip: string) {
+  const salt = "AC-Dampicourt-Secret-2024";
+  const msgUint8 = new TextEncoder().encode(ip + salt);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 export default function SondagesPage() {
   const { user, profile, loading: authLoading } = useAuth();
   const [polls, setPolls] = useState<Poll[]>([]);
   const [votedPolls, setVotedPolls] = useState<string[]>([]);
-  const [userIp, setUserIp] = useState<string | null>(null);
+  const [voterHash, setVoterHash] = useState<string | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
 
-  // States Création
+  // States Modal (Création & Edition)
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingPollId, setEditingPollId] = useState<string | null>(null);
   const [newQuestion, setNewQuestion] = useState("");
   const [newOptions, setNewOptions] = useState(["", ""]);
+  const [existingOptions, setExistingOptions] = useState<PollOption[]>([]); // Options déjà en DB lors de l'edit
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [votingInProgress, setVotingInProgress] = useState<string | null>(null);
+  const [showCelebration, setShowCelebration] = useState<string | null>(null);
 
   const canManage = ['admin', 'editeur', 'redacteur', 'rédacteur'].includes(profile?.role?.toLowerCase()?.trim() || '');
 
@@ -38,32 +51,22 @@ export default function SondagesPage() {
     initSondages();
   }, [user]);
 
-  // Abonnement Realtime pour voir les votes des autres en direct
   useEffect(() => {
     const channel = supabase
     .channel('realtime-polls')
-    .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'poll_votes' },
-        (payload) => {
-          const newVote = payload.new;
-          setPolls((current) =>
-              current.map((poll) => {
-                if (poll.id !== newVote.poll_id) return poll;
-                return {
-                  ...poll,
-                  options: poll.options.map((opt) =>
-                      opt.id === newVote.option_id
-                          ? { ...opt, votes_count: (opt.votes_count || 0) + 1 }
-                          : opt
-                  ),
-                };
-              })
-          );
-        }
-    )
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'poll_votes' }, (payload) => {
+      const newVote = payload.new;
+      setPolls((current) => current.map((poll) => {
+        if (poll.id !== newVote.poll_id) return poll;
+        return {
+          ...poll,
+          options: poll.options.map((opt) =>
+              opt.id === newVote.option_id ? { ...opt, votes_count: (opt.votes_count || 0) + 1 } : opt
+          ),
+        };
+      }));
+    })
     .subscribe();
-
     return () => { supabase.removeChannel(channel); };
   }, []);
 
@@ -71,15 +74,16 @@ export default function SondagesPage() {
     try {
       const ipRes = await fetch('https://api.ipify.org?format=json');
       const { ip } = await ipRes.json();
-      setUserIp(ip);
-      await fetchPollsData(ip);
+      const hash = await createVoterHash(ip);
+      setVoterHash(hash);
+      await fetchPollsData(hash);
     } catch (err) {
       console.error("Erreur init:", err);
       fetchPollsData(null);
     }
   };
 
-  const fetchPollsData = async (ip: string | null) => {
+  const fetchPollsData = async (currentHash: string | null) => {
     setDataLoading(true);
     try {
       const { data: pollsData } = await supabase
@@ -87,24 +91,20 @@ export default function SondagesPage() {
       .select(`id, question, is_active, poll_options ( id, text )`)
       .order('created_at', { ascending: false });
 
-      const { data: votesCount } = await supabase.from('poll_votes').select('option_id, poll_id, ip_address, user_id');
-
+      const { data: votesCount } = await supabase.from('poll_votes').select('option_id, poll_id, voter_hash');
       const voteTally: Record<string, number> = {};
       const alreadyVotedSet = new Set<string>();
 
       votesCount?.forEach(v => {
         voteTally[v.option_id] = (voteTally[v.option_id] || 0) + 1;
-        if ((ip && v.ip_address === ip) || (user && v.user_id === user.id)) {
+        if ((currentHash && v.voter_hash === currentHash) || localStorage.getItem(`voted_${v.poll_id}`)) {
           alreadyVotedSet.add(v.poll_id);
         }
       });
 
       const formattedPolls = pollsData?.map(poll => ({
         ...poll,
-        options: poll.poll_options.map((opt: any) => ({
-          ...opt,
-          votes_count: voteTally[opt.id] || 0
-        }))
+        options: poll.poll_options.map((opt: any) => ({ ...opt, votes_count: voteTally[opt.id] || 0 }))
       })) || [];
 
       setPolls(formattedPolls);
@@ -114,15 +114,66 @@ export default function SondagesPage() {
     }
   };
 
+  // Ouvrir la modal en mode édition
+  const openEditModal = (poll: Poll) => {
+    setEditingPollId(poll.id);
+    setNewQuestion(poll.question);
+    setExistingOptions(poll.options); // On stocke les options existantes (qu'on ne modifie pas pour garder les votes)
+    setNewOptions([""]); // On laisse un champ vide pour ajouter de nouvelles propositions
+    setIsModalOpen(true);
+  };
+
+  const closeAndResetModal = () => {
+    setIsModalOpen(false);
+    setEditingPollId(null);
+    setNewQuestion("");
+    setNewOptions(["", ""]);
+    setExistingOptions([]);
+  };
+
+  const handleSavePoll = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      if (editingPollId) {
+        // --- MODE EDITION ---
+        // 1. Update la question
+        await supabase.from('polls').update({ question: newQuestion }).eq('id', editingPollId);
+
+        // 2. Ajouter seulement les nouvelles options non vides
+        const addedOptions = newOptions
+        .filter(o => o.trim() !== "")
+        .map(opt => ({ poll_id: editingPollId, text: opt }));
+
+        if (addedOptions.length > 0) {
+          await supabase.from('poll_options').insert(addedOptions);
+        }
+      } else {
+        // --- MODE CREATION ---
+        const { data: poll } = await supabase.from('polls').insert([{ question: newQuestion }]).select().single();
+        const options = newOptions.filter(o => o.trim()).map(opt => ({ poll_id: poll.id, text: opt }));
+        await supabase.from('poll_options').insert(options);
+      }
+
+      closeAndResetModal();
+      initSondages();
+    } catch (err) {
+      console.error(err);
+      alert("Une erreur est survenue.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleVote = async (pollId: string, optionId: string) => {
     if (votedPolls.includes(pollId) || votingInProgress) return;
     setVotingInProgress(pollId);
-
     try {
-      const { error } = await supabase.from('poll_votes').insert([
-        { poll_id: pollId, option_id: optionId, user_id: user?.id || null, ip_address: userIp }
-      ]);
+      const { error } = await supabase.from('poll_votes').insert([{ poll_id: pollId, option_id: optionId, voter_hash: voterHash }]);
       if (error) throw error;
+      localStorage.setItem(`voted_${pollId}`, 'true');
+      setShowCelebration(pollId);
+      setTimeout(() => setShowCelebration(null), 3000);
       setVotedPolls(prev => [...prev, pollId]);
     } catch (err) {
       alert("Erreur lors du vote.");
@@ -137,22 +188,6 @@ export default function SondagesPage() {
     setPolls(prev => prev.filter(p => p.id !== pollId));
   };
 
-  const handleCreatePoll = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      const { data: poll } = await supabase.from('polls').insert([{ question: newQuestion }]).select().single();
-      const options = newOptions.filter(o => o.trim()).map(opt => ({ poll_id: poll.id, text: opt }));
-      await supabase.from('poll_options').insert(options);
-      setIsModalOpen(false);
-      setNewQuestion("");
-      setNewOptions(["", ""]);
-      initSondages();
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   if (dataLoading || authLoading) {
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 gap-4">
@@ -165,7 +200,6 @@ export default function SondagesPage() {
   return (
       <div className="min-h-screen">
         <main className="container mx-auto px-4 pt-32 pb-24">
-
           {/* HEADER */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6">
             <div>
@@ -177,7 +211,6 @@ export default function SondagesPage() {
                 SONDAGES <br /><span className="text-red-600">& VOTES</span>
               </h1>
             </div>
-
             {canManage && (
                 <button onClick={() => setIsModalOpen(true)} className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black hover:bg-red-600 transition-all text-[10px] uppercase italic shadow-2xl active:scale-95 flex items-center gap-2">
                   <Plus size={16} /> Nouveau Sondage
@@ -185,30 +218,14 @@ export default function SondagesPage() {
             )}
           </div>
 
-          {/* LISTE OU ÉTAT VIDE */}
+          {/* LISTE */}
           {polls.length === 0 ? (
               <div className="w-full flex flex-col items-center justify-center py-24 px-6 bg-white rounded-[3rem] border-2 border-dashed border-slate-200 text-center animate-in fade-in slide-in-from-bottom-4 duration-1000">
-                <div className="relative mb-8">
-                  <div className="absolute inset-0 bg-red-100 rounded-full blur-3xl opacity-50 scale-150"></div>
-                  <div className="relative bg-white p-8 rounded-full shadow-2xl border border-slate-100">
-                    <MessageSquare size={64} className="text-red-600" />
-                  </div>
-                  <Trophy size={32} className="absolute -top-2 -right-2 text-yellow-500 animate-bounce" />
-                </div>
-
-                <h2 className="text-3xl font-black uppercase italic text-slate-900 mb-4 tracking-tighter">
-                  Le silence avant le match
-                </h2>
-                <p className="max-w-md text-slate-400 font-bold uppercase italic text-[11px] tracking-widest leading-relaxed mb-10">
-                  Aucun sondage n'est actif pour le moment. Revenez bientôt pour donner votre avis ou proposez une idée au staff !
-                </p>
-
+                <MessageSquare size={64} className="text-red-600 mb-4" />
+                <h2 className="text-3xl font-black uppercase italic text-slate-900 mb-4">Le silence avant le match</h2>
                 {canManage && (
-                    <button
-                        onClick={() => setIsModalOpen(true)}
-                        className="group flex items-center gap-4 text-red-600 font-black uppercase italic text-[12px] tracking-[0.2em] hover:text-slate-900 transition-colors"
-                    >
-                      Lancer le premier vote <Plus size={18} className="group-hover:rotate-90 transition-transform" />
+                    <button onClick={() => setIsModalOpen(true)} className="text-red-600 font-black uppercase italic text-[12px] tracking-widest">
+                      Lancer le premier vote <Plus size={18} className="inline ml-2" />
                     </button>
                 )}
               </div>
@@ -217,68 +234,56 @@ export default function SondagesPage() {
                 {polls.map((poll) => {
                   const totalVotes = poll.options.reduce((sum, opt) => sum + (opt.votes_count || 0), 0);
                   const hasVoted = votedPolls.includes(poll.id);
+                  const isCelebrating = showCelebration === poll.id;
 
                   return (
-                      <div key={poll.id} className="bg-white p-8 md:p-10 rounded-[2.5rem] border border-slate-100 shadow-xl relative overflow-hidden group hover:shadow-2xl transition-all duration-500">
-                        <TrendingUp size={120} className="absolute -right-10 -bottom-10 text-slate-50 pointer-events-none group-hover:scale-110 transition-transform duration-1000" />
+                      <div key={poll.id} className={`bg-white p-8 md:p-10 rounded-[2.5rem] border border-slate-100 shadow-xl relative overflow-hidden group hover:shadow-2xl transition-all duration-500 ${isCelebrating ? 'ring-4 ring-red-600 ring-inset ring-opacity-20' : ''}`}>
+                        {isCelebrating && (
+                            <div className="absolute inset-0 pointer-events-none z-50 flex items-center justify-center">
+                              <Sparkles className="text-red-600 animate-bounce" size={100} />
+                            </div>
+                        )}
+
+                        <TrendingUp size={120} className="absolute -right-10 -bottom-10 text-slate-50 pointer-events-none" />
 
                         {canManage && (
-                            <button onClick={() => handleDeletePoll(poll.id)} className="absolute top-8 right-8 text-slate-300 hover:text-red-600 z-20 transition-colors">
-                              <Trash2 size={20} />
-                            </button>
+                            <div className="absolute top-8 right-8 flex gap-3 z-20">
+                              <button onClick={() => openEditModal(poll)} className="text-slate-300 hover:text-blue-600 transition-colors">
+                                <Pencil size={20} />
+                              </button>
+                              <button onClick={() => handleDeletePoll(poll.id)} className="text-slate-300 hover:text-red-600 transition-colors">
+                                <Trash2 size={20} />
+                              </button>
+                            </div>
                         )}
 
                         <div className="relative z-10">
-                          <h2 className="text-xl md:text-2xl font-black uppercase italic text-slate-900 leading-tight mb-8 pr-12">
+                          <h2 className="text-xl md:text-2xl font-black uppercase italic text-slate-900 leading-tight mb-8 pr-20">
                             {poll.question}
                           </h2>
-
                           <div className="space-y-4">
                             {poll.options.map((option) => {
                               const votes = option.votes_count || 0;
                               const percentage = totalVotes > 0 ? Math.round((votes / totalVotes) * 100) : 0;
-
                               if (hasVoted) {
                                 return (
                                     <div key={option.id} className="relative">
-                                      <div className="flex justify-between text-[10px] font-black uppercase italic mb-2 tracking-widest">
+                                      <div className="flex justify-between text-[10px] font-black uppercase italic mb-2">
                                         <span className="text-slate-700">{option.text}</span>
                                         <span className="text-red-600">{percentage}% ({votes})</span>
                                       </div>
                                       <div className="h-5 w-full bg-slate-100 rounded-full overflow-hidden p-[2px]">
-                                        <div
-                                            className="h-full bg-slate-900 rounded-full transition-all duration-[1500ms] ease-out shadow-lg"
-                                            style={{ width: `${percentage}%` }}
-                                        />
+                                        <div className="h-full bg-slate-900 rounded-full transition-all duration-1000" style={{ width: `${percentage}%` }} />
                                       </div>
                                     </div>
                                 );
                               }
-
                               return (
-                                  <button
-                                      key={option.id}
-                                      onClick={() => handleVote(poll.id, option.id)}
-                                      className="w-full text-left p-5 rounded-2xl border-2 border-slate-100 hover:border-red-600 hover:bg-red-50 transition-all font-black uppercase italic text-slate-600 hover:text-red-600 text-[11px] tracking-widest group/btn active:scale-95"
-                                  >
-                            <span className="flex items-center justify-between">
-                              {option.text}
-                              <Plus size={14} className="opacity-0 group-hover/btn:opacity-100 transition-opacity" />
-                            </span>
+                                  <button key={option.id} onClick={() => handleVote(poll.id, option.id)} disabled={!!votingInProgress} className="w-full text-left p-5 rounded-2xl border-2 border-slate-100 hover:border-red-600 hover:bg-red-50 transition-all font-black uppercase italic text-slate-600 hover:text-red-600 text-[11px] tracking-widest active:scale-95">
+                                    {option.text}
                                   </button>
                               );
                             })}
-                          </div>
-
-                          <div className="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between">
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.2em]">
-                        {totalVotes} Participation{totalVotes > 1 ? 's' : ''}
-                      </span>
-                            {hasVoted && (
-                                <span className="text-[9px] font-black text-slate-900 uppercase italic flex items-center gap-1">
-                          <CheckCircle2 size={10} className="text-green-500" /> Opinion enregistrée
-                        </span>
-                            )}
                           </div>
                         </div>
                       </div>
@@ -288,42 +293,52 @@ export default function SondagesPage() {
           )}
         </main>
 
-        {/* MODAL CRÉATION */}
+        {/* MODAL HYBRIDE (CRÉATION & ÉDITION) */}
         {isModalOpen && (
             <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-              <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={() => setIsModalOpen(false)} />
-              <div className="bg-white rounded-[2.5rem] p-10 w-full max-w-lg relative z-10 shadow-2xl animate-in zoom-in-95 duration-300">
-                <button onClick={() => setIsModalOpen(false)} className="absolute top-8 right-8 text-slate-400 hover:text-red-600 transition-colors">
+              <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={closeAndResetModal} />
+              <div className="bg-white rounded-[2.5rem] p-10 w-full max-w-lg relative z-10 shadow-2xl animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-y-auto">
+                <button onClick={closeAndResetModal} className="absolute top-8 right-8 text-slate-400 hover:text-red-600 transition-colors">
                   <X size={24} />
                 </button>
-                <h3 className="text-3xl font-black uppercase italic text-slate-900 mb-8 tracking-tighter">Nouveau Sondage</h3>
-                <form onSubmit={handleCreatePoll} className="space-y-6">
+                <h3 className="text-3xl font-black uppercase italic text-slate-900 mb-8 tracking-tighter">
+                  {editingPollId ? "Modifier le sondage" : "Nouveau Sondage"}
+                </h3>
+
+                <form onSubmit={handleSavePoll} className="space-y-6">
                   <div>
                     <label className="text-[10px] font-black uppercase italic text-slate-400 tracking-widest mb-2 block">La question</label>
-                    <input
-                        type="text" required placeholder="Ex: Quel maillot pour la saison ?" value={newQuestion} onChange={(e) => setNewQuestion(e.target.value)}
-                        className="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold focus:border-red-600 outline-none transition-all"
-                    />
+                    <input type="text" required value={newQuestion} onChange={(e) => setNewQuestion(e.target.value)} className="w-full p-5 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold focus:border-red-600 outline-none transition-all"/>
                   </div>
+
+                  {/* Affichage des options existantes (en mode édition uniquement) */}
+                  {editingPollId && existingOptions.length > 0 && (
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase italic text-slate-400 tracking-widest block">Options actuelles (verrouillées)</label>
+                        {existingOptions.map((opt) => (
+                            <div key={opt.id} className="p-4 bg-slate-100 border-2 border-slate-200 rounded-xl font-bold text-sm text-slate-400 italic">
+                              {opt.text}
+                            </div>
+                        ))}
+                      </div>
+                  )}
+
                   <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase italic text-slate-400 tracking-widest mb-2 block">Options de réponse</label>
+                    <label className="text-[10px] font-black uppercase italic text-slate-400 tracking-widest mb-2 block">
+                      {editingPollId ? "Ajouter de nouvelles propositions" : "Options de réponse"}
+                    </label>
                     {newOptions.map((opt, idx) => (
-                        <input
-                            key={idx} type="text" required={idx < 2} value={opt} placeholder={`Choix ${idx + 1}`}
-                            onChange={(e) => {
-                              const n = [...newOptions]; n[idx] = e.target.value; setNewOptions(n);
-                            }}
-                            className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-xl font-bold text-sm focus:border-red-600 outline-none transition-all"
-                        />
+                        <input key={idx} type="text" required={!editingPollId && idx < 2} value={opt} placeholder={editingPollId ? "Nouveau choix..." : `Choix ${idx + 1}`} onChange={(e) => { const n = [...newOptions]; n[idx] = e.target.value; setNewOptions(n); }} className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-xl font-bold text-sm focus:border-red-600 outline-none transition-all" />
                     ))}
-                    {newOptions.length < 5 && (
+                    {newOptions.length + existingOptions.length < 8 && (
                         <button type="button" onClick={() => setNewOptions([...newOptions, ""])} className="text-[10px] font-black uppercase text-red-600 flex items-center gap-2 mt-2">
-                          <Plus size={14} /> Ajouter une option
+                          <Plus size={14} /> Ajouter un champ
                         </button>
                     )}
                   </div>
+
                   <button disabled={isSubmitting} type="submit" className="w-full bg-slate-900 text-white p-5 rounded-2xl font-black uppercase italic text-[12px] tracking-[0.2em] hover:bg-red-600 transition-all shadow-xl active:scale-95 disabled:opacity-50 mt-4">
-                    {isSubmitting ? 'Publication...' : 'Lancer le sondage'}
+                    {isSubmitting ? 'Enregistrement...' : editingPollId ? 'Mettre à jour' : 'Lancer le sondage'}
                   </button>
                 </form>
               </div>
