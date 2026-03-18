@@ -188,7 +188,7 @@ export default function Home() {
                 </div>
                 <div>
                   <h2 className="text-2xl font-black uppercase italic tracking-tighter text-white">La <span className="text-red-500">Communauté</span></h2>
-                  <p className="text-slate-400 font-medium text-sm mt-1">Sondages</p>
+                  <p className="text-slate-400 font-medium text-sm mt-1">Sondages & Encouragements</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 bg-white text-slate-900 px-6 py-3 rounded-2xl font-black uppercase italic tracking-widest text-xs xl:text-sm group-hover:bg-red-600 group-hover:text-white transition-colors shadow-lg w-fit">
