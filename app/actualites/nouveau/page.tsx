@@ -120,7 +120,7 @@ export default function NouveauArticle() {
   if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin text-red-600" /></div>;
 
   return (
-      <div className="min-h-screen bg-slate-50/50 pb-12">
+      <div className="min-h-screen pb-12">
         {/* Styles pour harmoniser Quill avec ton design */}
         <style dangerouslySetInnerHTML={{ __html: `
         .ql-container { font-family: inherit; font-size: 1.1rem; border-bottom-left-radius: 2rem; border-bottom-right-radius: 2rem; background: #f8fafc; border-color: #f1f5f9 !important; }
