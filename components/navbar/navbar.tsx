@@ -15,13 +15,16 @@ export function Navbar() {
   const [isMobileInfosOpen, setIsMobileInfosOpen] = useState(false);
   const pathname = usePathname();
 
-  const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
+  // NOUVEAU : Suivi précis en pixels et état de survol
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { clientX, clientY, currentTarget } = e;
-    const { left, top, width, height } = currentTarget.getBoundingClientRect();
-    const x = ((clientX - left) / width) * 100;
-    const y = ((clientY - top) / height) * 100;
+    const { left, top } = currentTarget.getBoundingClientRect();
+    // On calcule la position exacte en pixels pour une fluidité parfaite
+    const x = clientX - left;
+    const y = clientY - top;
     setMousePos({ x, y });
   };
 
@@ -42,16 +45,19 @@ export function Navbar() {
 
   return (
       <>
-        {/* HEADER : On retire overflow-hidden ici */}
         <header
             onMouseMove={handleMouseMove}
-            className="fixed top-0 left-0 right-0 z-[100] w-full border-b-4 border-red-600 bg-white shadow-md h-16 md:h-20"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            className="fixed top-0 left-0 right-0 z-[100] w-full border-b-4 border-slate-900 md:border-red-600 bg-white shadow-md h-16 md:h-20"
         >
-          {/* --- CONTENEUR DÉCOR (Lui est en overflow-hidden) --- */}
+          {/* --- CONTENEUR DÉCOR --- */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-            <div className="absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
+            {/* Texture de fond */}
+            <div className="absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-multiply"></div>
 
-            <svg className="absolute inset-0 w-full h-full opacity-[0.05]" xmlns="http://www.w3.org/2000/svg">
+            {/* Motif athlétisme */}
+            <svg className="absolute inset-0 w-full h-full opacity-[0.04]" xmlns="http://www.w3.org/2000/svg">
               <defs>
                 <pattern id="piste-lines" width="100" height="20" patternUnits="userSpaceOnUse" patternTransform="rotate(-15)">
                   <line x1="0" y1="0" x2="100" y2="0" stroke="#dc2626" strokeWidth="2" />
@@ -60,10 +66,25 @@ export function Navbar() {
               <rect width="100%" height="100%" fill="url(#piste-lines)" />
             </svg>
 
+            {/* LE HALO LUMINEUX (Glow Effect) */}
+            {/* Note : On retire "transition-all" et on ne garde que "transition-opacity" pour éviter que le halo ram au mouvement */}
             <div
-                className="absolute inset-0 transition-all duration-300 ease-out"
+                className="absolute inset-0 transition-opacity duration-700 ease-out"
                 style={{
-                  background: `radial-gradient(circle 300px at ${mousePos.x}% ${mousePos.y}%, rgba(220, 38, 38, 0.12), transparent 70%)`
+                  opacity: isHovered ? 1 : 0,
+                  background: `
+                    radial-gradient(500px circle at ${mousePos.x}px ${mousePos.y}px, rgba(220, 38, 38, 0.06) 0%, transparent 60%),
+                    radial-gradient(200px circle at ${mousePos.x}px ${mousePos.y}px, rgba(220, 38, 38, 0.12) 0%, transparent 80%)
+                  `
+                }}
+            />
+
+            {/* L'EFFET "NEON" SUR LA BORDURE DU BAS */}
+            <div
+                className="absolute bottom-0 left-0 h-[4px] w-full transition-opacity duration-700 ease-out"
+                style={{
+                  opacity: isHovered ? 1 : 0,
+                  background: `radial-gradient(250px circle at ${mousePos.x}px 100%, rgba(220, 38, 38, 0.8) 0%, transparent 100%)`
                 }}
             />
           </div>
@@ -116,12 +137,12 @@ export function Navbar() {
               <Link href="/musculation" prefetch={false} className={linkStyle("/musculation")}>Musculation</Link>
             </nav>
 
-            {/* AUTH SECTION (CORRIGÉE AVEC LE PROFIL) */}
+            {/* AUTH SECTION */}
             <div className="flex items-center gap-2 lg:gap-4 shrink-0 min-w-[120px] justify-end relative z-20">
               {!loading ? (
                   user ? (
                       <div className="flex items-center gap-2 lg:gap-3">
-                        {/* Bloc d'infos : Nom + Rôle (masqué sur petits écrans pour gagner de la place) */}
+                        {/* Bloc d'infos */}
                         <div className="hidden xl:flex flex-col items-end leading-tight mr-1">
                           <span className="text-[10px] lg:text-[11px] font-black uppercase italic text-slate-900">
                             {profile?.full_name || user.email?.split('@')[0]}
@@ -149,7 +170,7 @@ export function Navbar() {
           </div>
         </header>
 
-        {/* MOBILE MENU (Inchangé) */}
+        {/* MOBILE MENU */}
         <div className={`fixed inset-0 bg-black/50 z-[110] transition-opacity duration-300 md:hidden ${isMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`} onClick={() => setIsMenuOpen(false)} />
         <div className={`fixed top-0 left-0 h-full w-[300px] bg-white z-[120] shadow-2xl transition-transform duration-300 md:hidden ${isMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
           <div className="flex flex-col h-full">

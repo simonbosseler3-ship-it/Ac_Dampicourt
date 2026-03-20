@@ -13,7 +13,9 @@ import {
   Pencil,
   Send,
   MessageCircle,
-  ChevronRight
+  ChevronRight,
+  AlertTriangle,
+  X
 } from "lucide-react";
 
 type PollOption = { id: string; text: string; votes_count?: number };
@@ -44,7 +46,15 @@ export default function SondagesPage() {
   const [dataLoading, setDataLoading] = useState(true);
   const [animatedPoll, setAnimatedPoll] = useState<string | null>(null);
 
+  // Modals States
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({ isOpen: false, title: "", message: "", onConfirm: () => {} });
+
   const [editingPollId, setEditingPollId] = useState<string | null>(null);
   const [newQuestion, setNewQuestion] = useState("");
   const [pollType, setPollType] = useState<'standard' | 'competition'>('standard');
@@ -71,6 +81,16 @@ export default function SondagesPage() {
           ...prev,
           [newMessage.poll_id]: [newMessage, ...currentMsgs]
         };
+      });
+    })
+    .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'poll_messages' }, (payload) => {
+      const deletedId = payload.old.id;
+      setMessages(prev => {
+        const newState = { ...prev };
+        Object.keys(newState).forEach(pollId => {
+          newState[pollId] = newState[pollId].filter(m => m.id !== deletedId);
+        });
+        return newState;
       });
     })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'poll_votes' }, () => {
@@ -139,12 +159,9 @@ export default function SondagesPage() {
 
   const handleVote = async (pollId: string, optionId: string) => {
     if (votedPolls.includes(pollId)) return;
-
-    // Mise à jour optimiste
     setVotedPolls(prev => [...prev, pollId]);
     localStorage.setItem(`voted_${pollId}`, 'true');
     setAnimatedPoll(pollId);
-
     setPolls(prev => prev.map(p => {
       if (p.id === pollId) {
         return {
@@ -154,7 +171,6 @@ export default function SondagesPage() {
       }
       return p;
     }));
-
     setTimeout(() => setAnimatedPoll(null), 600);
     await supabase.from('poll_votes').insert([{ poll_id: pollId, option_id: optionId, voter_hash: voterHash }]);
   };
@@ -162,25 +178,66 @@ export default function SondagesPage() {
   const handlePostMessage = async (pollId: string) => {
     const content = msgInput[pollId]?.trim();
     if (!content || !voterHash) return;
-
     setMsgInput(prev => ({ ...prev, [pollId]: "" }));
-
     const tempId = `temp-${Date.now()}`;
     const tempMsg: PollMessage = { id: tempId, poll_id: pollId, content, created_at: new Date().toISOString() };
-
-    setMessages(prev => ({
-      ...prev,
-      [pollId]: [tempMsg, ...(prev[pollId] || [])]
-    }));
-
+    setMessages(prev => ({ ...prev, [pollId]: [tempMsg, ...(prev[pollId] || [])] }));
     const { data } = await supabase.from('poll_messages').insert([{ poll_id: pollId, content, voter_hash: voterHash }]).select().single();
-
     if (data) {
       setMessages(prev => ({
         ...prev,
         [pollId]: prev[pollId]?.map(m => m.id === tempId ? data as PollMessage : m) || []
       }));
     }
+  };
+
+  // --- ACTIONS DE SUPPRESSION AVEC FIX ---
+  const triggerDeleteMessage = (msgId: string, pollId: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Supprimer l'encouragement ?",
+      message: "Cette action est irréversible et le message disparaîtra pour tout le monde.",
+      onConfirm: async () => {
+        // 1. Fermer la modal immédiatement
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+
+        // 2. Suppression locale (Optimiste)
+        const previousMessages = { ...messages };
+        setMessages(prev => ({
+          ...prev,
+          [pollId]: prev[pollId].filter(m => m.id !== msgId)
+        }));
+
+        // 3. Suppression réelle en BDD
+        const { error } = await supabase.from('poll_messages').delete().eq('id', msgId);
+
+        if (error) {
+          console.error("Erreur suppression:", error.message);
+          // 4. Si ça échoue (ex: RLS), on remet l'état précédent
+          setMessages(previousMessages);
+          alert("Erreur : Vous n'avez probablement pas les droits pour supprimer ce message.");
+        }
+      }
+    });
+  };
+
+  const triggerDeletePoll = (pollId: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Supprimer ce module ?",
+      message: "Tout le contenu (votes et messages) sera définitivement effacé.",
+      onConfirm: async () => {
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        const { error } = await supabase.from('polls').delete().eq('id', pollId);
+
+        if (error) {
+          console.error("Erreur suppression module:", error.message);
+          alert("Impossible de supprimer le module.");
+        } else {
+          initSondages();
+        }
+      }
+    });
   };
 
   const handleSavePoll = async (e: React.FormEvent) => {
@@ -239,7 +296,7 @@ export default function SondagesPage() {
 
           {/* MASONRY GRID */}
           <div className="columns-1 lg:columns-2 gap-8 space-y-8">
-            {polls.map((poll, index) => {
+            {polls.map((poll) => {
               const totalVotes = poll.options.reduce((sum, opt) => sum + (opt.votes_count || 0), 0);
               const hasVoted = votedPolls.includes(poll.id);
               const isComp = poll.type === 'competition';
@@ -261,7 +318,7 @@ export default function SondagesPage() {
                         {canManage && (
                             <div className="flex gap-2">
                               <button onClick={() => { setEditingPollId(poll.id); setNewQuestion(poll.question); setPollType(poll.type); setIsModalOpen(true); }} className="p-2.5 bg-slate-50 rounded-xl text-slate-400 hover:text-blue-500 transition-colors"><Pencil size={16} /></button>
-                              <button onClick={() => { if(confirm("Supprimer ?")) supabase.from('polls').delete().eq('id', poll.id).then(() => initSondages()) }} className="p-2.5 bg-slate-50 rounded-xl text-slate-400 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
+                              <button onClick={() => triggerDeletePoll(poll.id)} className="p-2.5 bg-slate-50 rounded-xl text-slate-400 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
                             </div>
                         )}
                       </div>
@@ -321,8 +378,16 @@ export default function SondagesPage() {
 
                           <div className="space-y-3 max-h-[280px] overflow-y-auto pr-2 custom-scrollbar">
                             {messages[poll.id]?.map((m) => (
-                                <div key={m.id} className="p-5 rounded-2xl border border-white/5 bg-white/5 animate-message-flash">
-                                  <p className="text-slate-200 text-xs font-medium">{m.content}</p>
+                                <div key={m.id} className="group relative p-5 rounded-2xl border border-white/5 bg-white/5 animate-message-flash">
+                                  {canManage && (
+                                      <button
+                                          onClick={() => triggerDeleteMessage(m.id, poll.id)}
+                                          className="absolute top-4 right-4 p-2 text-slate-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                                      >
+                                        <Trash2 size={14} />
+                                      </button>
+                                  )}
+                                  <p className="text-slate-200 text-xs font-medium pr-6">{m.content}</p>
                                   <div className="flex items-center gap-2 mt-3">
                                     <span className="h-[1px] w-3 bg-red-600"></span>
                                     <span className="text-[8px] text-slate-500 uppercase font-black italic">
@@ -345,7 +410,10 @@ export default function SondagesPage() {
             <div className="fixed inset-0 z-[300] flex items-center justify-center p-6">
               <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={closeAndResetModal} />
               <div className="bg-white rounded-[3rem] p-10 w-full max-w-lg relative z-10 shadow-2xl animate-in zoom-in-95 duration-200">
-                <h3 className="text-3xl font-black uppercase italic text-slate-900 mb-8 tracking-tighter">Configuration</h3>
+                <div className="flex justify-between items-start mb-8">
+                  <h3 className="text-3xl font-black uppercase italic text-slate-900 tracking-tighter">Configuration</h3>
+                  <button onClick={closeAndResetModal} className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors"><X size={20}/></button>
+                </div>
                 <form onSubmit={handleSavePoll} className="space-y-6">
                   <div className="grid grid-cols-2 gap-4">
                     <button type="button" onClick={() => setPollType('standard')} className={`p-5 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${pollType === 'standard' ? 'border-red-600 bg-red-50 text-red-600' : 'border-slate-100 text-slate-400'}`}>
@@ -373,6 +441,37 @@ export default function SondagesPage() {
                     {isSubmitting ? 'Publication...' : 'Mettre en ligne'}
                   </button>
                 </form>
+              </div>
+            </div>
+        )}
+
+        {/* MODAL DE CONFIRMATION */}
+        {confirmModal.isOpen && (
+            <div className="fixed inset-0 z-[400] flex items-center justify-center p-6">
+              <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm animate-in fade-in duration-200" onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))} />
+              <div className="bg-white rounded-[2.5rem] p-8 w-full max-w-sm relative z-10 shadow-2xl animate-in zoom-in-95 duration-200 border-t-8 border-red-600">
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center text-red-600 mb-6">
+                    <AlertTriangle size={32} />
+                  </div>
+                  <h3 className="text-xl font-black uppercase italic text-slate-900 mb-2 tracking-tight">{confirmModal.title}</h3>
+                  <p className="text-slate-500 text-xs font-medium leading-relaxed mb-8">{confirmModal.message}</p>
+
+                  <div className="grid grid-cols-2 gap-3 w-full">
+                    <button
+                        onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                        className="p-4 rounded-xl bg-slate-100 text-slate-600 font-black uppercase italic text-[10px] hover:bg-slate-200 transition-all"
+                    >
+                      Annuler
+                    </button>
+                    <button
+                        onClick={confirmModal.onConfirm}
+                        className="p-4 rounded-xl bg-red-600 text-white font-black uppercase italic text-[10px] hover:bg-red-700 shadow-lg shadow-red-200 transition-all"
+                    >
+                      Confirmer
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
         )}

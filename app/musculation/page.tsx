@@ -121,8 +121,8 @@ export default function MusculationPage() {
       return setModalConfig({ isOpen: true, type: "forbidden" });
     }
 
-    // 3. Empêcher de réserver dans le passé (Optionnel mais recommandé)
-    if (isBefore(slotDate, new Date()) && !isSameDay(slotDate, new Date())) {
+    // 3. Empêcher de réserver dans le passé (Correction : inclut désormais les heures passées d'aujourd'hui)
+    if (isBefore(slotDate, new Date())) {
       return;
     }
 
@@ -261,16 +261,25 @@ export default function MusculationPage() {
                               const isLockedSlot = slotResas.some(r => r.is_locked);
                               const isFull = slotResas.length >= MAX_CAPACITY || isLockedSlot;
 
+                              // NOUVEAU : Vérification si le créneau est dans le passé
+                              const isPast = isBefore(slotDate, new Date());
+
                               return (
                                   <div key={i} className={`border-r border-slate-100 p-3 transition-colors ${isSameDay(day, new Date()) ? 'bg-slate-50/30' : ''}`}>
                                     <button
-                                        disabled={dataLoading}
+                                        disabled={dataLoading || isPast} // Désactive le clic natif
                                         onClick={() => handleSlotClick(slotDate, myResa?.id, slotResas.length, isLockedSlot)}
                                         className={`w-full h-full rounded-[2rem] p-5 flex flex-col transition-all duration-500 group relative
-                                ${isLockedSlot ? 'bg-blue-600 text-white shadow-xl scale-[0.98]' :
-                                            myResa ? 'bg-white ring-[6px] ring-red-600 shadow-2xl z-10' :
-                                                isFull ? 'bg-slate-100/50 grayscale' : 'bg-white border-2 border-slate-50 hover:border-red-600 shadow-sm hover:shadow-xl'}
-                              `}
+                                        ${isPast
+                                            ? 'bg-slate-100/60 opacity-50 cursor-not-allowed grayscale border-2 border-transparent'
+                                            : isLockedSlot
+                                                ? 'bg-blue-600 text-white shadow-xl scale-[0.98]'
+                                                : myResa
+                                                    ? 'bg-white ring-[6px] ring-red-600 shadow-2xl z-10'
+                                                    : isFull
+                                                        ? 'bg-slate-100/50 grayscale cursor-not-allowed'
+                                                        : 'bg-white border-2 border-slate-50 hover:border-red-600 shadow-sm hover:shadow-xl'}
+                                      `}
                                     >
                                       <div className="flex justify-between items-center mb-4 w-full">
                                 <span className={`text-[9px] font-black px-3 py-1 rounded-full ${isLockedSlot ? 'bg-blue-500 text-white' : myResa ? 'bg-red-600 text-white' : 'bg-slate-100 text-slate-500'}`}>
