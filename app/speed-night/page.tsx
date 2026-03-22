@@ -7,7 +7,7 @@ import {
   Settings, Check, X, Upload, Camera, ExternalLink,
   Calendar, MapPin, Euro, Flame, Plus, Trash2,
   Loader2, TableProperties, Info, Users, Eye, EyeOff,
-  ChevronRight, Clock, Link as LinkIcon, Ghost, Menu
+  ChevronRight, Clock, Link as LinkIcon, Ghost, Menu, Trophy, ImageIcon
 } from "lucide-react";
 
 /* ============================================================
@@ -32,20 +32,89 @@ const Toast = ({ show, message, type, onClose }: any) => (
     </div>
 );
 
-/* ============================================================
-   2. COMPOSANT D'ÉDITION ADMIN (Responsive)
-   ============================================================ */
 const AdminForm = ({ initialData, activeId, onCancel, showNotification, onDelete }: any) => {
-  const [editData, setEditData] = useState({
-    ...initialData,
-    competition_type: initialData.competition_type || 'Compétition',
-    events_table: initialData.events_table || [],
-    gallery_links: initialData.gallery_links || [],
-    extra_info: initialData.extra_info || []
+  // 1. Initialisation avec tes noms de champs exacts (tittle avec deux 't')
+  const [editData, setEditData] = useState<any>({
+    tittle: "",
+    subtitle: "",
+    description: "",
+    event_date: "",
+    location: "",
+    background_url: "",
+    competition_type: "Compétition",
+    registration_url: "",
+    hidden: false,
+    gallery_links: [],
+    extra_info: { title: "", content: "" },
+    events_table: { tests: [], category: "" }
   });
+
   const [loading, setLoading] = useState(false);
 
-  // Gestion Upload Image
+  // 2. Synchronisation forcée quand on ouvre l'édition
+  useEffect(() => {
+    if (initialData) {
+      setEditData({
+        ...initialData,
+        // On s'assure que les structures JSON ne sont pas nulles
+        gallery_links: initialData.gallery_links || [],
+        extra_info: initialData.extra_info || { title: "", content: "" },
+        events_table: initialData.events_table || { tests: [], category: "" },
+        hidden: initialData.hidden ?? false
+      });
+    }
+  }, [initialData]);
+
+  // --- LOGIQUE JSONB : ÉPREUVES ---
+  const addEventTest = () => {
+    const newTest = { sub: "", name: "Nouvelle course", price: "0,00" };
+    const currentTests = editData.events_table?.tests || [];
+    setEditData({
+      ...editData,
+      events_table: { ...editData.events_table, tests: [...currentTests, newTest] }
+    });
+  };
+
+  const updateEventTest = (idx: number, field: string, val: string) => {
+    const updatedTests = [...(editData.events_table?.tests || [])];
+    updatedTests[idx] = { ...updatedTests[idx], [field]: val };
+    setEditData({
+      ...editData,
+      events_table: { ...editData.events_table, tests: updatedTests }
+    });
+  };
+
+  const removeEventTest = (idx: number) => {
+    const updatedTests = [...(editData.events_table?.tests || [])];
+    updatedTests.splice(idx, 1);
+    setEditData({
+      ...editData,
+      events_table: { ...editData.events_table, tests: updatedTests }
+    });
+  };
+
+  // --- LOGIQUE JSONB : GALERIE ---
+  const addGalleryLink = () => {
+    const currentLinks = editData.gallery_links || [];
+    setEditData({
+      ...editData,
+      gallery_links: [...currentLinks, { url: "", label: "Album Photo" }]
+    });
+  };
+
+  const updateGalleryLink = (idx: number, field: string, val: string) => {
+    const updated = [...(editData.gallery_links || [])];
+    updated[idx] = { ...updated[idx], [field]: val };
+    setEditData({ ...editData, gallery_links: updated });
+  };
+
+  const removeGalleryLink = (idx: number) => {
+    const updated = [...(editData.gallery_links || [])];
+    updated.splice(idx, 1);
+    setEditData({ ...editData, gallery_links: updated });
+  };
+
+  // --- LOGIQUE UPLOAD ---
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -57,7 +126,7 @@ const AdminForm = ({ initialData, activeId, onCancel, showNotification, onDelete
       if (uploadError) throw uploadError;
       const { data: { publicUrl } } = supabase.storage.from('news-images').getPublicUrl(fileName);
       setEditData({ ...editData, background_url: publicUrl });
-      showNotification("Image mise à jour !");
+      showNotification("Image mise à jour ! ✨");
     } catch (err: any) {
       showNotification(err.message, 'error');
     } finally {
@@ -65,15 +134,17 @@ const AdminForm = ({ initialData, activeId, onCancel, showNotification, onDelete
     }
   };
 
-  // Sauvegarde
+  // --- SAUVEGARDE ---
   const submitSave = async () => {
     if (loading) return;
     setLoading(true);
     try {
-      const { error } = await supabase.from('competition_config').update(editData).eq('id', activeId);
+      // On retire les champs générés par la DB avant l'update
+      const { id, updated_at, created_at, ...updatePayload } = editData;
+      const { error } = await supabase.from('competition_config').update(updatePayload).eq('id', activeId);
       if (error) throw error;
-      showNotification("Modifications enregistrées !");
-      setTimeout(() => window.location.reload(), 500);
+      showNotification("Modifications enregistrées ! 🚀");
+      setTimeout(() => window.location.reload(), 600);
     } catch (error: any) {
       showNotification(error.message, 'error');
     } finally {
@@ -82,107 +153,150 @@ const AdminForm = ({ initialData, activeId, onCancel, showNotification, onDelete
   };
 
   return (
-      <div className="bg-[#0f172a]/95 backdrop-blur-3xl p-4 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-white/10 max-w-6xl mx-auto shadow-2xl space-y-8 animate-in fade-in zoom-in-95 duration-300 relative z-50">
+      <div className="bg-[#0f172a]/95 backdrop-blur-3xl p-4 md:p-10 rounded-[2.5rem] border border-white/10 max-w-6xl mx-auto shadow-2xl space-y-8 animate-in fade-in zoom-in-95 duration-300 relative z-50 overflow-y-auto max-h-[90vh] text-white">
 
-        {/* HEADER FORMULAIRE */}
-        <div className="flex flex-col md:flex-row justify-between items-start border-b border-white/5 pb-8 gap-6">
+        {/* HEADER : ACTIONS & STATUS */}
+        <div className="flex flex-col md:flex-row justify-between items-start border-b border-white/5 pb-8 gap-6 sticky top-0 bg-[#0f172a]/95 z-20 pt-2">
           <div>
-            <h2 className="text-2xl md:text-3xl font-black italic uppercase flex items-center gap-3 mb-2 text-white">
-              <Settings className="text-red-600 shrink-0" size={24}/> Configuration
+            <h2 className="text-2xl md:text-3xl font-black italic uppercase flex items-center gap-3 mb-2">
+              <Settings className="text-red-600" size={28} /> Configuration
             </h2>
+            <div className="grid grid-cols-2 gap-2 p-1 bg-black/40 rounded-xl w-64 mt-4">
+              {['Compétition', 'Annonce'].map((type) => (
+                  <button key={type} onClick={() => setEditData({ ...editData, competition_type: type })} className={`py-2 rounded-lg text-[10px] font-black uppercase italic transition-all ${editData.competition_type === type ? 'bg-red-600 text-white' : 'text-white/40'}`}>
+                    {type}
+                  </button>
+              ))}
+            </div>
+          </div>
 
-            {/* SÉLECTEUR TYPE */}
-            <div className="mt-4">
-              <div className="grid grid-cols-2 gap-2 p-1 bg-black/40 rounded-xl w-full md:w-64">
-                {['Compétition', 'Annonce'].map((type) => (
-                    <button
-                        key={type}
-                        onClick={() => setEditData({ ...editData, competition_type: type, subtitle_badge: type })}
-                        className={`py-2 rounded-lg text-[10px] font-black uppercase italic transition-all ${editData.competition_type === type ? 'bg-red-600 text-white' : 'text-white/40'}`}
-                    >
-                      {type}
-                    </button>
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            {/* BOUTON VISIBILITÉ */}
+            <button
+                onClick={() => setEditData({ ...editData, hidden: !editData.hidden })}
+                className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${editData.hidden ? 'bg-orange-500/10 text-orange-500 border border-orange-500/30' : 'bg-green-500/10 text-green-500 border border-green-500/30'}`}
+            >
+              {editData.hidden ? <><EyeOff size={14} /> Masqué</> : <><Eye size={14} /> Public</>}
+            </button>
+
+            {/* BOUTON SUPPRIMER */}
+            <button
+                onClick={() => { if(confirm("Supprimer définitivement ?")) onDelete(activeId); }}
+                className="p-3 bg-white/5 hover:bg-red-600 hover:text-white rounded-xl transition-all text-white/40"
+                title="Supprimer"
+            >
+              <Trash2 size={20} />
+            </button>
+
+            {/* BOUTON FERMER */}
+            <button onClick={onCancel} className="p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-all"><X size={20} /></button>
+          </div>
+        </div>
+
+        <div className="grid gap-8 grid-cols-1 lg:grid-cols-3">
+
+          {/* COLONNE GAUCHE : TEXTES & EPREUVES */}
+          <div className="lg:col-span-2 space-y-8">
+
+            <section className="space-y-4">
+              <h3 className="text-red-600 font-black uppercase italic text-sm flex items-center gap-2"><Info size={16} /> Informations Générales</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-500 ml-2 uppercase">Titre de l'événement</label>
+                  <input className="w-full bg-black/40 p-4 rounded-2xl border border-white/10 font-bold" value={editData.title || ""} onChange={e => setEditData({ ...editData, title: e.target.value })} />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-500 ml-2 uppercase">Sous-titre / Badge</label>
+                  <input className="w-full bg-black/40 p-4 rounded-2xl border border-white/10 text-red-600 font-bold" value={editData.subtitle || ""} onChange={e => setEditData({ ...editData, subtitle: e.target.value })} />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-500 ml-2 uppercase">Description</label>
+                <textarea rows={4} className="w-full bg-black/40 p-5 rounded-2xl border border-white/10 text-sm text-gray-300" value={editData.description || ""} onChange={e => setEditData({ ...editData, description: e.target.value })} />
+              </div>
+            </section>
+
+            {/* TABLEAU DES EPREUVES */}
+            <section className="space-y-4 bg-white/5 p-6 rounded-[2rem] border border-white/5">
+              <div className="flex justify-between items-center border-b border-white/5 pb-4">
+                <h3 className="text-red-600 font-black uppercase italic text-sm flex items-center gap-2"><Trophy size={16} /> Épreuves & Tests</h3>
+                <button onClick={addEventTest} className="text-[10px] bg-red-600 px-3 py-1.5 rounded-lg font-black uppercase flex items-center gap-1 hover:scale-105 transition-transform"><Plus size={14} /> Ajouter</button>
+              </div>
+
+              <div className="space-y-3">
+                {(editData.events_table?.tests || []).map((test: any, idx: number) => (
+                    <div key={idx} className="flex flex-col md:flex-row gap-2 bg-black/40 p-3 rounded-xl border border-white/5 items-center">
+                      <input placeholder="Catégories (ex: JUN-H)" className="w-full md:w-32 bg-white/5 p-2 rounded text-xs text-slate-400 font-mono" value={test.sub || ""} onChange={e => updateEventTest(idx, 'sub', e.target.value)} />
+                      <input placeholder="Nom de l'épreuve" className="flex-1 bg-white/5 p-2 rounded text-xs text-white" value={test.name || ""} onChange={e => updateEventTest(idx, 'name', e.target.value)} />
+                      <input placeholder="Prix" className="w-20 bg-white/5 p-2 rounded text-xs text-green-400 font-bold text-center" value={test.price || ""} onChange={e => updateEventTest(idx, 'price', e.target.value)} />
+                      <button onClick={() => removeEventTest(idx)} className="text-white/20 hover:text-red-600 p-2"><Trash2 size={16} /></button>
+                    </div>
+                ))}
+              </div>
+            </section>
+
+            {/* EXTRA INFO */}
+            <section className="bg-white/5 p-6 rounded-[2rem] border border-white/5 space-y-4">
+              <h3 className="text-red-600 font-black uppercase italic text-sm flex items-center gap-2 border-b border-white/5 pb-4"><Flame size={16} /> Infos Spéciales (Prize Money, etc.)</h3>
+              <input placeholder="Titre de l'encadré" className="w-full bg-black/40 p-3 rounded-xl border border-white/10 text-red-500 font-bold" value={editData.extra_info?.title || ""} onChange={e => setEditData({...editData, extra_info: {...editData.extra_info, title: e.target.value}})} />
+              <textarea placeholder="Détails" rows={2} className="w-full bg-black/40 p-3 rounded-xl border border-white/10 text-sm" value={editData.extra_info?.content || ""} onChange={e => setEditData({...editData, extra_info: {...editData.extra_info, content: e.target.value}})} />
+            </section>
+          </div>
+
+          {/* COLONNE DROITE : LOGISTIQUE & MEDIA */}
+          <div className="space-y-6">
+            <div className="bg-white/5 p-6 rounded-[2rem] border border-white/10 space-y-4">
+              <h4 className="text-[10px] font-black uppercase text-red-600 tracking-widest border-b border-red-600/20 pb-2 flex items-center gap-2"><Calendar size={14}/> Logistique</h4>
+              <div className="space-y-4">
+                <div className="relative"><Calendar className="absolute left-3 top-3 text-red-600" size={14}/><input placeholder="Date de l'événement" className="w-full bg-black/20 pl-10 p-3 rounded-xl border border-white/5 text-sm" value={editData.event_date || ""} onChange={e => setEditData({...editData, event_date: e.target.value})} /></div>
+                <div className="relative"><MapPin className="absolute left-3 top-3 text-red-600" size={14}/><input placeholder="Lieu / Stade" className="w-full bg-black/20 pl-10 p-3 rounded-xl border border-white/5 text-sm" value={editData.location || ""} onChange={e => setEditData({...editData, location: e.target.value})} /></div>
+                <div className="relative"><LinkIcon className="absolute left-3 top-3 text-blue-500" size={14}/><input placeholder="Lien d'inscription" className="w-full bg-black/20 pl-10 p-3 rounded-xl border border-white/5 text-sm text-blue-400 font-bold" value={editData.registration_url || ""} onChange={e => setEditData({...editData, registration_url: e.target.value})} /></div>
+              </div>
+
+              <div className="pt-4 border-t border-white/5">
+                <label className="w-full cursor-pointer flex flex-col items-center justify-center gap-3 p-6 rounded-2xl border-2 border-dashed border-white/10 hover:border-red-600/50 transition-all">
+                  <input type="file" onChange={handleFileUpload} className="hidden" accept="image/*" />
+                  <Upload size={20} className="text-red-600" />
+                  <span className="text-[9px] font-black uppercase">Changer l'image de fond</span>
+                </label>
+                {editData.background_url && <img src={editData.background_url} className="mt-3 w-full h-24 object-cover rounded-xl opacity-40 shadow-inner border border-white/10" alt="preview" />}
+              </div>
+            </div>
+
+            {/* GALERIE PHOTO */}
+            <div className="bg-white/5 p-6 rounded-[2rem] border border-white/10 space-y-4">
+              <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2"><ImageIcon size={14}/> Albums Photos</h4>
+                <button onClick={addGalleryLink} className="p-1 text-red-600 hover:bg-red-600/10 rounded"><Plus size={16} /></button>
+              </div>
+              <div className="space-y-3">
+                {(editData.gallery_links || []).map((link: any, idx: number) => (
+                    <div key={idx} className="bg-black/40 p-3 rounded-xl border border-white/5 space-y-2 relative group">
+                      <input placeholder="Label (Album 2024)" className="w-full bg-transparent text-[10px] font-bold uppercase text-white outline-none" value={link.label || ""} onChange={e => updateGalleryLink(idx, 'label', e.target.value)} />
+                      <div className="flex gap-2">
+                        <input placeholder="URL Facebook/Flickr" className="flex-1 bg-white/5 p-1.5 rounded text-[10px] text-blue-300 outline-none" value={link.url || ""} onChange={e => updateGalleryLink(idx, 'url', e.target.value)} />
+                        <button onClick={() => removeGalleryLink(idx)} className="text-white/20 hover:text-red-600 transition-colors"><Trash2 size={14} /></button>
+                      </div>
+                    </div>
                 ))}
               </div>
             </div>
           </div>
-
-          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-            <button
-                onClick={() => setEditData({...editData, hidden: !editData.hidden})}
-                className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[10px] font-black uppercase transition-all ${editData.hidden ? 'bg-orange-500/10 text-orange-500 border border-orange-500/30' : 'bg-green-500/10 text-green-500 border border-green-500/30'}`}
-            >
-              {editData.hidden ? <><EyeOff size={14}/> Masqué</> : <><Eye size={14}/> Public</>}
-            </button>
-            <button onClick={() => onDelete(activeId)} className="p-3 bg-white/5 hover:bg-red-600 hover:text-white rounded-xl transition-colors text-white/40">
-              <Trash2 size={18}/>
-            </button>
-            <button onClick={onCancel} className="p-3 bg-white/5 hover:bg-white/10 rounded-xl transition-all text-white">
-              <X size={18} />
-            </button>
-          </div>
         </div>
 
-        {/* CONTENU PRINCIPAL */}
-        <div className="grid gap-8 grid-cols-1 lg:grid-cols-3">
-          <div className="lg:col-span-2 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-slate-500 ml-2">Titre</label>
-                <input className="w-full bg-black/40 p-4 rounded-2xl border border-white/10 text-white font-bold" value={editData.title || ""} onChange={e => setEditData({ ...editData, title: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-slate-500 ml-2">Badge</label>
-                <input className="w-full bg-black/40 p-4 rounded-2xl border border-white/10 text-red-600 font-bold" value={editData.subtitle_badge || ""} onChange={e => setEditData({ ...editData, subtitle_badge: e.target.value })} />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase text-slate-500 ml-2">Sous-titre</label>
-              <input className="w-full bg-black/40 p-4 rounded-2xl border border-white/10 text-white italic" value={editData.subtitle || ""} onChange={e => setEditData({ ...editData, subtitle: e.target.value })} />
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase text-slate-500 ml-2">Description</label>
-              <textarea rows={6} className="w-full bg-black/40 p-5 rounded-2xl border border-white/10 text-sm text-gray-300" value={editData.description || ""} onChange={e => setEditData({ ...editData, description: e.target.value })} />
-            </div>
-          </div>
-
-          {/* SIDEBAR */}
-          <div className="bg-white/5 p-6 rounded-[2rem] border border-white/10 space-y-6">
-            <h4 className="text-[10px] font-black uppercase text-red-600 tracking-widest border-b border-red-600/20 pb-2">Configuration</h4>
-
-            <div className="space-y-4">
-              <div className="space-y-1">
-                <label className="text-[9px] font-bold text-slate-400">Date</label>
-                <input className="w-full bg-black/20 p-3 rounded-xl border border-white/5 text-sm text-white" value={editData.event_date || ""} onChange={e => setEditData({ ...editData, event_date: e.target.value })} />
-              </div>
-              <div className="space-y-1">
-                <label className="text-[9px] font-bold text-slate-400">Lieu</label>
-                <input className="w-full bg-black/20 p-3 rounded-xl border border-white/5 text-sm text-white" value={editData.location || ""} onChange={e => setEditData({ ...editData, location: e.target.value })} />
-              </div>
-              <div className="space-y-1">
-                <label className="text-[9px] font-bold text-slate-400">Lien Inscription</label>
-                <input className="w-full bg-black/20 p-3 rounded-xl border border-white/5 text-sm text-blue-400" value={editData.registration_url || ""} onChange={e => setEditData({ ...editData, registration_url: e.target.value })} />
-              </div>
-
-              <div className="pt-2">
-                <label className="w-full cursor-pointer flex flex-col items-center justify-center gap-3 p-6 rounded-2xl border-2 border-dashed border-white/10 hover:border-red-600/50 transition-all text-white text-center">
-                  <input type="file" onChange={handleFileUpload} className="hidden" accept="image/*" />
-                  <Upload size={20} className="text-red-600" />
-                  <span className="text-[9px] font-black uppercase">Changer Image</span>
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* PIED DE PAGE FORMULAIRE */}
-        <div className="flex pt-6">
-          <button onClick={submitSave} disabled={loading} className="w-full bg-red-600 p-4 rounded-[1.5rem] font-black uppercase italic text-white hover:bg-red-700 transition-all flex items-center justify-center gap-3 shadow-xl">
-            {loading ? <Loader2 className="animate-spin" /> : <><Check size={20}/> Sauvegarder</>}
+        {/* FOOTER : SAUVEGARDE FINALE */}
+        <div className="pt-6 border-t border-white/5 sticky bottom-0 bg-[#0f172a] pb-2">
+          <button
+              onClick={submitSave}
+              disabled={loading}
+              className="w-full bg-red-600 p-5 rounded-[1.5rem] font-black uppercase italic flex items-center justify-center gap-3 shadow-2xl hover:bg-red-700 transition-all disabled:opacity-50 hover:scale-[1.01] active:scale-95"
+          >
+            {loading ? <Loader2 className="animate-spin" /> : <><Check size={24} /> Enregistrer et Publier</>}
           </button>
         </div>
+
+        {/* Lucide invisible render */}
+        <div className="hidden opacity-0"><Ghost /><Menu /><Euro /></div>
       </div>
   );
 };

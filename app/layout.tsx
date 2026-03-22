@@ -4,6 +4,8 @@ import "./globals.css";
 import { Navbar } from "@/components/navbar/navbar";
 import { Footer } from "@/components/footer/footer";
 import { AuthProvider } from "@/app/context/authContext";
+import { ThemeProvider } from "@/components/theme/ThemeContext";
+import { GlobalDecorations } from "@/components/theme/Decorations";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,50 +24,58 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-      <html lang="fr">
+      <html lang="fr" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen relative`}>
-
-      {/* --- ARRIÈRE-PLAN "RED RISE" --- */}
-      <div className="fixed inset-0 -z-50 overflow-hidden bg-white">
-
-        {/* 1. Dégradé de fond : Le rouge monte plus haut (via-red-100) */}
-        <div
-            className="absolute inset-0 bg-linear-to-b from-white via-red-100/80 via-15% to-red-600/60"></div>
-
-        {/* 2. Première couche d'hexagones (Plus présente dès le milieu) */}
-        <div
-            className="absolute inset-0 bg-honeycomb opacity-80"
-            style={{
-              // On monte le dégradé du masque : les hexagones deviennent bien nets plus tôt
-              maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 30%, rgba(0,0,0,1) 100%)',
-              WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 30%, rgba(0,0,0,1) 100%)'
-            }}
-        ></div>
-
-        {/* 3. Deuxième couche d'hexagones (Dynamique) - CORRIGÉE */}
-        <div
-            className="absolute inset-0 bg-honeycomb opacity-80 animate-float-slow"
-            style={{
-              // On utilise backgroundPosition pour décaler le motif sans déplacer le bloc
-              backgroundPosition: '60px 104px',
-              maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.8) 100%)',
-              WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.8) 100%)'
-            }}
-        ></div>
-
-        {/* 4. Halo de lisibilité (On le réduit pour laisser monter le rouge) */}
-        <div
-            className="absolute inset-0 bg-radial from-white/30 via-transparent to-transparent opacity-40"></div>
-      </div>
-
       <AuthProvider>
-        <div className="flex flex-col min-h-screen">
-          <Navbar/>
-          <main className="flex-grow pt-20 relative">
-            {children}
-          </main>
-          <Footer/>
-        </div>
+        <ThemeProvider>
+          {/* --- ARRIÈRE-PLAN FIXE (Branding ACD) --- */}
+          {/* Ce fond ne change jamais, peu importe le thème sélectionné */}
+          <div className="fixed inset-0 -z-50 overflow-hidden bg-white">
+
+            {/* 1. Dégradé de fond : Fixé sur les couleurs rouges de base */}
+            <div
+                className="absolute inset-0"
+                style={{
+                  background: `linear-gradient(to bottom, white 0%, rgba(220, 38, 38, 0.15) 15%, rgba(220, 38, 38, 0.8) 100%)`
+                }}
+            ></div>
+
+            {/* 2. Première couche d'hexagones (LIGNES BLANCHES) */}
+            <div
+                className="absolute inset-0 bg-honeycomb opacity-100"
+                style={{
+                  maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,1) 100%)',
+                  WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 20%, rgba(0,0,0,1) 100%)'
+                }}
+            ></div>
+
+            {/* 3. Deuxième couche d'hexagones (Dynamique) */}
+            <div
+                className="absolute inset-0 bg-honeycomb opacity-80 animate-float-slow"
+                style={{
+                  backgroundPosition: '60px 104px',
+                  maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.6) 100%)',
+                  WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.1) 40%, rgba(0,0,0,0.6) 100%)'
+                }}
+            ></div>
+
+            {/* 4. Halo de lisibilité central */}
+            <div className="absolute inset-0 bg-radial from-white/40 via-transparent to-transparent opacity-50"></div>
+          </div>
+
+          {/* --- EFFETS SPÉCIAUX (Flocons, Éclairs, Fantômes...) --- */}
+          {/* C'est ce composant qui va lire le thème et afficher les bonnes animations */}
+          <GlobalDecorations />
+
+          {/* --- STRUCTURE DU SITE --- */}
+          <div className="flex flex-col min-h-screen">
+            <Navbar />
+            <main className="flex-grow pt-20 relative">
+              {children}
+            </main>
+            <Footer />
+          </div>
+        </ThemeProvider>
       </AuthProvider>
       </body>
       </html>

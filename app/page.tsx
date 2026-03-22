@@ -67,7 +67,7 @@ export default function Home() {
             />
         )}
 
-        {/* CAROUSEL */}
+        {/* SECTION CAROUSEL */}
         <div className="mb-10 min-h-[400px]">
           {dataLoading ? (
               <div className="w-full h-[400px] bg-slate-200/50 animate-pulse rounded-[3rem] flex items-center justify-center">
@@ -80,8 +80,6 @@ export default function Home() {
 
         {/* SECTION LIENS PRINCIPAUX */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 px-2 mb-10">
-
-          {/* RECORDS CLUB - Icone passée en slate-200 pour visibilité */}
           <Link href="/infos/records" prefetch={false} className="group relative h-48 rounded-[2.5rem] bg-white/80 backdrop-blur-sm border-2 border-slate-100 hover:border-slate-900 overflow-hidden transition-all duration-500 hover:shadow-2xl">
             <div className="absolute inset-0 bg-slate-900 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0"></div>
             <div className="absolute -bottom-6 -left-6 text-slate-200 group-hover:text-slate-800 transition-colors duration-500 z-0 group-hover:scale-125 group-hover:rotate-12 transition-transform origin-bottom-left">
@@ -103,7 +101,6 @@ export default function Home() {
             </div>
           </Link>
 
-          {/* INSCRIPTIONS */}
           <Link href="/inscription" prefetch={false} className="group relative h-48 rounded-[2.5rem] bg-red-600 border-2 border-red-600 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-red-200 hover:-translate-y-1">
             <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
             <div className="absolute top-1/2 -translate-y-1/2 right-[-2rem] text-black/10 group-hover:text-white/20 z-0 transition-transform group-hover:scale-110">
@@ -123,7 +120,6 @@ export default function Home() {
             </div>
           </Link>
 
-          {/* DAMPICOURT SPEED RACE (SPEED NIGHT) - Icone passée en slate-200 pour visibilité */}
           <Link href="/speed-night" prefetch={false} className="group relative h-48 rounded-[2.5rem] bg-white/80 backdrop-blur-sm border-2 border-slate-100 hover:border-red-600 overflow-hidden transition-all duration-500 hover:shadow-2xl">
             <div className="absolute inset-0 bg-red-600 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0"></div>
             <div className="absolute -top-6 -right-6 text-slate-200 group-hover:text-red-700 z-0 group-hover:scale-125 group-hover:-rotate-12 transition-transform origin-top-right">
@@ -152,13 +148,10 @@ export default function Home() {
 
         {/* SECTION FORUM & COMMUNAUTÉ */}
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 px-2">
-
-          {/* CARTE FORUM */}
           <Link href="/forum" prefetch={false} className="group block w-full bg-white/80 backdrop-blur-sm border-2 border-slate-100 rounded-[2.5rem] p-8 hover:border-red-600 transition-all duration-300 shadow-sm hover:shadow-xl relative overflow-hidden flex flex-col justify-between">
             <div className="absolute -right-10 -bottom-10 text-slate-50 group-hover:text-red-50 transition-colors duration-500 -rotate-12">
               <MessageSquare size={200} strokeWidth={1} />
             </div>
-
             <div className="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-6 h-full">
               <div className="flex items-center gap-6">
                 <div className="bg-red-600 p-4 rounded-2xl shadow-lg shadow-red-200 group-hover:scale-110 transition-transform flex-shrink-0">
@@ -175,12 +168,10 @@ export default function Home() {
             </div>
           </Link>
 
-          {/* CARTE COMMUNAUTÉ */}
           <Link href="/sondage" prefetch={false} className="group block w-full bg-slate-900 border-2 border-slate-800 rounded-[2.5rem] p-8 hover:border-red-600 transition-all duration-300 shadow-sm hover:shadow-xl relative overflow-hidden flex flex-col justify-between">
             <div className="absolute -right-10 -bottom-10 text-slate-800 group-hover:text-red-900/40 transition-colors duration-500 -rotate-12">
               <Users size={200} strokeWidth={1} />
             </div>
-
             <div className="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-6 h-full">
               <div className="flex items-center gap-6">
                 <div className="bg-red-600 p-4 rounded-2xl shadow-lg shadow-red-900/50 group-hover:scale-110 transition-transform flex-shrink-0">
@@ -196,7 +187,6 @@ export default function Home() {
               </div>
             </div>
           </Link>
-
         </section>
       </main>
   );
