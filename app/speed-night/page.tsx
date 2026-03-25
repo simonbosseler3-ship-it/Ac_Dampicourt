@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState, useCallback, memo, Suspense } from "react";
+import { useEffect, useState, memo, Suspense } from "react";
 import { supabase } from "@/lib/supabase";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
-  Settings, Check, X, Upload, Camera, ExternalLink,
+  Settings, Check, X, Upload, ExternalLink,
   Calendar, MapPin, Euro, Flame, Plus, Trash2,
-  Loader2, TableProperties, Info, Users, Eye, EyeOff,
-  ChevronRight, Clock, Link as LinkIcon, Ghost, Menu, Trophy, ImageIcon
+  Loader2, Info, Users, Eye, EyeOff,
+  ChevronRight, Clock, Link as LinkIcon, Ghost, Trophy, ImageIcon
 } from "lucide-react";
 
 /* ============================================================
@@ -33,83 +33,100 @@ const Toast = ({ show, message, type, onClose }: any) => (
 );
 
 const AdminForm = ({ initialData, activeId, onCancel, showNotification, onDelete }: any) => {
-  // 1. Initialisation avec tes noms de champs exacts (tittle avec deux 't')
+  // 1. Initialisation corrigée pour correspondre STRICTEMENT à ta DB PostgreSQL
   const [editData, setEditData] = useState<any>({
-    tittle: "",
+    title: "",            // Corrigé (était tittle)
     subtitle: "",
     description: "",
     event_date: "",
     location: "",
     background_url: "",
-    competition_type: "Compétition",
-    registration_url: "",
+    competition_type: "night",
+    registration_link: "", // Corrigé (était registration_url)
     hidden: false,
-    gallery_links: [],
-    extra_info: { title: "", content: "" },
-    events_table: { tests: [], category: "" }
+    gallery_links: [],    // Tableau []
+    extra_info: [],       // Tableau [] (Corrigé, était {})
+    events_table: []      // Tableau [] (Corrigé, était {})
   });
 
   const [loading, setLoading] = useState(false);
 
-  // 2. Synchronisation forcée quand on ouvre l'édition
+  // 2. Synchronisation avec protection contre les valeurs nulles
   useEffect(() => {
     if (initialData) {
       setEditData({
         ...initialData,
-        // On s'assure que les structures JSON ne sont pas nulles
-        gallery_links: initialData.gallery_links || [],
-        extra_info: initialData.extra_info || { title: "", content: "" },
-        events_table: initialData.events_table || { tests: [], category: "" },
+        title: initialData.title || "",
+        registration_link: initialData.registration_link || "",
+        gallery_links: Array.isArray(initialData.gallery_links) ? initialData.gallery_links : [],
+        extra_info: Array.isArray(initialData.extra_info) ? initialData.extra_info : [],
+        events_table: Array.isArray(initialData.events_table) ? initialData.events_table : [],
         hidden: initialData.hidden ?? false
       });
     }
   }, [initialData]);
 
-  // --- LOGIQUE JSONB : ÉPREUVES ---
-  const addEventTest = () => {
-    const newTest = { sub: "", name: "Nouvelle course", price: "0,00" };
-    const currentTests = editData.events_table?.tests || [];
+  // --- LOGIQUE JSONB : ÉPREUVES (Tableau de catégories contenant des épreuves) ---
+  const addEventCategory = () => {
+    const newCategory = { category: "Nouvelle Catégorie", tests: [] };
     setEditData({
       ...editData,
-      events_table: { ...editData.events_table, tests: [...currentTests, newTest] }
+      events_table: [...editData.events_table, newCategory]
     });
   };
 
-  const updateEventTest = (idx: number, field: string, val: string) => {
-    const updatedTests = [...(editData.events_table?.tests || [])];
-    updatedTests[idx] = { ...updatedTests[idx], [field]: val };
+  const addEventTest = (categoryIdx: number) => {
+    const updatedTable = [...editData.events_table];
+    const newTest = { sub: "Catégorie d'âge", name: "Nom de l'épreuve", price: "6,00" };
+    updatedTable[categoryIdx].tests = [...updatedTable[categoryIdx].tests, newTest];
+    setEditData({ ...editData, events_table: updatedTable });
+  };
+
+  const updateEventTest = (catIdx: number, testIdx: number, field: string, val: string) => {
+    const updatedTable = [...editData.events_table];
+    updatedTable[catIdx].tests[testIdx] = {
+      ...updatedTable[catIdx].tests[testIdx],
+      [field]: val
+    };
+    setEditData({ ...editData, events_table: updatedTable });
+  };
+
+  const removeEventTest = (catIdx: number, testIdx: number) => {
+    const updatedTable = [...editData.events_table];
+    updatedTable[catIdx].tests.splice(testIdx, 1);
+    setEditData({ ...editData, events_table: updatedTable });
+  };
+
+  // --- LOGIQUE JSONB : INFOS SUPPLÉMENTAIRES ---
+  const addExtraInfo = () => {
     setEditData({
       ...editData,
-      events_table: { ...editData.events_table, tests: updatedTests }
+      extra_info: [...editData.extra_info, { title: "", content: "" }]
     });
   };
 
-  const removeEventTest = (idx: number) => {
-    const updatedTests = [...(editData.events_table?.tests || [])];
-    updatedTests.splice(idx, 1);
-    setEditData({
-      ...editData,
-      events_table: { ...editData.events_table, tests: updatedTests }
-    });
+  const updateExtraInfo = (idx: number, field: string, val: string) => {
+    const updated = [...editData.extra_info];
+    updated[idx] = { ...updated[idx], [field]: val };
+    setEditData({ ...editData, extra_info: updated });
   };
 
   // --- LOGIQUE JSONB : GALERIE ---
   const addGalleryLink = () => {
-    const currentLinks = editData.gallery_links || [];
     setEditData({
       ...editData,
-      gallery_links: [...currentLinks, { url: "", label: "Album Photo" }]
+      gallery_links: [...editData.gallery_links, { url: "", label: "Album Photo" }]
     });
   };
 
   const updateGalleryLink = (idx: number, field: string, val: string) => {
-    const updated = [...(editData.gallery_links || [])];
+    const updated = [...editData.gallery_links];
     updated[idx] = { ...updated[idx], [field]: val };
     setEditData({ ...editData, gallery_links: updated });
   };
 
   const removeGalleryLink = (idx: number) => {
-    const updated = [...(editData.gallery_links || [])];
+    const updated = [...editData.gallery_links];
     updated.splice(idx, 1);
     setEditData({ ...editData, gallery_links: updated });
   };
@@ -126,7 +143,7 @@ const AdminForm = ({ initialData, activeId, onCancel, showNotification, onDelete
       if (uploadError) throw uploadError;
       const { data: { publicUrl } } = supabase.storage.from('news-images').getPublicUrl(fileName);
       setEditData({ ...editData, background_url: publicUrl });
-      showNotification("Image mise à jour ! ✨");
+      showNotification("Image mise à jour ! ✨", 'success');
     } catch (err: any) {
       showNotification(err.message, 'error');
     } finally {
@@ -139,11 +156,16 @@ const AdminForm = ({ initialData, activeId, onCancel, showNotification, onDelete
     if (loading) return;
     setLoading(true);
     try {
-      // On retire les champs générés par la DB avant l'update
+      // Nettoyage des données système pour l'UPDATE
       const { id, updated_at, created_at, ...updatePayload } = editData;
-      const { error } = await supabase.from('competition_config').update(updatePayload).eq('id', activeId);
+
+      const { error } = await supabase
+      .from('competition_config')
+      .update(updatePayload)
+      .eq('id', activeId);
+
       if (error) throw error;
-      showNotification("Modifications enregistrées ! 🚀");
+      showNotification("Modifications enregistrées ! 🚀", 'success');
       setTimeout(() => window.location.reload(), 600);
     } catch (error: any) {
       showNotification(error.message, 'error');
@@ -162,9 +184,14 @@ const AdminForm = ({ initialData, activeId, onCancel, showNotification, onDelete
               <Settings className="text-red-600" size={28} /> Configuration
             </h2>
             <div className="grid grid-cols-2 gap-2 p-1 bg-black/40 rounded-xl w-64 mt-4">
-              {['Compétition', 'Annonce'].map((type) => (
-                  <button key={type} onClick={() => setEditData({ ...editData, competition_type: type })} className={`py-2 rounded-lg text-[10px] font-black uppercase italic transition-all ${editData.competition_type === type ? 'bg-red-600 text-white' : 'text-white/40'}`}>
-                    {type}
+              {['night', 'Compétition'].map((type) => (
+                  <button
+                      key={type}
+                      type="button"
+                      onClick={() => setEditData({ ...editData, competition_type: type })}
+                      className={`py-2 rounded-lg text-[10px] font-black uppercase italic transition-all ${editData.competition_type === type ? 'bg-red-600 text-white' : 'text-white/40'}`}
+                  >
+                    {type === 'night' ? 'Meeting Night' : type}
                   </button>
               ))}
             </div>
@@ -199,79 +226,203 @@ const AdminForm = ({ initialData, activeId, onCancel, showNotification, onDelete
           <div className="lg:col-span-2 space-y-8">
 
             <section className="space-y-4">
-              <h3 className="text-red-600 font-black uppercase italic text-sm flex items-center gap-2"><Info size={16} /> Informations Générales</h3>
+              <h3 className="text-red-600 font-black uppercase italic text-sm flex items-center gap-2">
+                <Info size={16}/> Informations Générales</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-500 ml-2 uppercase">Titre de l'événement</label>
-                  <input className="w-full bg-black/40 p-4 rounded-2xl border border-white/10 font-bold" value={editData.title || ""} onChange={e => setEditData({ ...editData, title: e.target.value })} />
+                  <label className="text-[10px] font-bold text-slate-500 ml-2 uppercase">Titre de
+                    l'événement</label>
+                  <input
+                      className="w-full bg-black/40 p-4 rounded-2xl border border-white/10 font-bold"
+                      value={editData.title || ""}
+                      onChange={e => setEditData({...editData, title: e.target.value})}/>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-slate-500 ml-2 uppercase">Sous-titre / Badge</label>
-                  <input className="w-full bg-black/40 p-4 rounded-2xl border border-white/10 text-red-600 font-bold" value={editData.subtitle || ""} onChange={e => setEditData({ ...editData, subtitle: e.target.value })} />
+                  <label className="text-[10px] font-bold text-slate-500 ml-2 uppercase">Sous-titre
+                    / Badge</label>
+                  <input
+                      className="w-full bg-black/40 p-4 rounded-2xl border border-white/10 text-red-600 font-bold"
+                      value={editData.subtitle || ""}
+                      onChange={e => setEditData({...editData, subtitle: e.target.value})}/>
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-500 ml-2 uppercase">Description</label>
-                <textarea rows={4} className="w-full bg-black/40 p-5 rounded-2xl border border-white/10 text-sm text-gray-300" value={editData.description || ""} onChange={e => setEditData({ ...editData, description: e.target.value })} />
+                <label
+                    className="text-[10px] font-bold text-slate-500 ml-2 uppercase">Description</label>
+                <textarea rows={4}
+                          className="w-full bg-black/40 p-5 rounded-2xl border border-white/10 text-sm text-gray-300"
+                          value={editData.description || ""}
+                          onChange={e => setEditData({...editData, description: e.target.value})}/>
               </div>
             </section>
 
-            {/* TABLEAU DES EPREUVES */}
+            {/* TABLEAU DES EPREUVES (Corrigé pour la structure multi-catégories) */}
             <section className="space-y-4 bg-white/5 p-6 rounded-[2rem] border border-white/5">
               <div className="flex justify-between items-center border-b border-white/5 pb-4">
-                <h3 className="text-red-600 font-black uppercase italic text-sm flex items-center gap-2"><Trophy size={16} /> Épreuves & Tests</h3>
-                <button onClick={addEventTest} className="text-[10px] bg-red-600 px-3 py-1.5 rounded-lg font-black uppercase flex items-center gap-1 hover:scale-105 transition-transform"><Plus size={14} /> Ajouter</button>
+                <h3 className="text-red-600 font-black uppercase italic text-sm flex items-center gap-2">
+                  <Trophy size={16}/> Épreuves & Tests</h3>
+                <button onClick={addEventCategory}
+                        className="text-[10px] bg-red-600 px-3 py-1.5 rounded-lg font-black uppercase flex items-center gap-1 hover:scale-105 transition-transform">
+                  <Plus size={14}/> Nouvelle Catégorie
+                </button>
               </div>
 
-              <div className="space-y-3">
-                {(editData.events_table?.tests || []).map((test: any, idx: number) => (
-                    <div key={idx} className="flex flex-col md:flex-row gap-2 bg-black/40 p-3 rounded-xl border border-white/5 items-center">
-                      <input placeholder="Catégories (ex: JUN-H)" className="w-full md:w-32 bg-white/5 p-2 rounded text-xs text-slate-400 font-mono" value={test.sub || ""} onChange={e => updateEventTest(idx, 'sub', e.target.value)} />
-                      <input placeholder="Nom de l'épreuve" className="flex-1 bg-white/5 p-2 rounded text-xs text-white" value={test.name || ""} onChange={e => updateEventTest(idx, 'name', e.target.value)} />
-                      <input placeholder="Prix" className="w-20 bg-white/5 p-2 rounded text-xs text-green-400 font-bold text-center" value={test.price || ""} onChange={e => updateEventTest(idx, 'price', e.target.value)} />
-                      <button onClick={() => removeEventTest(idx)} className="text-white/20 hover:text-red-600 p-2"><Trash2 size={16} /></button>
+              <div className="space-y-6">
+                {editData.events_table.map((cat: any, catIdx: number) => (
+                    <div key={catIdx}
+                         className="space-y-3 p-4 bg-black/20 rounded-2xl border border-white/5">
+                      <div className="flex gap-2 items-center mb-2">
+                        <input
+                            placeholder="Nom de la catégorie (ex: Benjamins)"
+                            className="bg-transparent text-xs font-black uppercase text-red-500 outline-none flex-1"
+                            value={cat.category || ""}
+                            onChange={(e) => {
+                              const updated = [...editData.events_table];
+                              updated[catIdx].category = e.target.value;
+                              setEditData({...editData, events_table: updated});
+                            }}
+                        />
+
+                        <div className="flex items-center gap-3">
+                          <button onClick={() => addEventTest(catIdx)}
+                                  className="text-[9px] text-white/40 hover:text-white flex items-center gap-1 uppercase font-bold">
+                            <Plus size={12}/> Ajouter épreuve
+                          </button>
+
+                          {/* NOUVEAU : Bouton pour supprimer la catégorie entière */}
+                          <button
+                              onClick={() => {
+                                if (confirm("Supprimer cette catégorie et toutes ses épreuves ?")) {
+                                  const updated = [...editData.events_table];
+                                  updated.splice(catIdx, 1);
+                                  setEditData({...editData, events_table: updated});
+                                }
+                              }}
+                              className="text-white/20 hover:text-red-600 transition-colors p-1"
+                              title="Supprimer la catégorie"
+                          >
+                            <Trash2 size={16}/>
+                          </button>
+                        </div>
+                      </div>
+
+                      {cat.tests.map((test: any, testIdx: number) => (
+                          <div key={testIdx}
+                               className="flex flex-col md:flex-row gap-2 bg-black/40 p-3 rounded-xl border border-white/5 items-center">
+                            <input placeholder="Ages (ex: JUN-H)"
+                                   className="w-full md:w-32 bg-white/5 p-2 rounded text-xs text-slate-400 font-mono"
+                                   value={test.sub || ""}
+                                   onChange={e => updateEventTest(catIdx, testIdx, 'sub', e.target.value)}/>
+                            <input placeholder="Nom de l'épreuve"
+                                   className="flex-1 bg-white/5 p-2 rounded text-xs text-white"
+                                   value={test.name || ""}
+                                   onChange={e => updateEventTest(catIdx, testIdx, 'name', e.target.value)}/>
+                            <input placeholder="Prix"
+                                   className="w-20 bg-white/5 p-2 rounded text-xs text-green-400 font-bold text-center"
+                                   value={test.price || ""}
+                                   onChange={e => updateEventTest(catIdx, testIdx, 'price', e.target.value)}/>
+                            <button onClick={() => removeEventTest(catIdx, testIdx)}
+                                    className="text-white/20 hover:text-red-600 p-2"><Trash2
+                                size={16}/></button>
+                          </div>
+                      ))}
                     </div>
                 ))}
               </div>
             </section>
 
-            {/* EXTRA INFO */}
+            {/* EXTRA INFO (Corrigé : Mapping du tableau) */}
             <section className="bg-white/5 p-6 rounded-[2rem] border border-white/5 space-y-4">
-              <h3 className="text-red-600 font-black uppercase italic text-sm flex items-center gap-2 border-b border-white/5 pb-4"><Flame size={16} /> Infos Spéciales (Prize Money, etc.)</h3>
-              <input placeholder="Titre de l'encadré" className="w-full bg-black/40 p-3 rounded-xl border border-white/10 text-red-500 font-bold" value={editData.extra_info?.title || ""} onChange={e => setEditData({...editData, extra_info: {...editData.extra_info, title: e.target.value}})} />
-              <textarea placeholder="Détails" rows={2} className="w-full bg-black/40 p-3 rounded-xl border border-white/10 text-sm" value={editData.extra_info?.content || ""} onChange={e => setEditData({...editData, extra_info: {...editData.extra_info, content: e.target.value}})} />
+              <div className="flex justify-between items-center border-b border-white/5 pb-4">
+                <h3 className="text-red-600 font-black uppercase italic text-sm flex items-center gap-2">
+                  <Flame size={16}/> Infos Spéciales</h3>
+                <button onClick={addExtraInfo}
+                        className="text-[10px] text-white/40 hover:text-white uppercase font-bold">
+                  <Plus size={14}/></button>
+              </div>
+
+              {editData.extra_info.map((info: any, idx: number) => (
+                  <div key={idx}
+                       className="space-y-2 p-4 bg-black/40 rounded-xl border border-white/5 relative group">
+                    <input placeholder="Titre de l'encadré (ex: Prize Money)"
+                           className="w-full bg-transparent p-1 rounded border-b border-white/10 text-red-500 font-bold outline-none"
+                           value={info.title || ""}
+                           onChange={e => updateExtraInfo(idx, 'title', e.target.value)}/>
+                    <textarea placeholder="Détails" rows={2}
+                              className="w-full bg-transparent p-1 text-sm text-gray-400 outline-none"
+                              value={info.content || ""}
+                              onChange={e => updateExtraInfo(idx, 'content', e.target.value)}/>
+                    <button onClick={() => {
+                      const updated = [...editData.extra_info];
+                      updated.splice(idx, 1);
+                      setEditData({...editData, extra_info: updated});
+                    }}
+                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-white/20 hover:text-red-600">
+                      <Trash2 size={14}/></button>
+                  </div>
+              ))}
             </section>
           </div>
 
           {/* COLONNE DROITE : LOGISTIQUE & MEDIA */}
           <div className="space-y-6">
             <div className="bg-white/5 p-6 rounded-[2rem] border border-white/10 space-y-4">
-              <h4 className="text-[10px] font-black uppercase text-red-600 tracking-widest border-b border-red-600/20 pb-2 flex items-center gap-2"><Calendar size={14}/> Logistique</h4>
+              <h4 className="text-[10px] font-black uppercase text-red-600 tracking-widest border-b border-red-600/20 pb-2 flex items-center gap-2">
+                <Calendar size={14}/> Logistique</h4>
               <div className="space-y-4">
-                <div className="relative"><Calendar className="absolute left-3 top-3 text-red-600" size={14}/><input placeholder="Date de l'événement" className="w-full bg-black/20 pl-10 p-3 rounded-xl border border-white/5 text-sm" value={editData.event_date || ""} onChange={e => setEditData({...editData, event_date: e.target.value})} /></div>
-                <div className="relative"><MapPin className="absolute left-3 top-3 text-red-600" size={14}/><input placeholder="Lieu / Stade" className="w-full bg-black/20 pl-10 p-3 rounded-xl border border-white/5 text-sm" value={editData.location || ""} onChange={e => setEditData({...editData, location: e.target.value})} /></div>
-                <div className="relative"><LinkIcon className="absolute left-3 top-3 text-blue-500" size={14}/><input placeholder="Lien d'inscription" className="w-full bg-black/20 pl-10 p-3 rounded-xl border border-white/5 text-sm text-blue-400 font-bold" value={editData.registration_url || ""} onChange={e => setEditData({...editData, registration_url: e.target.value})} /></div>
+                <div className="relative"><Calendar className="absolute left-3 top-3 text-red-600"
+                                                    size={14}/><input
+                    placeholder="Date (ex: Samedi 24 Mai)"
+                    className="w-full bg-black/20 pl-10 p-3 rounded-xl border border-white/5 text-sm"
+                    value={editData.event_date || ""}
+                    onChange={e => setEditData({...editData, event_date: e.target.value})}/></div>
+                <div className="relative"><MapPin className="absolute left-3 top-3 text-red-600"
+                                                  size={14}/><input placeholder="Lieu / Stade"
+                                                                    className="w-full bg-black/20 pl-10 p-3 rounded-xl border border-white/5 text-sm"
+                                                                    value={editData.location || ""}
+                                                                    onChange={e => setEditData({
+                                                                      ...editData,
+                                                                      location: e.target.value
+                                                                    })}/></div>
+                {/* CHAMP LIEN D'INSCRIPTION (Le fameux registration_link) */}
+                <div className="relative">
+                  <LinkIcon className="absolute left-3 top-3 text-blue-500" size={14}/>
+                  <input
+                      placeholder="Lien d'inscription (ex: BeAthletics)"
+                      className="w-full bg-black/20 pl-10 p-3 rounded-xl border border-white/5 text-sm text-blue-400 font-bold outline-none focus:border-blue-500/50 transition-all"
+                      value={editData.registration_link || ""}
+                      onChange={e => setEditData({...editData, registration_link: e.target.value})}
+                  />
+                </div>
               </div>
 
               <div className="pt-4 border-t border-white/5">
-                <label className="w-full cursor-pointer flex flex-col items-center justify-center gap-3 p-6 rounded-2xl border-2 border-dashed border-white/10 hover:border-red-600/50 transition-all">
-                  <input type="file" onChange={handleFileUpload} className="hidden" accept="image/*" />
-                  <Upload size={20} className="text-red-600" />
+                <label
+                    className="w-full cursor-pointer flex flex-col items-center justify-center gap-3 p-6 rounded-2xl border-2 border-dashed border-white/10 hover:border-red-600/50 transition-all">
+                  <input type="file" onChange={handleFileUpload} className="hidden"
+                         accept="image/*"/>
+                  <Upload size={20} className="text-red-600"/>
                   <span className="text-[9px] font-black uppercase">Changer l'image de fond</span>
                 </label>
-                {editData.background_url && <img src={editData.background_url} className="mt-3 w-full h-24 object-cover rounded-xl opacity-40 shadow-inner border border-white/10" alt="preview" />}
+                {editData.background_url && <img src={editData.background_url}
+                                                 className="mt-3 w-full h-24 object-cover rounded-xl opacity-40 shadow-inner border border-white/10"
+                                                 alt="preview"/>}
               </div>
             </div>
 
-            {/* GALERIE PHOTO */}
+            {/* GALERIE PHOTO (Vérifié : OK) */}
             <div className="bg-white/5 p-6 rounded-[2rem] border border-white/10 space-y-4">
               <div className="flex justify-between items-center border-b border-white/5 pb-2">
-                <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2"><ImageIcon size={14}/> Albums Photos</h4>
-                <button onClick={addGalleryLink} className="p-1 text-red-600 hover:bg-red-600/10 rounded"><Plus size={16} /></button>
+                <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                  <ImageIcon size={14}/> Albums Photos</h4>
+                <button onClick={addGalleryLink}
+                        className="p-1 text-red-600 hover:bg-red-600/10 rounded"><Plus size={16}/>
+                </button>
               </div>
               <div className="space-y-3">
-                {(editData.gallery_links || []).map((link: any, idx: number) => (
-                    <div key={idx} className="bg-black/40 p-3 rounded-xl border border-white/5 space-y-2 relative group">
+                {editData.gallery_links.map((link: any, idx: number) => (
+                    <div key={idx}
+                         className="bg-black/40 p-3 rounded-xl border border-white/5 space-y-2 relative group">
                       <input placeholder="Label (Album 2024)" className="w-full bg-transparent text-[10px] font-bold uppercase text-white outline-none" value={link.label || ""} onChange={e => updateGalleryLink(idx, 'label', e.target.value)} />
                       <div className="flex gap-2">
                         <input placeholder="URL Facebook/Flickr" className="flex-1 bg-white/5 p-1.5 rounded text-[10px] text-blue-300 outline-none" value={link.url || ""} onChange={e => updateGalleryLink(idx, 'url', e.target.value)} />
@@ -294,44 +445,54 @@ const AdminForm = ({ initialData, activeId, onCancel, showNotification, onDelete
             {loading ? <Loader2 className="animate-spin" /> : <><Check size={24} /> Enregistrer et Publier</>}
           </button>
         </div>
-
-        {/* Lucide invisible render */}
-        <div className="hidden opacity-0"><Ghost /><Menu /><Euro /></div>
       </div>
   );
 };
 
 /* ============================================================
-   3. VUE PUBLIQUE (100% RESPONSIVE FIX)
+   3. VUE PUBLIQUE (CORRIGÉE & OPTIMISÉE)
    ============================================================ */
 const PublicView = memo(({ config }: any) => {
   if (!config) return null;
+
+  // Sécurité pour le split du titre
+  const titleParts = (config.title || "").split(' ');
+  const firstWord = titleParts[0];
+  const restOfTitle = titleParts.slice(1).join(' ');
 
   return (
       <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000 relative z-10 w-full overflow-hidden">
 
         {/* HERO SECTION */}
         <div className="max-w-6xl mx-auto mb-16 px-4 md:px-0">
-          <div className="inline-flex items-center gap-3 px-4 py-2 bg-red-600 text-[10px] font-black uppercase tracking-[0.3em] mb-6 shadow-2xl skew-x-[-10deg]">
+          <div
+              className="inline-flex items-center gap-3 px-4 py-2 bg-red-600 text-[10px] font-black uppercase tracking-[0.3em] mb-6 shadow-2xl skew-x-[-10deg]">
              <span className="skew-x-[10deg] flex items-center gap-2 text-white">
-                <Flame size={12} fill="currentColor"/> {config.competition_type || "Événement"}
+                <Flame size={12}
+                       fill="currentColor"/> {config.competition_type === 'night' ? 'Meeting Night' : (config.competition_type || "Événement")}
              </span>
           </div>
 
-          {/* TITRE RESPONSIVE : break-words pour éviter le débordement */}
-          <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-[9rem] font-black italic uppercase leading-[0.85] tracking-tighter mb-8 drop-shadow-2xl break-words hyphens-auto">
-            <span className="text-white block">{config.title.split(' ')[0]}</span>
-            <span className="text-red-600 block">{config.title.split(' ').slice(1).join(' ')}</span>
+          <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-[9rem] font-black italic uppercase leading-[0.85] tracking-tighter mb-8 drop-shadow-2xl break-words">
+            <span className="text-white block">{firstWord}</span>
+            {restOfTitle && <span className="text-red-600 block">{restOfTitle}</span>}
           </h1>
 
           <div className="flex flex-col md:flex-row md:items-center gap-8 mt-12">
             <p className="text-xl md:text-3xl font-black italic text-white max-w-2xl uppercase border-l-4 md:border-l-8 border-red-600 pl-6 py-2">
               {config.subtitle}
             </p>
-            {config.registration_url && config.competition_type !== 'Annonce' && (
-                <a href={config.registration_url} target="_blank" rel="noopener noreferrer"
-                   className="w-full md:w-auto text-center group bg-white text-black px-10 py-5 rounded-full font-black italic uppercase text-lg hover:bg-red-600 hover:text-white transition-all shadow-2xl flex items-center justify-center gap-3">
-                  S'inscrire <ChevronRight size={20}/>
+
+            {/* CORRECTION : On utilise registration_link (et pas registration_url) */}
+            {config.registration_link && config.competition_type !== 'Annonce' && (
+                <a
+                    href={config.registration_link.startsWith('http') ? config.registration_link : `https://${config.registration_link}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative z-50 w-full md:w-auto text-center group bg-white text-black px-10 py-5 rounded-full font-black italic uppercase text-lg hover:bg-red-600 hover:text-white transition-all shadow-2xl flex items-center justify-center gap-3 active:scale-95 cursor-pointer"
+                >
+                  S'inscrire <ChevronRight size={20}
+                                           className="group-hover:translate-x-1 transition-transform"/>
                 </a>
             )}
           </div>
@@ -339,22 +500,27 @@ const PublicView = memo(({ config }: any) => {
 
         {/* CARTES INFO */}
         {config.competition_type !== "Annonce" && (
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mb-24 px-4 md:px-0">
+            <div
+                className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mb-24 px-4 md:px-0">
               {[
-                { icon: Calendar, label: "Date", val: config.event_date },
-                { icon: MapPin, label: "Lieu", val: config.location },
-                { icon: Euro, label: "Tarif", val: `Dès ${config.events_table?.[0]?.tests?.[0]?.price || "6"}€` }
+                {icon: Calendar, label: "Date", val: config.event_date},
+                {icon: MapPin, label: "Lieu", val: config.location},
+                {
+                  icon: Euro,
+                  label: "Tarif",
+                  val: `Dès ${config.events_table?.[0]?.tests?.[0]?.price || "6"}€`
+                }
               ].map((item, i) => (
-                  <div key={i} className="bg-white/5 backdrop-blur-2xl p-6 md:p-8 rounded-[2rem] border border-white/10">
-                    <item.icon className="text-red-600 mb-4" size={32} />
+                  <div key={i}
+                       className="bg-white/5 backdrop-blur-2xl p-6 md:p-8 rounded-[2rem] border border-white/10">
+                    <item.icon className="text-red-600 mb-4" size={32}/>
                     <h3 className="font-black uppercase text-[10px] text-red-600 mb-1 tracking-widest">{item.label}</h3>
-                    <p className="text-xl md:text-2xl font-black italic uppercase text-white leading-none break-words">{item.val}</p>
+                    <p className="text-xl md:text-2xl font-black italic uppercase text-white leading-none break-words">{item.val || "TBA"}</p>
                   </div>
               ))}
             </div>
         )}
 
-        {/* CONTENT GRID */}
         <div className="grid lg:grid-cols-12 gap-12 items-start px-4 md:px-0">
 
           {/* TEXTE & DESCRIPTION */}
@@ -365,11 +531,11 @@ const PublicView = memo(({ config }: any) => {
                 <h2 className="text-3xl md:text-4xl font-black italic uppercase tracking-tighter text-white">L'événement</h2>
               </div>
               <p className="text-gray-300 leading-relaxed text-lg font-medium italic whitespace-pre-line">
-                {config.description || "Aucune description disponible."}
+                {config.description || "Aucune description disponible pour le moment."}
               </p>
             </div>
 
-            {/* INFO CARDS */}
+            {/* INFO CARDS (Extra Info Array) */}
             {config.extra_info?.map((info: any, idx: number) => (
                 <div key={idx} className="bg-white/5 border-l-4 border-red-600 p-6 rounded-r-3xl">
                   <h4 className="text-xs font-black uppercase text-white tracking-widest mb-2 flex items-center gap-2">
@@ -379,11 +545,12 @@ const PublicView = memo(({ config }: any) => {
                 </div>
             ))}
 
-            {/* GALERIE */}
+            {/* GALERIE (Gallery Links Array) */}
             {config.gallery_links?.length > 0 && (
                 <div className="grid grid-cols-1 gap-3 pt-6">
+                  <h3 className="text-white font-black uppercase italic text-sm mb-2">Albums Photos</h3>
                   {config.gallery_links.map((link: any, idx: number) => (
-                      <a key={idx} href={link.url} target="_blank" className="flex items-center justify-between bg-white/5 hover:bg-red-600 p-5 rounded-2xl transition-all group border border-white/10">
+                      <a key={idx} href={link.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between bg-white/5 hover:bg-red-600 p-5 rounded-2xl transition-all group border border-white/10">
                         <span className="font-bold italic uppercase text-sm text-white">{link.label}</span>
                         <ExternalLink size={16} className="text-white opacity-50 group-hover:opacity-100" />
                       </a>
@@ -392,28 +559,28 @@ const PublicView = memo(({ config }: any) => {
             )}
           </div>
 
-          {/* TABLEAU PROGRAMME (RESPONSIVE FIX) */}
-          {config.competition_type !== "Annonce" && (
+          {/* PROGRAMME (Events Table Array) */}
+          {config.competition_type !== "Annonce" && config.events_table?.length > 0 && (
               <div className="lg:col-span-7">
                 <div className="bg-[#111] rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl">
                   <div className="bg-gradient-to-r from-red-600 to-red-800 px-8 py-6 flex items-center gap-4">
                     <Clock size={24} className="text-white" />
-                    <h3 className="font-black uppercase italic text-xl text-white">Programme</h3>
+                    <h3 className="font-black uppercase italic text-xl text-white">Programme des épreuves</h3>
                   </div>
 
                   <div className="p-4 md:p-6 space-y-4">
-                    {config.events_table?.map((cat: any, i: number) => (
+                    {/* AJOUT : .filter() pour cacher les catégories vides créées par erreur */}
+                    {config.events_table
+                    .filter((cat: any) => cat.category || (cat.tests && cat.tests.length > 0))
+                    .map((cat: any, i: number) => (
                         <div key={i} className="flex flex-col sm:flex-row gap-4 bg-white/5 rounded-[2rem] p-6 border border-white/5">
-
-                          {/* Colonne Gauche : Catégorie */}
                           <div className="sm:w-32 shrink-0 flex items-center sm:items-start gap-3">
                             <div className="p-2 bg-red-600/20 text-red-600 rounded-lg"><Users size={18}/></div>
-                            <span className="font-black italic text-sm text-white uppercase">{cat.category}</span>
+                            <span className="font-black italic text-sm text-white uppercase break-words">{cat.category || "Nouvelle Catégorie"}</span>
                           </div>
 
-                          {/* Colonne Droite : Liste Epreuves */}
                           <div className="flex-1 space-y-4">
-                            {cat.tests.map((test: any, j: number) => (
+                            {cat.tests?.map((test: any, j: number) => (
                                 <div key={j} className="flex flex-col border-l-2 border-white/10 pl-4">
                                   <span className="text-[10px] uppercase font-black text-red-600 tracking-widest">{test.name}</span>
                                   <span className="text-base font-bold text-white italic">{test.sub}</span>
@@ -421,10 +588,9 @@ const PublicView = memo(({ config }: any) => {
                             ))}
                           </div>
 
-                          {/* Prix Mobile */}
-                          <div className="mt-4 sm:mt-0 pt-4 sm:pt-0 sm:pl-4 border-t sm:border-t-0 sm:border-l border-white/10 flex sm:flex-col justify-between items-center sm:justify-center">
+                          <div className="mt-4 sm:mt-0 pt-4 sm:pt-0 sm:pl-4 border-t sm:border-t-0 sm:border-l border-white/10 flex sm:flex-col justify-between items-center sm:justify-center min-w-[60px]">
                             <span className="text-[9px] font-black uppercase text-white/40">Prix</span>
-                            <span className="font-black italic text-red-600 text-2xl">{cat.tests[0]?.price}€</span>
+                            <span className="font-black italic text-red-600 text-2xl">{cat.tests?.[0]?.price || "6"}€</span>
                           </div>
                         </div>
                     ))}
@@ -438,7 +604,7 @@ const PublicView = memo(({ config }: any) => {
 });
 
 /* ============================================================
-   4. PAGE PRINCIPALE (NAVIGATION PAR URL + SUSPENSE)
+   4. PAGE PRINCIPALE (LOGIQUE DE NAVIGATION)
    ============================================================ */
 function SpeedNightContent() {
   const searchParams = useSearchParams();
@@ -457,7 +623,6 @@ function SpeedNightContent() {
     setTimeout(() => setToast(prev => ({ ...prev, show: false })), 4000);
   };
 
-  // 1. Initialisation
   useEffect(() => {
     const init = async () => {
       setLoadingConfig(true);
@@ -470,15 +635,13 @@ function SpeedNightContent() {
       }
       setIsAdmin(adminStatus);
 
+      // Fetch de la liste pour la navigation
       const { data, error } = await supabase.from('competition_config').select('id, title, hidden').order('id', { ascending: true });
       if (!error && data) {
         setAllEvents(data);
-        // Si pas d'ID dans l'URL, on redirige vers le premier event valide
         if (!activeIdFromUrl && data.length > 0) {
           const defaultEvent = adminStatus ? data[0] : data.find(e => !e.hidden);
-          if (defaultEvent) {
-            router.replace(`?id=${defaultEvent.id}`);
-          }
+          if (defaultEvent) router.replace(`?id=${defaultEvent.id}`);
         }
       }
       setLoadingConfig(false);
@@ -486,13 +649,11 @@ function SpeedNightContent() {
     init();
   }, [activeIdFromUrl, router]);
 
-  // 2. Fetch Event Data quand l'URL change
   useEffect(() => {
     if (activeIdFromUrl) {
       const fetchSelected = async () => {
         const { data } = await supabase.from('competition_config').select('*').eq('id', activeIdFromUrl).single();
         if (data) {
-          // Sécurité visibilité
           if (data.hidden && !isAdmin) {
             setConfig(null);
           } else {
@@ -510,19 +671,29 @@ function SpeedNightContent() {
   }, [activeIdFromUrl, isAdmin]);
 
   const handleAddNewEvent = async () => {
-    // (Logique de création identique...)
-    const newEvent = { title: "Nouvel événement", competition_type: "Compétition", hidden: true };
-    const { data } = await supabase.from('competition_config').insert([newEvent]).select();
-    if (data && data[0]) {
-      showNotification("Créé !");
-      router.push(`?id=${data[0].id}`); // Redirection URL
+    // Correction des colonnes pour l'insert
+    const newEvent = {
+      title: "Nouvel événement",
+      competition_type: "Compétition",
+      hidden: true,
+      events_table: [],
+      extra_info: [],
+      gallery_links: []
+    };
+    const { data, error } = await supabase.from('competition_config').insert([newEvent]).select();
+    if (!error && data?.[0]) {
+      showNotification("Nouvel événement créé ! ✨");
+      router.push(`?id=${data[0].id}`);
+      setIsEditing(true);
     }
   };
 
   const handleDelete = async (id: number) => {
-    if(!confirm("Supprimer ?")) return;
-    await supabase.from('competition_config').delete().eq('id', id);
-    window.location.href = window.location.pathname; // Reload simple
+    if(!confirm("Êtes-vous sûr de vouloir supprimer cet événement ?")) return;
+    const { error } = await supabase.from('competition_config').delete().eq('id', id);
+    if (!error) {
+      window.location.href = window.location.pathname;
+    }
   };
 
   if (loadingConfig) return <div className="min-h-screen bg-black flex items-center justify-center"><Loader2 className="animate-spin text-red-600" size={40} /></div>;
@@ -532,7 +703,7 @@ function SpeedNightContent() {
   return (
       <div className={`min-h-screen relative text-white selection:bg-red-600 overflow-x-hidden ${config ? 'bg-[#050505]' : 'bg-black'}`}>
 
-        {/* BACKGROUND */}
+        {/* BACKGROUND DYNAMIQUE */}
         {config && (
             <div className="fixed inset-0 z-0 bg-black pointer-events-none">
               {config.background_url ? (
@@ -547,7 +718,7 @@ function SpeedNightContent() {
 
         <main className="relative z-10 container mx-auto px-4 pt-24 pb-32 min-h-screen">
 
-          {/* NAVIGATION TABS (Mobile Scrollable) */}
+          {/* NAVIGATION TABS */}
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-12">
             <div className="w-full md:w-auto overflow-x-auto pb-4 md:pb-0 no-scrollbar">
               <div className="flex gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/10 backdrop-blur-xl w-max">
@@ -560,7 +731,7 @@ function SpeedNightContent() {
                     </button>
                 ))}
                 {isAdmin && (
-                    <button onClick={handleAddNewEvent} className="px-4 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all"><Plus size={16}/></button>
+                    <button onClick={handleAddNewEvent} className="px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all"><Plus size={16}/></button>
                 )}
               </div>
             </div>
@@ -578,7 +749,7 @@ function SpeedNightContent() {
               config ? <PublicView config={config}/> : (
                   <div className="flex flex-col items-center justify-center py-32 opacity-30">
                     <Ghost size={64} className="mb-4" />
-                    <p className="font-black italic uppercase text-xl">Aucun événement</p>
+                    <p className="font-black italic uppercase text-xl">Aucun événement à afficher</p>
                   </div>
               )
           )}
@@ -588,7 +759,7 @@ function SpeedNightContent() {
   );
 }
 
-// WRAPPER SUSPENSE OBLIGATOIRE
+// EXPORT FINAL AVEC SUSPENSE
 export default function SpeedNightPage() {
   return (
       <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center"><Loader2 className="animate-spin text-red-600"/></div>}>
