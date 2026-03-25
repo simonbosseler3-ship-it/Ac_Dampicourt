@@ -35,18 +35,18 @@ const Toast = ({ show, message, type, onClose }: any) => (
 const AdminForm = ({ initialData, activeId, onCancel, showNotification, onDelete }: any) => {
   // 1. Initialisation corrigée pour correspondre STRICTEMENT à ta DB PostgreSQL
   const [editData, setEditData] = useState<any>({
-    title: "",            // Corrigé (était tittle)
+    title: "",
     subtitle: "",
     description: "",
     event_date: "",
     location: "",
     background_url: "",
     competition_type: "night",
-    registration_link: "", // Corrigé (était registration_url)
+    registration_link: "",
     hidden: false,
-    gallery_links: [],    // Tableau []
-    extra_info: [],       // Tableau [] (Corrigé, était {})
-    events_table: []      // Tableau [] (Corrigé, était {})
+    gallery_links: [],
+    extra_info: [],
+    events_table: []
   });
 
   const [loading, setLoading] = useState(false);
