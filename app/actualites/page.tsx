@@ -6,6 +6,7 @@ import { useAuth } from "@/app/context/authContext";
 import { AdminActions } from "@/components/admin/adminAction";
 import Link from "next/link";
 import { User, EyeOff, Calendar, Heart, Loader2 } from "lucide-react";
+import * as React from "react";
 
 interface NewsItem {
   id: string;
@@ -30,14 +31,6 @@ export default function ActualitesPage() {
   const isAdmin = role === 'admin';
   const canManage = isAdmin || role === 'redacteur';
 
-  // Petite fonction pour supprimer les balises HTML uniquement pour l'aperçu dans les cartes
-  // Cela évite d'avoir des titres H2 ou des puces qui dépassent de la carte
-  const stripHtml = (html: string) => {
-    const tmp = document.createElement("DIV");
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || "";
-  };
-
   const handleImageLoad = (id: string, event: React.SyntheticEvent<HTMLImageElement>) => {
     const { naturalWidth, naturalHeight } = event.currentTarget;
     const position = naturalHeight > naturalWidth ? "center 35%" : "center center";
@@ -46,10 +39,11 @@ export default function ActualitesPage() {
 
   const fetchNewsData = useCallback(async () => {
     try {
+      // MODIFICATION ICI : On récupère les profils qui sont soit admin soit redacteur
       const { data: redacData } = await supabase
       .from('profiles')
       .select('full_name')
-      .eq('role', 'redacteur')
+      .in('role', ['admin', 'redacteur'])
       .order('full_name');
 
       if (redacData) setRedacteurs(redacData);
@@ -101,15 +95,14 @@ export default function ActualitesPage() {
 
   return (
       <div className="min-h-screen">
-        {/* CSS pour gérer l'affichage propre des textes HTML dans les cartes si besoin */}
         <style dangerouslySetInnerHTML={{ __html: `
-          .line-clamp-html {
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;  
-            overflow: hidden;
-          }
-        `}} />
+        .line-clamp-html {
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;  
+          overflow: hidden;
+        }
+      `}} />
 
         <main className="container mx-auto px-4 py-12 pt-24">
 
@@ -129,7 +122,7 @@ export default function ActualitesPage() {
               <span className="text-red-600 font-black uppercase italic text-[10px] tracking-[0.3em]">Le Flux</span>
             </div>
             <h1 className="text-5xl md:text-7xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">
-              Toute l'actualité <span className="text-red-600 text-stroke-sm">ACD</span>
+              Toute l'actualité <span className="text-red-600">ACD</span>
             </h1>
           </div>
 
@@ -174,12 +167,10 @@ export default function ActualitesPage() {
                               {item.title}
                             </h2>
 
-                            {/* --- ICI : LA CORRECTION POUR LE CONTENU --- */}
                             <div
                                 className="text-slate-500 text-sm leading-relaxed mb-8 font-medium line-clamp-3"
                                 dangerouslySetInnerHTML={{ __html: item.content }}
                             />
-                            {/* ------------------------------------------ */}
 
                             <div className="mt-auto pt-6 border-t border-slate-50 flex items-center justify-between">
                               <div className="flex items-center gap-3">
@@ -187,18 +178,18 @@ export default function ActualitesPage() {
                                   <User size={14} />
                                 </div>
                                 <span className="text-[10px] font-black uppercase italic tracking-tighter text-slate-900">
-                                  {item.author?.full_name || "ACD Staff"}
-                                </span>
+                            {item.author?.full_name || "ACD Staff"}
+                          </span>
                               </div>
 
                               <div className="flex items-center gap-2 text-slate-400">
                                 <Calendar size={14} className="text-red-600" />
                                 <span className="text-[10px] font-black uppercase italic tracking-tighter">
-                                  {new Date(item.date_text).toLocaleDateString('fr-FR', {
-                                    day: '2-digit',
-                                    month: 'short'
-                                  }).toUpperCase()}
-                                </span>
+                            {new Date(item.date_text).toLocaleDateString('fr-FR', {
+                              day: '2-digit',
+                              month: 'short'
+                            }).toUpperCase()}
+                          </span>
                               </div>
                             </div>
                           </div>
@@ -214,18 +205,18 @@ export default function ActualitesPage() {
           )}
 
           {redacteurs.length > 0 && (
-              <footer className="mt-32 pt-12 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-8 px-4">
+              <footer className="mt-32 pt-12 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-8 px-4 mb-12">
                 <div className="flex items-center gap-4">
-                  <div className="bg-red-600 p-2 rounded-xl shadow-lg">
-                    <Heart size={16} className="text-white" />
+                  <div className="bg-red-600 p-2.5 rounded-xl shadow-lg shadow-red-200">
+                    <Heart size={16} className="text-white fill-current" />
                   </div>
                   <span className="text-[10px] font-black uppercase tracking-[0.3em] italic text-slate-400">Équipe de rédaction</span>
                 </div>
-                <div className="flex flex-wrap justify-center md:justify-end gap-x-8 gap-y-3">
+                <div className="flex flex-wrap justify-center md:justify-end items-center gap-x-6 gap-y-3">
                   {redacteurs.map((redac, idx) => (
                       <span key={idx} className="text-[11px] font-black text-slate-900 uppercase italic tracking-tighter hover:text-red-600 transition-colors">
-                        {redac.full_name}
-                      </span>
+                  {redac.full_name}
+                </span>
                   ))}
                 </div>
               </footer>
