@@ -20,32 +20,22 @@ import { TutorialOverlay } from "@/components/tutorial/tutorial";
 export default function Home() {
   const { user, profile } = useAuth();
   const [news, setNews] = useState<any[]>([]);
-  const [latestEvent, setLatestEvent] = useState<any>(null);
   const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
     async function fetchHomeData() {
       try {
-        const newsPromise = supabase
+        // On ne récupère plus que les actualités pour le carousel
+        const { data, error } = await supabase
         .from('news')
         .select('*')
         .eq('is_hidden', false)
         .order('date_text', { ascending: false })
         .limit(3);
 
-        const eventPromise = supabase
-        .from('competition_config')
-        .select('title')
-        .neq('hidden', true)
-        .order('updated_at', { ascending: false })
-        .limit(1);
+        if (error) throw error;
+        if (data) setNews(data);
 
-        const [newsRes, eventRes] = await Promise.all([newsPromise, eventPromise]);
-
-        if (newsRes.data) setNews(newsRes.data);
-        if (eventRes.data && eventRes.data.length > 0) {
-          setLatestEvent(eventRes.data[0]);
-        }
       } catch (err) {
         console.error("Erreur accueil:", err);
       } finally {
@@ -120,6 +110,7 @@ export default function Home() {
             </div>
           </Link>
 
+          {/* ENCADRÉ MIS À JOUR : NOS ÉVÉNEMENTS */}
           <Link href="/speed-night" prefetch={false} className="group relative h-48 rounded-[2.5rem] bg-white/80 backdrop-blur-sm border-2 border-slate-100 hover:border-red-600 overflow-hidden transition-all duration-500 hover:shadow-2xl">
             <div className="absolute inset-0 bg-red-600 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0"></div>
             <div className="absolute -top-6 -right-6 text-slate-200 group-hover:text-red-700 z-0 group-hover:scale-125 group-hover:-rotate-12 transition-transform origin-top-right">
@@ -135,11 +126,11 @@ export default function Home() {
                 </div>
               </div>
               <div>
-                <h3 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter group-hover:text-white transition-colors line-clamp-1">
-                  {latestEvent ? latestEvent.title : "Événement"}
+                <h3 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter group-hover:text-white transition-colors">
+                  Nos événements
                 </h3>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 group-hover:text-red-200 mt-1">
-                  {latestEvent ? "Événement Majeur" : "Bientôt de retour"}
+                  Meetings & Speed Night/Race
                 </p>
               </div>
             </div>
@@ -158,7 +149,7 @@ export default function Home() {
                   <HelpCircle className="text-white" size={32} />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-black uppercase italic tracking-tighter text-slate-900">Une question ? <br/><span className="text-red-600">Le Forum</span></h2>
+                  <h2 className="text-2xl font-black uppercase italic tracking-tighter text-slate-900">Une question ? <br /><span className="text-red-600">Le Forum</span></h2>
                   <p className="text-slate-500 font-medium text-sm mt-1">Besoin d'aide ou d'infos ?</p>
                 </div>
               </div>

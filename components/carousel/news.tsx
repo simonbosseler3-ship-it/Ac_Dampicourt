@@ -4,7 +4,6 @@ import * as React from "react";
 import Autoplay from "embla-carousel-autoplay";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Link from "next/link";
-import Image from "next/image"; // Importation pour plus de stabilité
 import { useTheme } from "@/components/theme/ThemeContext";
 import { useEffect, useState } from "react";
 

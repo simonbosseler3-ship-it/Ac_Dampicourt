@@ -69,7 +69,6 @@ export default function SondagesPage() {
     initSondages();
   }, []);
 
-  // REALTIME CONFIGURATION
   useEffect(() => {
     const channel = supabase.channel('realtime-feedback')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'poll_messages' }, (payload) => {
@@ -191,29 +190,21 @@ export default function SondagesPage() {
     }
   };
 
-  // --- ACTIONS DE SUPPRESSION AVEC FIX ---
   const triggerDeleteMessage = (msgId: string, pollId: string) => {
     setConfirmModal({
       isOpen: true,
       title: "Supprimer l'encouragement ?",
       message: "Cette action est irréversible et le message disparaîtra pour tout le monde.",
       onConfirm: async () => {
-        // 1. Fermer la modal immédiatement
         setConfirmModal(prev => ({ ...prev, isOpen: false }));
-
-        // 2. Suppression locale (Optimiste)
         const previousMessages = { ...messages };
         setMessages(prev => ({
           ...prev,
           [pollId]: prev[pollId].filter(m => m.id !== msgId)
         }));
-
-        // 3. Suppression réelle en BDD
         const { error } = await supabase.from('poll_messages').delete().eq('id', msgId);
-
         if (error) {
           console.error("Erreur suppression:", error.message);
-          // 4. Si ça échoue (ex: RLS), on remet l'état précédent
           setMessages(previousMessages);
           alert("Erreur : Vous n'avez probablement pas les droits pour supprimer ce message.");
         }
@@ -229,7 +220,6 @@ export default function SondagesPage() {
       onConfirm: async () => {
         setConfirmModal(prev => ({ ...prev, isOpen: false }));
         const { error } = await supabase.from('polls').delete().eq('id', pollId);
-
         if (error) {
           console.error("Erreur suppression module:", error.message);
           alert("Impossible de supprimer le module.");
@@ -276,25 +266,31 @@ export default function SondagesPage() {
       <div className="min-h-screen">
         <main className="container mx-auto px-6 pt-32 pb-24 max-w-7xl animate-in fade-in duration-1000">
 
-          {/* HEADER */}
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
-            <div className="max-w-2xl">
+          {/* HEADER AVEC CORRECTION POUR MOBILE */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6">
+            <div className="w-full"> {/* On force la largeur pleine pour le conteneur du titre */}
               <div className="flex items-center gap-2 mb-4">
                 <span className="h-1 w-8 bg-red-600 rounded-full"></span>
                 <p className="text-red-600 font-black uppercase italic tracking-widest text-[10px]">Interactivité Club</p>
               </div>
-              <h1 className="text-6xl md:text-8xl font-black text-slate-900 uppercase italic tracking-tighter leading-[0.85]">
-                VOTES <span className="text-red-600">&</span><br />ENCOURAGEMENTS
+              <h1 className="text-[clamp(2.2rem,10vw,5.5rem)] md:text-8xl font-black text-slate-900 uppercase italic tracking-tighter leading-[0.9] md:leading-[0.85]">
+                VOTES <span className="text-red-600">&</span><br />
+                ENCOURAGEMENTS
               </h1>
             </div>
+
             {canManage && (
-                <button onClick={() => setIsModalOpen(true)} className="bg-slate-900 text-white px-8 py-5 rounded-2xl font-black hover:bg-red-600 transition-all text-[11px] uppercase italic shadow-xl flex items-center gap-3 active:scale-95">
-                  <Plus size={18} /> Créer un module
-                </button>
+                <div className="w-full md:w-auto flex justify-start md:justify-end mt-4 md:mt-0">
+                  <button
+                      onClick={() => setIsModalOpen(true)}
+                      className="bg-slate-900 text-white px-8 py-5 rounded-2xl font-black hover:bg-red-600 transition-all text-[11px] uppercase italic shadow-xl flex items-center gap-3 active:scale-95 whitespace-nowrap"
+                  >
+                    <Plus size={18} /> Créer un module
+                  </button>
+                </div>
             )}
           </div>
 
-          {/* MASONRY GRID */}
           <div className="columns-1 lg:columns-2 gap-8 space-y-8">
             {polls.map((poll) => {
               const totalVotes = poll.options.reduce((sum, opt) => sum + (opt.votes_count || 0), 0);
@@ -343,9 +339,9 @@ export default function SondagesPage() {
                                     </div>
                                   </div>
                               ) : (
-                                  <button key={option.id} onClick={() => handleVote(poll.id, option.id)} className="w-full flex justify-between items-center p-5 rounded-2xl border-2 border-slate-50 bg-slate-50 hover:border-red-600 hover:bg-red-50 transition-all font-black uppercase italic text-slate-700 text-xs">
+                                  <button key={option.id} onClick={() => handleVote(poll.id, option.id)} className="w-full flex justify-between items-center p-5 rounded-2xl border-2 border-slate-50 bg-slate-50 hover:border-red-600 hover:bg-red-50 transition-all font-black uppercase italic text-slate-700 text-xs text-left">
                                     {option.text}
-                                    <ChevronRight size={16} className="text-red-600" />
+                                    <ChevronRight size={16} className="text-red-600 shrink-0" />
                                   </button>
                               );
                             })}
@@ -477,6 +473,14 @@ export default function SondagesPage() {
         )}
 
         <style jsx global>{`
+          /* INTERDICTION DES COUPURES DE MOTS DANS TOUTE LA PAGE */
+          h1, h2, h3, p, button, input {
+            hyphens: none !important;
+            -webkit-hyphens: none !important;
+            word-break: normal !important;
+            overflow-wrap: normal !important;
+          }
+
           .custom-scrollbar::-webkit-scrollbar { width: 4px; }
           .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
 

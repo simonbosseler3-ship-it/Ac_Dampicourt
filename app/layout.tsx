@@ -6,6 +6,8 @@ import { Footer } from "@/components/footer/footer";
 import { AuthProvider } from "@/app/context/authContext";
 import { ThemeProvider } from "@/components/theme/ThemeContext";
 import { GlobalDecorations } from "@/components/theme/Decorations";
+// 1. On importe le composant Script de Next.js
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -77,6 +79,39 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
         </ThemeProvider>
       </AuthProvider>
+
+      {/* --- CODE STATCOUNTER POUR LE PRÉSIDENT --- */}
+      {/* On initialise les variables demandées */}
+      <Script id="statcounter-config" strategy="afterInteractive">
+        {`
+            window.sc_project=10123984;
+            window.sc_invisible=0;
+            window.sc_security="0e164904";
+            window.sc_text=5;
+          `}
+      </Script>
+
+      {/* On charge le script de tracking externe */}
+      <Script
+          src="https://statcounter.com/counter/counter.js"
+          strategy="afterInteractive"
+      />
+
+      {/* Image de secours si l'utilisateur n'a pas JS */}
+      <noscript>
+        <div className="statcounter">
+          <a title="web stats" href="https://statcounter.com/" target="_blank" rel="noopener noreferrer">
+            <img
+                className="statcounter"
+                src="https://c.statcounter.com/10123984/0/0e164904/0/"
+                alt="web stats"
+                referrerPolicy="no-referrer-when-downgrade"
+            />
+          </a>
+        </div>
+      </noscript>
+      {/* --- FIN DU CODE STATCOUNTER --- */}
+
       </body>
       </html>
   );

@@ -57,15 +57,19 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
           html, body { overflow-x: hidden; width: 100%; }
           
           .prose-custom {
-            word-break: normal;
-            overflow-wrap: break-word;
-          }
-          
-          /* Règle stricte pour les tirets et les mots */
-          .prose-custom p, .prose-custom h2, .prose-custom li {
+            /* ON DESACTIVE TOUTES LES COUPURES AUTOMATIQUES */
             hyphens: none !important;
             -webkit-hyphens: none !important;
-            overflow-wrap: anywhere;
+            -moz-hyphens: none !important;
+            
+            /* On force le mot à rester entier */
+            word-break: normal !important; 
+            
+            /* On autorise le passage à la ligne seulement si le mot entier ne tient pas */
+            overflow-wrap: break-word; 
+            
+            text-align: left;
+            color: #334155;
           }
 
           .prose-custom h2 { 
@@ -76,20 +80,21 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
             color: #dc2626;
             margin-top: 3.5rem; 
             margin-bottom: 1.5rem;
-            line-height: 1; 
+            line-height: 1.1; 
             letter-spacing: -0.05em;
+            /* Pas de coupure sur les titres non plus */
+            word-break: normal;
           }
 
           .prose-custom p { 
             margin-bottom: 1.75rem; 
-            line-height: 1.8; 
-            color: #334155; 
-            font-size: clamp(1.125rem, 2vw, 1.25rem);
+            line-height: 1.7; 
+            font-size: clamp(1.05rem, 2vw, 1.15rem);
           }
 
           .prose-custom b, .prose-custom strong { font-weight: 800; color: #000; }
           .prose-custom ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 2rem; }
-          .prose-custom li { margin-bottom: 0.75rem; color: #334155; }
+          .prose-custom li { margin-bottom: 0.75rem; }
           .prose-custom a { color: #dc2626; text-decoration: underline; font-weight: bold; }
           
           .img-hd {
@@ -130,7 +135,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
 
           {/* TITRE PRINCIPAL */}
           <div className="max-w-4xl mx-auto mb-16">
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black uppercase italic leading-[0.85] tracking-tighter text-slate-900">
+            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black uppercase italic leading-[0.95] tracking-tighter text-slate-900">
               {article.title}
             </h1>
           </div>
@@ -154,7 +159,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
               )}
             </div>
 
-            {/* BLOC DOCUMENT (DESIGN ÉPURÉ) */}
+            {/* BLOC DOCUMENT */}
             {article.schedule_url && (
                 <div className="bg-slate-900 text-white rounded-[2.5rem] p-8 md:p-12 mb-24 flex flex-col md:flex-row items-center justify-between gap-8 transition-all hover:ring-8 hover:ring-red-600/5">
                   <div className="flex items-center gap-6">
