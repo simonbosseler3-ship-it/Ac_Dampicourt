@@ -4,7 +4,7 @@ import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/app/context/authContext";
-import { Loader2, Edit2, FileText, Download, ArrowLeft, Calendar } from "lucide-react";
+import { Loader2, Edit2, FileText, Download, ArrowLeft, Calendar, Facebook } from "lucide-react";
 import Link from "next/link";
 
 export default function ArticlePage({ params }: { params: Promise<{ id: string }> }) {
@@ -175,6 +175,27 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
                   <a href={article.schedule_url} target="_blank" rel="noopener noreferrer" className="w-full md:w-auto">
                     <button className="w-full flex items-center justify-center gap-3 bg-white text-slate-900 px-10 py-5 rounded-2xl font-black uppercase italic hover:bg-red-600 hover:text-white transition-all">
                       <Download size={20}/> Consulter
+                    </button>
+                  </a>
+                </div>
+            )}
+
+            {/* BLOC LIEN FACEBOOK */}
+            {article.facebook_url && (
+                <div className="bg-[#1877F2] text-white rounded-[2.5rem] p-8 md:p-12 mb-12 flex flex-col md:flex-row items-center justify-between gap-8 transition-all hover:ring-8 hover:ring-[#1877F2]/10">
+                  <div className="flex items-center gap-6">
+                    <div className="bg-white p-5 rounded-2xl shadow-lg">
+                      <Facebook size={32} className="text-[#1877F2]"/>
+                    </div>
+                    <div>
+                      <h3 className="font-black uppercase italic text-2xl leading-none">Lien Facebook</h3>
+                      <p className="text-[10px] text-blue-100 font-bold uppercase italic tracking-widest mt-2">Plus d'infos sur les réseaux</p>
+                    </div>
+                  </div>
+
+                  <a href={article.facebook_url} target="_blank" rel="noopener noreferrer" className="w-full md:w-auto">
+                    <button className="w-full flex items-center justify-center gap-3 bg-white text-[#1877F2] px-10 py-5 rounded-2xl font-black uppercase italic hover:bg-slate-900 hover:text-white transition-all">
+                      Rejoindre la page
                     </button>
                   </a>
                 </div>
