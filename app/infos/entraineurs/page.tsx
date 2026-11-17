@@ -1,5 +1,6 @@
 "use client";
 
+import { PageHero } from "@/components/layout/PageHero";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/app/context/authContext";
@@ -48,33 +49,21 @@ export default function EntraineursPage() {
 
   return (
       <div className="min-h-screen">
-        <main className="container mx-auto px-4 py-12 pt-32 pb-24 animate-in fade-in duration-700">
-
-          {/* HEADER SECTION */}
-          <div className="flex flex-col lg:flex-row justify-between items-end mb-20 gap-8">
-            <div className="max-w-2xl">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="h-[2px] w-10 bg-red-600"></span>
-                <span className="text-red-600 font-black uppercase italic tracking-[0.3em] text-[10px]">Staff Technique</span>
-              </div>
-              <h1 className="text-6xl md:text-8xl font-black text-slate-900 uppercase italic tracking-tighter leading-[0.85]">
-                NOS ENTRAÎ<span className="text-red-600">NEURS</span>
-              </h1>
-              <p className="text-slate-500 font-bold text-sm mt-6 uppercase tracking-widest max-w-md leading-relaxed">
-                L'expertise au service de votre performance. Découvrez les encadrants de l'AC Dampicourt.
-              </p>
-            </div>
-
-            {/* Bouton Admin : Apparition fluide si admin connecté */}
-            {isAdmin && (
-                <Link href="/infos/entraineurs/modifier" className="animate-in fade-in slide-in-from-right-4 duration-700">
-                  <button className="flex items-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black hover:bg-red-600 transition-all text-xs uppercase italic shadow-2xl hover:-translate-y-1 active:scale-95 group">
+        <PageHero
+            eyebrow="Staff Technique"
+            title={<>Nos <em>entraîneurs</em></>}
+            description="L'expertise au service de votre performance. Découvrez les encadrants de l'AC Dampicourt."
+            crumbs={[{ label: "Infos" }, { label: "Entraîneurs" }]}
+            actions={isAdmin ? (
+                <Link href="/infos/entraineurs/modifier">
+                  <button className="flex items-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black hover:bg-red-600 transition-all text-xs uppercase italic shadow-2xl active:scale-95 group">
                     <Edit size={18} className="group-hover:rotate-12 transition-transform" />
                     Gérer le staff
                   </button>
                 </Link>
-            )}
-          </div>
+            ) : undefined}
+        />
+        <main className="pt-12 md:pt-16 container mx-auto px-4 pb-12 pb-24 animate-in fade-in duration-700">
 
           {/* LISTE DES ENTRAÎNEURS */}
           {trainers.length > 0 ? (

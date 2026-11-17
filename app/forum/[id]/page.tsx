@@ -1,5 +1,6 @@
 "use client";
 
+import { PageHero } from "@/components/layout/PageHero";
 import { useState, useEffect, use, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/app/context/authContext";
@@ -149,25 +150,14 @@ export default function TopicDetailPage({ params }: { params: Promise<{ id: stri
 
   return (
       <div className="min-h-screen">
+        <PageHero
+            back={{ href: "/forum", label: "Retour au forum" }}
+            eyebrow={topic.category}
+            title={topic.title}
+            titleSize="md"
+        />
         <main
-            className="container mx-auto px-4 pt-32 pb-20 max-w-4xl animate-in fade-in duration-700">
-
-          <Link href="/forum"
-                className="flex items-center gap-2 text-slate-400 hover:text-red-600 font-black uppercase italic text-[10px] mb-12 transition-all group tracking-[0.2em]">
-            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform"/>
-            Retour au forum
-          </Link>
-
-          {/* HEADER DU TOPIC */}
-          <div className="mb-16">
-          <span
-              className="bg-red-600 text-white px-3 py-1 rounded-md text-[9px] font-black uppercase italic tracking-[0.2em] mb-4 inline-block shadow-lg shadow-red-100">
-            {topic.category}
-          </span>
-            <h1 className="text-4xl md:text-7xl font-black text-slate-900 uppercase italic tracking-tighter leading-[0.9]">
-              {topic.title}
-            </h1>
-          </div>
+            className="pt-12 md:pt-16 container mx-auto px-4 pb-20 max-w-4xl animate-in fade-in duration-700">
 
           {/* LISTE DES MESSAGES */}
           <div className="space-y-8 mb-20">

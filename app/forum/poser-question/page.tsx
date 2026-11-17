@@ -1,5 +1,6 @@
 "use client";
 
+import { PageHero } from "@/components/layout/PageHero";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
@@ -85,35 +86,20 @@ export default function NouveauTopicPage() {
 
   return (
       <div className="min-h-screen">
+        <PageHero
+            back={{ href: "/forum", label: "Retour au forum" }}
+            eyebrow={user ? "Nouveau Sujet" : "Question Publique"}
+            title={<>Poser une <em>question</em></>}
+            meta={<span className="ph__chip"><Globe size={14} /> Ouvert à tous. Le staff ACD vous répondra ici.</span>}
+        />
         <main
-            className="container mx-auto px-4 pt-32 pb-20 max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-700">
-
-          <Link href="/forum"
-                className="flex items-center gap-2 text-slate-400 hover:text-red-600 font-black uppercase italic text-[10px] mb-8 transition-all group tracking-widest">
-            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform"/>
-            Retour au forum
-          </Link>
+            className="container mx-auto px-4 pt-12 md:pt-16 pb-20 max-w-3xl">
 
           <div
-              className="bg-slate-50/50 rounded-[3rem] p-8 md:p-14 border border-slate-100 shadow-sm relative overflow-hidden">
+              className="bg-white/95 rounded-[2.5rem] p-8 md:p-14 border border-slate-200 shadow-xl relative overflow-hidden">
 
             {/* Déco subtile */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-red-600/5 rounded-full -mr-16 -mt-16"></div>
-
-            <div className="mb-12 relative z-10">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="h-1 w-10 bg-red-600"></span>
-                <span className="text-red-600 font-black uppercase italic text-[10px] tracking-[0.3em]">
-                    {user ? "Nouveau Sujet" : "Question Publique"}
-                </span>
-              </div>
-              <h1 className="text-5xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">
-                Poser une <span className="text-red-600">Question</span>
-              </h1>
-              <p className="text-slate-500 font-bold uppercase italic text-[11px] mt-4 tracking-widest leading-relaxed flex items-center gap-2">
-                <Globe size={14} className="text-red-600" /> Ouvert à tous. Le staff ACD vous répondra ici.
-              </p>
-            </div>
 
             <form onSubmit={handleSubmit} className="space-y-10 relative z-10">
 

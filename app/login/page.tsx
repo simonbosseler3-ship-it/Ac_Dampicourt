@@ -61,16 +61,17 @@ export default function LoginPage() {
   };
 
   return (
-      <div className="min-h-[90vh] flex flex-col items-center justify-center px-4">
+      <div className="acd-auth flex flex-col items-center justify-center px-4">
+        <div className="ph__bg" aria-hidden="true"><div className="ph__hex" /><div className="ph__stripes" /></div>
         {/* LOGO OU TITRE DE RAPPEL */}
         <div className="mb-10 text-center animate-in fade-in slide-in-from-top-4 duration-700">
-          <h2 className="text-[10px] font-black uppercase italic tracking-[0.4em] text-red-600 mb-2">
+          <h2 className="text-xs font-black uppercase italic tracking-[0.4em] text-red-500 mb-2">
             Portail Athlète
           </h2>
-          <div className="h-1 w-12 bg-slate-900 mx-auto"></div>
+          <div className="h-1 w-12 bg-red-600 mx-auto -skew-x-12"></div>
         </div>
 
-        <div className="max-w-md w-full p-10 md:p-14 bg-slate-50 rounded-[3.5rem] border border-slate-100 shadow-2xl shadow-slate-200/50 animate-in fade-in zoom-in duration-500">
+        <div className="relative max-w-md w-full p-10 md:p-14 bg-white rounded-[2.5rem] border-t-4 border-red-600 shadow-[0_40px_90px_-30px_rgba(0,0,0,0.7)] animate-in fade-in zoom-in-95 duration-500">
 
           <div className="flex justify-center mb-8">
             <div className="bg-slate-900 p-5 rounded-[1.5rem] shadow-xl shadow-slate-200 rotate-3 hover:rotate-0 transition-transform duration-500">
@@ -98,7 +99,7 @@ export default function LoginPage() {
               <input
                   type="email"
                   placeholder="votre@email.com"
-                  className="w-full py-5 pl-14 pr-6 bg-white rounded-2xl border-2 border-slate-100 font-bold text-slate-900 focus:border-red-600 outline-none transition-all text-sm placeholder:text-slate-300 shadow-sm"
+                  className="w-full py-5 pl-14 pr-6 bg-slate-50 rounded-2xl border-2 border-slate-100 font-bold text-slate-900 focus:border-red-600 outline-none transition-all text-sm placeholder:text-slate-300 shadow-sm"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -111,7 +112,7 @@ export default function LoginPage() {
               <input
                   type="password"
                   placeholder="Mot de passe"
-                  className="w-full py-5 pl-14 pr-6 bg-white rounded-2xl border-2 border-slate-100 font-bold text-slate-900 focus:border-red-600 outline-none transition-all text-sm placeholder:text-slate-300 shadow-sm"
+                  className="w-full py-5 pl-14 pr-6 bg-slate-50 rounded-2xl border-2 border-slate-100 font-bold text-slate-900 focus:border-red-600 outline-none transition-all text-sm placeholder:text-slate-300 shadow-sm"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required

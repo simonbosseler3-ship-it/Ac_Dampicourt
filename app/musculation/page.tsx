@@ -1,5 +1,6 @@
 "use client";
 
+import { PageHero } from "@/components/layout/PageHero";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { supabase } from "@/lib/supabase";
@@ -187,35 +188,29 @@ export default function MusculationPage() {
 
   return (
       <div className="min-h-screen">
-        <main className="container mx-auto px-4 py-12 pt-32 pb-24 animate-in fade-in duration-1000">
-
-          {/* HEADER ACD STYLE */}
-          <div className="flex flex-col lg:flex-row justify-between items-center mb-16 gap-8">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <span className="h-[2px] w-10 bg-red-600"></span>
-                <span className="text-red-600 font-black uppercase italic tracking-[0.3em] text-[10px]">Planning Salle</span>
-              </div>
-              <h1 className="text-6xl md:text-8xl font-black text-slate-900 uppercase italic tracking-tighter leading-[0.85]">
-                MUSCU<span className="text-red-600">LATION</span>
-              </h1>
-            </div>
-
-            <div className="flex flex-col items-center gap-4 bg-slate-50 p-6 rounded-[2rem] border border-slate-100 shadow-sm">
-              <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Navigation Semaine</p>
-              <div className="flex items-center gap-6">
-                <button onClick={() => setCurrentDate(subWeeks(currentDate, 1))} className="p-3 bg-white hover:bg-red-600 hover:text-white rounded-xl shadow-sm transition-all active:scale-90">
-                  <ChevronLeft size={20} />
-                </button>
-                <span className="font-black text-slate-900 uppercase italic text-xs tracking-tighter min-w-[180px] text-center">
-                    {format(startDate, 'dd MMM', { locale: fr })} — {format(addDays(startDate, 6), 'dd MMM', { locale: fr })}
-                </span>
-                <button onClick={() => setCurrentDate(addWeeks(currentDate, 1))} className="p-3 bg-white hover:bg-red-600 hover:text-white rounded-xl shadow-sm transition-all active:scale-90">
-                  <ChevronRight size={20} />
-                </button>
-              </div>
-            </div>
-          </div>
+        <PageHero
+            eyebrow="Planning Salle"
+            title={<>Muscu<em>lation</em></>}
+            description="Réservez votre créneau dans la salle de musculation du club."
+            crumbs={[{ label: "Musculation" }]}
+            actions={
+                <div className="flex flex-col items-center gap-3 bg-white/5 border border-white/10 backdrop-blur p-5 rounded-[1.75rem]">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Navigation semaine</p>
+                  <div className="flex items-center gap-4">
+                    <button onClick={() => setCurrentDate(subWeeks(currentDate, 1))} aria-label="Semaine précédente" className="p-3 bg-white/10 text-white hover:bg-red-600 rounded-xl transition-all active:scale-90">
+                      <ChevronLeft size={20} />
+                    </button>
+                    <span className="font-black text-white uppercase italic text-base tracking-tight min-w-[170px] text-center">
+                        {format(startDate, 'dd MMM', { locale: fr })} — {format(addDays(startDate, 6), 'dd MMM', { locale: fr })}
+                    </span>
+                    <button onClick={() => setCurrentDate(addWeeks(currentDate, 1))} aria-label="Semaine suivante" className="p-3 bg-white/10 text-white hover:bg-red-600 rounded-xl transition-all active:scale-90">
+                      <ChevronRight size={20} />
+                    </button>
+                  </div>
+                </div>
+            }
+        />
+        <main className="pt-12 md:pt-16 container mx-auto px-4 pb-12 pb-24 animate-in fade-in duration-1000">
 
           {/* GRILLE OU LOCK */}
           {authLoading ? (

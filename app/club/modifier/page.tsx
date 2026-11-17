@@ -1,5 +1,6 @@
 "use client";
 
+import { PageHero } from "@/components/layout/PageHero";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
@@ -123,33 +124,25 @@ export default function ModifierClubPage() {
 
   return (
       <div className="min-h-screen">
-        <main className="container mx-auto px-4 py-32 max-w-6xl">
-
-          {/* HEADER FIXE */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
-            <div>
-              <button
-                  onClick={() => router.back()}
-                  className="flex items-center gap-2 text-slate-400 hover:text-red-600 transition-colors font-black uppercase italic text-[10px] mb-4 tracking-widest"
-              >
-                <ArrowLeft size={14}/> Retour
-              </button>
-              <h1 className="text-4xl font-black text-slate-900 uppercase italic tracking-tighter">
-                Modifier le <span className="text-red-600">Club</span>
-              </h1>
-            </div>
-
-            <button
-                onClick={handleSave}
-                disabled={saving}
-                className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-black uppercase italic transition-all shadow-xl hover:-translate-y-1 active:scale-95 ${
-                    success ? 'bg-green-600 text-white' : 'bg-slate-900 text-white hover:bg-red-600'
-                }`}
-            >
-              {saving ? <Loader2 className="animate-spin" size={20}/> : success ? <Check size={20}/> : <Save size={20}/>}
-              {success ? "Modifications enregistrées" : "Sauvegarder la page"}
-            </button>
-          </div>
+        <PageHero
+            size="sm"
+            back={{ onBack: () => router.back(), label: "Retour" }}
+            eyebrow="Administration"
+            title={<>Modifier le <em>club</em></>}
+            actions={
+                <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className={`flex items-center gap-3 px-8 py-4 rounded-2xl font-black uppercase italic transition-all shadow-xl active:scale-95 ${
+                        success ? 'bg-green-600 text-white' : 'bg-slate-900 text-white hover:bg-red-600'
+                    }`}
+                >
+                  {saving ? <Loader2 className="animate-spin" size={20}/> : success ? <Check size={20}/> : <Save size={20}/>}
+                  {success ? "Modifications enregistrées" : "Sauvegarder la page"}
+                </button>
+            }
+        />
+        <main className="pt-12 md:pt-16 container mx-auto px-4 pb-32 max-w-6xl">
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
 

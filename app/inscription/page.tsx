@@ -1,29 +1,19 @@
 "use client";
 
+import { PageHero } from "@/components/layout/PageHero";
 import { ExternalLink, Calendar, Trophy, Info, MousePointer2, ArrowRight, Flag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function InscriptionsPage() {
   return (
       <div className="min-h-screen">
-        <main className="container mx-auto px-4 py-12 pt-32 pb-24 animate-in fade-in duration-1000">
-
-          {/* HERO SECTION */}
-          <div className="max-w-4xl mx-auto text-center mb-24">
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="h-[2px] w-12 bg-red-600"></div>
-              <span className="text-red-600 font-black uppercase italic tracking-[0.4em] text-[10px]">
-              Espace Athlètes
-            </span>
-              <div className="h-[2px] w-12 bg-red-600"></div>
-            </div>
-            <h1 className="text-6xl md:text-8xl font-black text-slate-900 uppercase italic tracking-tighter leading-[0.85] mb-8">
-              PRÊT POUR LA <br /><span className="text-red-600">COMPÉTITION ?</span>
-            </h1>
-            <p className="text-slate-400 font-bold uppercase italic text-[11px] tracking-widest max-w-lg mx-auto leading-relaxed">
-              Retrouvez toutes les plateformes de calendrier et les contacts pour vos inscriptions officielles.
-            </p>
-          </div>
+        <PageHero
+            eyebrow="Espace Athlètes"
+            title={<>Prêt pour la <br /><em>compétition ?</em></>}
+            description="Retrouvez toutes les plateformes de calendrier et les contacts pour vos inscriptions officielles."
+            crumbs={[{ label: "Inscriptions" }]}
+        />
+        <main className="pt-12 md:pt-16 container mx-auto px-4 pb-12 pb-24 animate-in fade-in duration-1000">
 
           {/* SECTION PLATEFORMES (Haut) */}
           <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">

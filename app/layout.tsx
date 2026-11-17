@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Barlow_Condensed } from "next/font/google";
 import "./globals.css";
+import "./acd.css";
 import { Navbar } from "@/components/navbar/navbar";
 import { Footer } from "@/components/footer/footer";
 import { AuthProvider } from "@/app/context/authContext";
 import { ThemeProvider } from "@/components/theme/ThemeContext";
 import { GlobalDecorations } from "@/components/theme/Decorations";
+import { ScrollReveal } from "@/components/theme/ScrollReveal";
 // 1. On importe le composant Script de Next.js
 import Script from "next/script";
 
@@ -19,6 +21,14 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Police des titres : condensée, vraie italique très grasse, dans l'esprit du logo ACD
+const barlow = Barlow_Condensed({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: ["600", "700", "800", "900"],
+  style: ["normal", "italic"],
+});
+
 export const metadata: Metadata = {
   title: "AC Dampicourt",
   description: "Site officiel de l'Athlétic Club Dampicourt",
@@ -27,7 +37,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
       <html lang="fr" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen relative`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} ${barlow.variable} antialiased min-h-screen relative`}>
       <AuthProvider>
         <ThemeProvider>
           {/* --- ARRIÈRE-PLAN FIXE (Branding ACD) --- */}
@@ -68,6 +78,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {/* --- EFFETS SPÉCIAUX (Flocons, Éclairs, Fantômes...) --- */}
           {/* C'est ce composant qui va lire le thème et afficher les bonnes animations */}
           <GlobalDecorations />
+
+          {/* --- APPARITION DOUCE DES CONTENUS AU SCROLL (toutes les pages) --- */}
+          <ScrollReveal />
 
           {/* --- STRUCTURE DU SITE --- */}
           <div className="flex flex-col min-h-screen">

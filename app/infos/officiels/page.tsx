@@ -1,5 +1,6 @@
 "use client";
 
+import { PageHero } from "@/components/layout/PageHero";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/app/context/authContext";
@@ -45,33 +46,21 @@ export default function OfficielsPage() {
 
   return (
       <div className="min-h-screen">
-        <main className="container mx-auto px-4 py-12 pt-32 pb-24 animate-in fade-in duration-700">
-
-          {/* HEADER SECTION */}
-          <div className="flex flex-col lg:flex-row justify-between items-end mb-16 gap-8">
-            <div className="max-w-2xl">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="h-[2px] w-10 bg-red-600"></span>
-                <span className="text-red-600 font-black uppercase italic tracking-[0.3em] text-[10px]">Régularité & Équité</span>
-              </div>
-              <h1 className="text-6xl md:text-8xl font-black text-slate-900 uppercase italic tracking-tighter leading-[0.85]">
-                NOS <span className="text-red-600">OFFICIELS</span>
-              </h1>
-              <p className="text-slate-500 font-bold text-sm mt-6 uppercase tracking-widest max-w-md leading-relaxed">
-                Garants de la conformité des performances et du respect des règles fédérales sur le terrain.
-              </p>
-            </div>
-
-            {/* Bouton Admin conditionnel */}
-            {isAdmin && (
-                <Link href="/infos/officiels/modifier" className="animate-in slide-in-from-right-4 duration-700">
-                  <button className="flex items-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black hover:bg-red-600 transition-all text-[10px] uppercase italic shadow-2xl active:scale-95 group">
+        <PageHero
+            eyebrow="Régularité & Équité"
+            title={<>Nos <em>officiels</em></>}
+            description="Garants de la conformité des performances et du respect des règles fédérales sur le terrain."
+            crumbs={[{ label: "Infos" }, { label: "Officiels" }]}
+            actions={isAdmin ? (
+                <Link href="/infos/officiels/modifier">
+                  <button className="flex items-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black hover:bg-red-600 transition-all text-xs uppercase italic shadow-2xl active:scale-95 group">
                     <Edit size={16} className="group-hover:rotate-12 transition-transform" />
                     Gérer le jury
                   </button>
                 </Link>
-            )}
-          </div>
+            ) : undefined}
+        />
+        <main className="pt-12 md:pt-16 container mx-auto px-4 pb-12 pb-24 animate-in fade-in duration-700">
 
           {/* LISTE OFFICIELS - BLOC NOIR ACD */}
           <section className="mb-24 bg-slate-900 rounded-[3rem] p-10 md:p-20 text-white shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] relative overflow-hidden group">

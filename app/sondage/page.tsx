@@ -1,5 +1,6 @@
 "use client";
 
+import { PageHero } from "@/components/layout/PageHero";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/app/context/authContext";
@@ -264,32 +265,21 @@ export default function SondagesPage() {
 
   return (
       <div className="min-h-screen">
-        <main className="container mx-auto px-6 pt-32 pb-24 max-w-7xl animate-in fade-in duration-1000">
-
-          {/* HEADER AVEC CORRECTION POUR MOBILE */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6">
-            <div className="w-full"> {/* On force la largeur pleine pour le conteneur du titre */}
-              <div className="flex items-center gap-2 mb-4">
-                <span className="h-1 w-8 bg-red-600 rounded-full"></span>
-                <p className="text-red-600 font-black uppercase italic tracking-widest text-[10px]">Interactivité Club</p>
-              </div>
-              <h1 className="text-[clamp(2.2rem,10vw,5.5rem)] md:text-8xl font-black text-slate-900 uppercase italic tracking-tighter leading-[0.9] md:leading-[0.85]">
-                VOTES <span className="text-red-600">&</span><br />
-                ENCOURAGEMENTS
-              </h1>
-            </div>
-
-            {canManage && (
-                <div className="w-full md:w-auto flex justify-start md:justify-end mt-4 md:mt-0">
-                  <button
-                      onClick={() => setIsModalOpen(true)}
-                      className="bg-slate-900 text-white px-8 py-5 rounded-2xl font-black hover:bg-red-600 transition-all text-[11px] uppercase italic shadow-xl flex items-center gap-3 active:scale-95 whitespace-nowrap"
-                  >
-                    <Plus size={18} /> Créer un module
-                  </button>
-                </div>
-            )}
-          </div>
+        <PageHero
+            eyebrow="Interactivité Club"
+            title={<>Votes <em>&</em><br />encouragements</>}
+            description="Votez, encouragez les athlètes et donnez votre avis sur la vie du club."
+            crumbs={[{ label: "Communauté" }]}
+            actions={canManage ? (
+                <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black hover:bg-red-600 transition-all text-xs uppercase italic shadow-xl flex items-center gap-3 active:scale-95 whitespace-nowrap"
+                >
+                  <Plus size={18} /> Créer un module
+                </button>
+            ) : undefined}
+        />
+        <main className="pt-12 md:pt-16 container mx-auto px-6 pb-24 max-w-7xl animate-in fade-in duration-1000">
 
           <div className="columns-1 lg:columns-2 gap-8 space-y-8">
             {polls.map((poll) => {

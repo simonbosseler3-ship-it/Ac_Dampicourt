@@ -1,5 +1,6 @@
 "use client";
 
+import { PageHero } from "@/components/layout/PageHero";
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -103,51 +104,27 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
           }
         `}} />
 
-        <main className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pt-28 animate-in fade-in duration-1000">
-
-          {/* BARRE DE NAVIGATION ET INFOS */}
-          <div className="max-w-4xl mx-auto flex flex-wrap items-center justify-between gap-6 mb-12">
-            <button
-                onClick={() => router.back()}
-                className="group flex items-center gap-2 text-slate-400 hover:text-red-600 transition-all text-[10px] font-black uppercase italic tracking-widest"
-            >
-              <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-              Retour
-            </button>
-
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 bg-slate-50 border border-slate-100 px-4 py-2 rounded-xl">
-                <Calendar size={14} className="text-red-600" />
-                <span className="text-slate-900 text-[10px] font-black uppercase italic tracking-wider">
+        <PageHero
+            image={article.image_url}
+            back={{ onBack: () => router.back(), label: "Retour" }}
+            eyebrow="Actualité"
+            title={article.title}
+            titleSize="md"
+            meta={
+                <span className="ph__chip ph__chip--red">
+                  <Calendar size={14} />
                   {new Date(article.date_text).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
                 </span>
-              </div>
-
-              {canEdit && (
-                  <Link href={`/actualites/modifier/${article.id}`}>
-                    <button className="flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-xl text-[10px] font-black uppercase italic hover:bg-red-600 transition-all shadow-lg">
-                      <Edit2 size={12}/> Modifier
-                    </button>
-                  </Link>
-              )}
-            </div>
-          </div>
-
-          {/* TITRE PRINCIPAL */}
-          <div className="max-w-4xl mx-auto mb-16">
-            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black uppercase italic leading-[0.95] tracking-tighter text-slate-900">
-              {article.title}
-            </h1>
-          </div>
-
-          {/* IMAGE DE COUVERTURE IMPACTANTE */}
-          <div className="relative aspect-[16/10] md:aspect-[16/8] w-full mb-20 rounded-[2.5rem] md:rounded-[4rem] overflow-hidden shadow-2xl bg-slate-50 border border-slate-100">
-            <img
-                src={article.image_url}
-                alt={article.title}
-                className="object-cover w-full h-full img-hd hover:scale-105 transition-transform duration-1000"
-            />
-          </div>
+            }
+            actions={canEdit ? (
+                <Link href={`/actualites/modifier/${article.id}`}>
+                  <button className="flex items-center gap-2 bg-slate-900 text-white px-6 py-3.5 rounded-2xl text-xs font-black uppercase italic hover:bg-red-600 transition-all shadow-lg">
+                    <Edit2 size={14}/> Modifier
+                  </button>
+                </Link>
+            ) : undefined}
+        />
+        <main className="pt-12 md:pt-16 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 animate-in fade-in duration-1000">
 
           {/* CORPS DE L'ARTICLE */}
           <div className="max-w-3xl mx-auto">

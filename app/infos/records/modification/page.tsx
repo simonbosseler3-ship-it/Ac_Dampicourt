@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/layout/PageHero";
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { revalidatePath } from 'next/cache'
@@ -46,28 +47,14 @@ export default async function ModificationRecordsPage() {
 
   return (
       <div className="min-h-screen bg-slate-50/50">
-        <main className="container mx-auto px-4 py-12 pt-32 pb-32">
-
-          {/* HEADER D'ADMINISTRATION */}
-          <div className="flex flex-col md:flex-row justify-between items-center mb-16 gap-8">
-            <div className="flex items-center gap-6">
-              <Link href="/infos/records"
-                    className="group flex items-center gap-3 bg-white p-4 rounded-2xl shadow-sm border border-slate-200 hover:border-red-600 transition-all">
-                <ArrowLeft size={20} className="text-slate-400 group-hover:text-red-600 transition-colors" />
-              </Link>
-              <div>
-                <h1 className="text-4xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">
-                  CONSOLE <span className="text-red-600">RECORDS</span>
-                </h1>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mt-2">Mise à jour des performances historiques</p>
-              </div>
-            </div>
-
-            <div className="hidden lg:flex items-center gap-4 bg-slate-900 text-white px-6 py-3 rounded-2xl border border-white/10 shadow-xl">
-              <Activity size={18} className="text-red-600 animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-widest italic">Mode Édition Serveur Actif</span>
-            </div>
-          </div>
+        <PageHero
+            size="sm"
+            back={{ href: "/infos/records", label: "Retour aux records" }}
+            eyebrow="Mise à jour des performances historiques"
+            title={<>Console <em>records</em></>}
+            meta={<span className="ph__chip"><Activity size={14} className="animate-pulse" /> Mode édition serveur actif</span>}
+        />
+        <main className="pt-12 md:pt-16 container mx-auto px-4 pb-12 pb-32">
 
           {[
             { title: "Masculins", data: maleRecords, icon: <Zap size={20} className="text-red-600" /> },

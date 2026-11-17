@@ -1,4 +1,5 @@
 "use client";
+import { PageHero } from "@/components/layout/PageHero";
 import {
   Info,
   Users,
@@ -27,21 +28,20 @@ const CATEGORIES = [
 export default function KBPMPage() {
   return (
       <div className="min-h-screen">
-        <main className="container mx-auto px-4 pt-32 pb-20 animate-in fade-in duration-700">
-
-          {/* HEADER SECTION */}
-          <div className="flex flex-col mb-16">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="h-[2px] w-10 bg-red-600"></span>
-              <span className="text-red-600 font-black uppercase italic tracking-[0.3em] text-[10px]">Jeunes Athlètes</span>
-            </div>
-            <h1 className="text-5xl md:text-7xl font-black text-slate-900 uppercase italic tracking-tighter leading-[0.9]">
-              COMPÉTITION <br/><span className="text-red-600">K.B.P.M.</span>
-            </h1>
-            <p className="text-slate-500 font-bold text-sm mt-6 uppercase tracking-widest max-w-xl leading-relaxed">
-              Kangourous, Benjamins, Pupilles & Minimes : Tout savoir pour accompagner vos futurs champions.
-            </p>
-          </div>
+        <PageHero
+            eyebrow="Jeunes Athlètes"
+            title={<>Compétition <br/><em>K.B.P.M.</em></>}
+            description="Kangourous, Benjamins, Pupilles & Minimes : tout savoir pour accompagner vos futurs champions."
+            crumbs={[{ label: "Infos" }, { label: "K.B.P.M." }]}
+            actions={
+                <Link href="/infos/kbpm/methode-pedagogique">
+                  <button className="flex items-center gap-3 bg-white text-slate-900 px-8 py-4 rounded-2xl font-black hover:bg-red-600 hover:text-white transition-all text-xs uppercase italic shadow-2xl">
+                    Méthode pédagogique
+                  </button>
+                </Link>
+            }
+        />
+        <main className="pt-12 md:pt-16 container mx-auto px-4 pb-20 animate-in fade-in duration-700">
 
           {/* SECTION 1 : INTRO PARENTS */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 mb-24">

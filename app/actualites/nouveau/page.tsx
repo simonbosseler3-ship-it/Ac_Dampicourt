@@ -1,5 +1,6 @@
 "use client";
 
+import { PageHero } from "@/components/layout/PageHero";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
@@ -129,15 +130,13 @@ export default function NouveauArticle() {
         .ql-editor h2 { color: #dc2626; font-weight: 900; text-transform: uppercase; font-style: italic; }
       `}} />
 
-        <main className="container mx-auto px-4 py-12 max-w-5xl">
-          <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-500 mb-8 hover:text-red-600 transition-colors uppercase font-black text-sm italic">
-            <ArrowLeft size={18} /> Retour
-          </button>
-
-          <h1 className="text-4xl md:text-6xl font-black italic uppercase mb-10 tracking-tighter">
-            Nouvelle <span className="text-red-600">Actualité</span>
-          </h1>
-
+        <PageHero
+            size="sm"
+            back={{ onBack: () => router.back(), label: "Retour" }}
+            eyebrow="Rédaction"
+            title={<>Nouvelle <em>actualité</em></>}
+        />
+        <main className="pt-12 md:pt-16 container mx-auto px-4 pb-12 max-w-5xl">
           <form onSubmit={handleSubmit} className="bg-white p-8 md:p-12 rounded-[3rem] shadow-xl border border-slate-100 space-y-10">
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

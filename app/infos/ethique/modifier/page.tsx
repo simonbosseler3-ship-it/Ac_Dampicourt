@@ -1,5 +1,6 @@
 "use client";
 
+import { PageHero } from "@/components/layout/PageHero";
 import { useState, useEffect } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import {
@@ -158,35 +159,24 @@ export default function ModifierEthiquePage() {
       <div className="min-h-screen">
         <Toaster position="bottom-right" richColors expand={true}/>
 
-        <main className="container mx-auto px-4 py-12 pt-32 pb-32">
-
-          {/* TOP BAR */}
-          <div className="flex flex-col md:flex-row justify-between items-center mb-16 gap-8">
-            <div className="flex items-center gap-6">
-              <Link href="/infos/ethique"
-                    className="group flex items-center gap-3 bg-white p-4 rounded-2xl shadow-sm border border-slate-200 hover:border-red-600 transition-all">
-                <ArrowLeft size={20}
-                           className="text-slate-400 group-hover:text-red-600 transition-colors"/>
-              </Link>
-              <div>
-                <h1 className="text-4xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">
-                  ÉDITION <span className="text-red-600">ÉTHIQUE</span>
-                </h1>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mt-2 italic">Gérez
-                  la charte et les ressources</p>
-              </div>
-            </div>
-
-            <button
-                onClick={handleSave}
-                disabled={isSaving}
-                className="w-full md:w-auto bg-slate-900 text-white px-10 py-5 rounded-[2rem] font-black uppercase italic text-xs hover:bg-red-600 transition-all flex items-center justify-center gap-3 shadow-2xl disabled:opacity-50 active:scale-95 group"
-            >
-              {isSaving ? <Loader2 size={18} className="animate-spin"/> :
-                  <Save size={18} className="group-hover:scale-110 transition-transform"/>}
-              {isSaving ? "Sauvegarde..." : "Enregistrer les modifications"}
-            </button>
-          </div>
+        <PageHero
+            size="sm"
+            back={{ href: "/infos/ethique", label: "Retour à l'éthique" }}
+            eyebrow="Gérez la charte et les ressources"
+            title={<>Édition <em>éthique</em></>}
+            actions={
+                <button
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className="w-full md:w-auto bg-slate-900 text-white px-8 py-4 rounded-2xl font-black uppercase italic text-xs hover:bg-red-600 transition-all flex items-center justify-center gap-3 shadow-2xl disabled:opacity-50 active:scale-95 group"
+                >
+                  {isSaving ? <Loader2 size={18} className="animate-spin"/> :
+                      <Save size={18} className="group-hover:scale-110 transition-transform"/>}
+                  {isSaving ? "Sauvegarde..." : "Enregistrer les modifications"}
+                </button>
+            }
+        />
+        <main className="pt-12 md:pt-16 container mx-auto px-4 pb-12 pb-32">
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
 

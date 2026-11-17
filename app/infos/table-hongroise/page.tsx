@@ -1,5 +1,6 @@
 "use client";
 
+import { PageHero } from "@/components/layout/PageHero";
 import { useState, useEffect } from "react";
 import { Zap, Clock, ChevronDown, Info } from "lucide-react";
 
@@ -90,18 +91,15 @@ export default function TableHongroiseFinale() {
   const status = getStatus(points);
 
   return (
-      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-6 font-sans">
+      <div className="min-h-screen">
+        <PageHero
+            eyebrow={<><Zap size={14} /> Tables de cotation World Athletics</>}
+            title={<>Athlé<em>master</em></>}
+            description="Convertissez une performance en points de cotation, par discipline et par genre."
+            crumbs={[{ label: "Infos" }, { label: "Table hongroise" }]}
+        />
+        <main className="container mx-auto px-4 pt-12 md:pt-16 pb-12 flex justify-center">
         <div className="w-full max-w-3xl bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden">
-
-          {/* Header */}
-          <div className="bg-[#1E293B] p-12 text-center relative">
-            <Zap className="absolute right-8 top-8 text-red-500 opacity-20" size={40} />
-            <h1 className="text-5xl font-black text-white italic uppercase tracking-tighter">
-              ATHLÉ<span className="text-red-600">MASTER</span>
-            </h1>
-            <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.4em] mt-3">Tables de Cotation World Athletics</p>
-          </div>
-
           <div className="p-10 space-y-10">
             {/* Genre */}
             <div className="flex bg-slate-100 p-1.5 rounded-2xl max-w-xs mx-auto">
@@ -142,7 +140,7 @@ export default function TableHongroiseFinale() {
                 {status.label}
               </div>
 
-              <div className="text-[10rem] leading-none font-black text-white italic tracking-tighter relative z-10 drop-shadow-2xl">
+              <div className="text-[clamp(6rem,22vw,10rem)] leading-none font-black text-white italic tracking-tighter relative z-10 drop-shadow-2xl tabular-nums">
                 {points}
               </div>
 
@@ -160,6 +158,7 @@ export default function TableHongroiseFinale() {
             </div>
           </div>
         </div>
+        </main>
       </div>
   );
 }

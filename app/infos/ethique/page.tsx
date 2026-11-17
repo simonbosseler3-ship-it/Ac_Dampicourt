@@ -1,5 +1,6 @@
 "use client";
 
+import { PageHero } from "@/components/layout/PageHero";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/app/context/authContext";
@@ -62,33 +63,20 @@ export default function EthiquePage() {
 
   return (
       <div className="min-h-screen">
-        <main className="container mx-auto px-4 pt-32 pb-24 animate-in fade-in duration-1000">
-
-          {/* HEADER SECTION - CORRIGÉ POUR L'ALIGNEMENT GAUCHE */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6 w-full">
-            {/* Conteneur du titre - Forcé à gauche avec text-left et w-full */}
-            <div className="w-full md:w-auto text-left">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="h-[2px] w-10 bg-red-600"></span>
-                <span className="text-red-600 font-black uppercase italic tracking-[0.3em] text-[10px]">Intégrité & Valeurs</span>
-              </div>
-              <h1 className="text-6xl md:text-8xl font-black text-slate-900 uppercase italic tracking-tighter leading-[0.85]">
-                ÉTHIQUE <br /><span className="text-red-600">& DOPAGE</span>
-              </h1>
-            </div>
-
-            {/* Bouton d'édition (visible uniquement pour les admins) */}
-            {!authLoading && isAdmin && (
-                <div className="w-full md:w-auto mt-4 md:mt-0 flex justify-start md:justify-end">
-                  <Link href="/infos/ethique/modifier" className="animate-in slide-in-from-right-4 duration-700 block">
-                    <button className="flex items-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black hover:bg-red-600 transition-all text-[10px] uppercase italic shadow-2xl active:scale-95 group">
-                      <Edit size={16} className="group-hover:rotate-12 transition-transform" />
-                      Modifier la page
-                    </button>
-                  </Link>
-                </div>
-            )}
-          </div>
+        <PageHero
+            eyebrow="Intégrité & Valeurs"
+            title={<>Éthique <br /><em>& dopage</em></>}
+            crumbs={[{ label: "Infos" }, { label: "Éthique & Dopage" }]}
+            actions={!authLoading && isAdmin ? (
+                <Link href="/infos/ethique/modifier">
+                  <button className="flex items-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black hover:bg-red-600 transition-all text-xs uppercase italic shadow-2xl active:scale-95 group">
+                    <Edit size={16} className="group-hover:rotate-12 transition-transform" />
+                    Modifier la page
+                  </button>
+                </Link>
+            ) : undefined}
+        />
+        <main className="pt-12 md:pt-16 container mx-auto px-4 pb-24 animate-in fade-in duration-1000">
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
 

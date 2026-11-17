@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/app/context/authContext";
 import { HeroNews } from "@/components/carousel/news";
+import { PageHero } from "@/components/layout/PageHero";
 import Link from "next/link";
 import {
   Timer,
@@ -16,6 +17,13 @@ import {
   Users
 } from "lucide-react";
 import { TutorialOverlay } from "@/components/tutorial/tutorial";
+
+// Les 3 accès rapides (mêmes liens qu'avant)
+const QUICK = [
+  { href: "/infos/records", title: "Records Club", sub: "Historique & performance", Icon: Trophy, red: false },
+  { href: "/inscription", title: "Inscriptions", sub: "Meetings", Icon: CalendarCheck, red: true },
+  { href: "/speed-night", title: "Nos événements", sub: "Meetings & Speed Night/Race", Icon: Timer, red: false },
+];
 
 export default function Home() {
   const { user, profile } = useAuth();
@@ -47,7 +55,7 @@ export default function Home() {
   }, []);
 
   return (
-      <main className="container mx-auto px-4 pt-10 pb-12 animate-in fade-in duration-700">
+      <div className="pb-4">
 
         {user && profile && !profile.has_seen_tutorial && (
             <TutorialOverlay
@@ -57,128 +65,77 @@ export default function Home() {
             />
         )}
 
-        {/* SECTION CAROUSEL */}
-        <div className="mb-10 min-h-[400px]">
-          {dataLoading ? (
-              <div className="w-full h-[400px] bg-slate-200/50 animate-pulse rounded-[3rem] flex items-center justify-center">
-                <span className="text-slate-400 font-black uppercase italic">Chargement de l'actu...</span>
+        {/* 1. CAROUSEL — plein écran, se fond dans le fond du site */}
+        {dataLoading ? (
+            <div className="hh" aria-label="Chargement de l'actualité">
+              <div className="hh__media"><div className="hh__shade" /><div className="hh__hex" /></div>
+              <div className="hh__content">
+                <div className="container mx-auto px-4 space-y-5">
+                  <div className="h-6 w-28 bg-white/10 rounded animate-pulse" />
+                  <div className="h-16 md:h-24 w-full max-w-3xl bg-white/10 rounded-2xl animate-pulse" />
+                  <div className="h-16 md:h-24 w-2/3 max-w-2xl bg-white/10 rounded-2xl animate-pulse" />
+                </div>
               </div>
-          ) : (
-              <HeroNews newsData={news} />
-          )}
-        </div>
+            </div>
+        ) : news.length > 0 ? (
+            <HeroNews newsData={news} />
+        ) : (
+            <PageHero
+                eyebrow="Le club de la Gaume"
+                title={<>Athletic Club <em>Dampicourt</em></>}
+                description="Former, s'entraîner et performer. L'athlétisme pour tous, de l'initiation au haut niveau."
+            />
+        )}
 
-        {/* SECTION LIENS PRINCIPAUX */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 px-2 mb-10">
-          <Link href="/infos/records" prefetch={false} className="group relative h-48 rounded-[2.5rem] bg-white/80 backdrop-blur-sm border-2 border-slate-100 hover:border-slate-900 overflow-hidden transition-all duration-500 hover:shadow-2xl">
-            <div className="absolute inset-0 bg-slate-900 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0"></div>
-            <div className="absolute -bottom-6 -left-6 text-slate-200 group-hover:text-slate-800 transition-colors duration-500 z-0 group-hover:scale-125 group-hover:rotate-12 transition-transform origin-bottom-left">
-              <Trophy size={140} strokeWidth={0.5} />
-            </div>
-            <div className="relative z-10 h-full flex flex-col justify-between p-8">
-              <div className="flex justify-between items-start">
-                <div className="bg-slate-100 p-3 rounded-2xl group-hover:bg-white/10 transition-colors">
-                  <Trophy className="text-slate-900 group-hover:text-white" size={24} />
-                </div>
-                <div className="opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500">
-                  <ArrowUpRight className="text-white" size={28} />
-                </div>
-              </div>
-              <div>
-                <h3 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter group-hover:text-white transition-colors">Records Club</h3>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mt-1">Historique & Performance</p>
-              </div>
-            </div>
-          </Link>
+        <main className="container mx-auto px-4">
 
-          <Link href="/inscription" prefetch={false} className="group relative h-48 rounded-[2.5rem] bg-red-600 border-2 border-red-600 overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-red-200 hover:-translate-y-1">
-            <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-            <div className="absolute top-1/2 -translate-y-1/2 right-[-2rem] text-black/10 group-hover:text-white/20 z-0 transition-transform group-hover:scale-110">
-              <CalendarCheck size={160} strokeWidth={1} />
+          {/* 2. ACCÈS RAPIDES — tuiles en verre qui chevauchent le bas du carrousel */}
+          <nav className="qk-wrap" aria-label="Accès rapides" data-no-reveal>
+            <div className="qk">
+              {QUICK.map(({ href, title, sub, Icon, red }) => (
+                  <Link key={href} href={href} prefetch={false} className={`qk__tile${red ? " qk__tile--red" : ""}`}>
+                    <span className="qk__big" aria-hidden="true"><Icon strokeWidth={1} /></span>
+                    <span className="qk__icon"><Icon /></span>
+                    <span className="qk__txt">
+                      <b>{title}</b>
+                      <small>{sub}</small>
+                    </span>
+                    <span className="qk__go" aria-hidden="true"><ArrowUpRight /></span>
+                  </Link>
+              ))}
             </div>
-            <div className="relative z-10 h-full flex flex-col justify-between p-8">
-              <div className="bg-black/20 p-3 rounded-2xl w-fit group-hover:bg-white text-white group-hover:text-red-600 transition-all">
-                <CalendarCheck size={24} />
-              </div>
-              <div>
-                <h3 className="text-3xl font-black text-white uppercase italic tracking-tighter group-hover:translate-x-1 transition-transform">Inscriptions</h3>
-                <div className="flex items-center gap-2 mt-2">
-                  <div className="h-0.5 w-6 bg-white/50 group-hover:w-12 group-hover:bg-white transition-all"></div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-red-100">Meetings</p>
-                </div>
-              </div>
-            </div>
-          </Link>
+          </nav>
 
-          {/* ENCADRÉ MIS À JOUR : NOS ÉVÉNEMENTS */}
-          <Link href="/speed-night" prefetch={false} className="group relative h-48 rounded-[2.5rem] bg-white/80 backdrop-blur-sm border-2 border-slate-100 hover:border-red-600 overflow-hidden transition-all duration-500 hover:shadow-2xl">
-            <div className="absolute inset-0 bg-red-600 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0"></div>
-            <div className="absolute -top-6 -right-6 text-slate-200 group-hover:text-red-700 z-0 group-hover:scale-125 group-hover:-rotate-12 transition-transform origin-top-right">
-              <Timer size={140} strokeWidth={0.5} />
+          {/* 3. FORUM & COMMUNAUTÉ */}
+          <div className="acd-sect">
+            <div>
+              <span className="acd-sect__line" />
+              <h2>Échanger avec <em>le club</em></h2>
+              <p>Une question pour le staff, un sondage, un encouragement : c&apos;est ici.</p>
             </div>
-            <div className="relative z-10 h-full flex flex-col justify-between p-8">
-              <div className="flex justify-between items-start">
-                <div className="bg-slate-100 p-3 rounded-2xl group-hover:bg-white/20 transition-colors">
-                  <Timer className="text-slate-900 group-hover:text-white" size={24} />
-                </div>
-                <div className="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500">
-                  <ArrowUpRight className="text-white" size={28} />
-                </div>
+          </div>
+          <section className="cm">
+            <Link href="/forum" prefetch={false} className="cm__card cm__card--light">
+              <span className="cm__big" aria-hidden="true"><MessageSquare strokeWidth={1} /></span>
+              <span className="cm__icon"><HelpCircle /></span>
+              <div className="cm__txt">
+                <h3>Une question ? <em>Le Forum</em></h3>
+                <p>Besoin d&apos;aide ou d&apos;infos ?</p>
               </div>
-              <div>
-                <h3 className="text-2xl font-black text-slate-900 uppercase italic tracking-tighter group-hover:text-white transition-colors">
-                  Nos événements
-                </h3>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 group-hover:text-red-200 mt-1">
-                  Meetings & Speed Night/Race
-                </p>
-              </div>
-            </div>
-          </Link>
-        </section>
+              <span className="cm__go">Accéder <ChevronRight /></span>
+            </Link>
 
-        {/* SECTION FORUM & COMMUNAUTÉ */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 px-2">
-          <Link href="/forum" prefetch={false} className="group block w-full bg-white/80 backdrop-blur-sm border-2 border-slate-100 rounded-[2.5rem] p-8 hover:border-red-600 transition-all duration-300 shadow-sm hover:shadow-xl relative overflow-hidden flex flex-col justify-between">
-            <div className="absolute -right-10 -bottom-10 text-slate-50 group-hover:text-red-50 transition-colors duration-500 -rotate-12">
-              <MessageSquare size={200} strokeWidth={1} />
-            </div>
-            <div className="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-6 h-full">
-              <div className="flex items-center gap-6">
-                <div className="bg-red-600 p-4 rounded-2xl shadow-lg shadow-red-200 group-hover:scale-110 transition-transform flex-shrink-0">
-                  <HelpCircle className="text-white" size={32} />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-black uppercase italic tracking-tighter text-slate-900">Une question ? <br /><span className="text-red-600">Le Forum</span></h2>
-                  <p className="text-slate-500 font-medium text-sm mt-1">Besoin d'aide ou d'infos ?</p>
-                </div>
+            <Link href="/sondage" prefetch={false} className="cm__card cm__card--dark">
+              <span className="cm__big" aria-hidden="true"><Users strokeWidth={1} /></span>
+              <span className="cm__icon"><Users /></span>
+              <div className="cm__txt">
+                <h3>La <em>Communauté</em></h3>
+                <p>Sondages & Encouragements</p>
               </div>
-              <div className="flex items-center gap-3 bg-slate-900 text-white px-6 py-3 rounded-2xl font-black uppercase italic tracking-widest text-xs xl:text-sm group-hover:bg-red-600 transition-colors shadow-lg w-fit">
-                Accéder <ChevronRight size={18} />
-              </div>
-            </div>
-          </Link>
-
-          <Link href="/sondage" prefetch={false} className="group block w-full bg-slate-900 border-2 border-slate-800 rounded-[2.5rem] p-8 hover:border-red-600 transition-all duration-300 shadow-sm hover:shadow-xl relative overflow-hidden flex flex-col justify-between">
-            <div className="absolute -right-10 -bottom-10 text-slate-800 group-hover:text-red-900/40 transition-colors duration-500 -rotate-12">
-              <Users size={200} strokeWidth={1} />
-            </div>
-            <div className="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-6 h-full">
-              <div className="flex items-center gap-6">
-                <div className="bg-red-600 p-4 rounded-2xl shadow-lg shadow-red-900/50 group-hover:scale-110 transition-transform flex-shrink-0">
-                  <Users className="text-white" size={32} />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-black uppercase italic tracking-tighter text-white">La <span className="text-red-500">Communauté</span></h2>
-                  <p className="text-slate-400 font-medium text-sm mt-1">Sondages & Encouragements</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 bg-white text-slate-900 px-6 py-3 rounded-2xl font-black uppercase italic tracking-widest text-xs xl:text-sm group-hover:bg-red-600 group-hover:text-white transition-colors shadow-lg w-fit">
-                Rejoindre <ChevronRight size={18} />
-              </div>
-            </div>
-          </Link>
-        </section>
-      </main>
+              <span className="cm__go">Rejoindre <ChevronRight /></span>
+            </Link>
+          </section>
+        </main>
+      </div>
   );
 }

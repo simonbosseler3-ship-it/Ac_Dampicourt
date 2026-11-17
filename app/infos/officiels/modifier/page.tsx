@@ -1,5 +1,6 @@
 "use client";
 
+import { PageHero } from "@/components/layout/PageHero";
 import { useState, useEffect } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import { Trash2, ArrowLeft, ShieldCheck, UserPlus, AlertTriangle, Loader2, Scale, Search } from "lucide-react";
@@ -114,33 +115,23 @@ export default function GererOfficielsPage() {
             </div>
         )}
 
-        <main className="container mx-auto px-4 py-12 pt-32 pb-32">
-
-          {/* HEADER SECTION */}
-          <div className="flex flex-col md:flex-row justify-between items-center mb-16 gap-8">
-            <Link href="/infos/officiels" className="group flex items-center gap-3 text-slate-400 hover:text-red-600 transition-all font-black uppercase text-[10px] italic tracking-widest">
-              <div className="p-2 bg-white rounded-lg shadow-sm group-hover:bg-red-600 group-hover:text-white transition-all">
-                <ArrowLeft size={14} />
-              </div>
-              Retour
-            </Link>
-
-            <div className="text-center">
-              <h1 className="text-4xl font-black text-slate-900 uppercase italic tracking-tighter">
-                GESTION <span className="text-red-600">JURY</span>
-              </h1>
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] mt-2 italic">Officiels de compétition</p>
-            </div>
-
-            <button
-                onClick={handleAdd}
-                disabled={isAdding}
-                className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black uppercase italic text-xs hover:bg-red-600 transition-all flex items-center gap-3 shadow-2xl active:scale-95"
-            >
-              {isAdding ? <Loader2 size={18} className="animate-spin" /> : <UserPlus size={18} />}
-              Nouveau Juge
-            </button>
-          </div>
+        <PageHero
+            size="sm"
+            back={{ href: "/infos/officiels", label: "Retour aux officiels" }}
+            eyebrow="Officiels de compétition"
+            title={<>Gestion <em>jury</em></>}
+            actions={
+                <button
+                    onClick={handleAdd}
+                    disabled={isAdding}
+                    className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black uppercase italic text-xs hover:bg-red-600 transition-all flex items-center gap-3 shadow-2xl active:scale-95"
+                >
+                  {isAdding ? <Loader2 size={18} className="animate-spin" /> : <UserPlus size={18} />}
+                  Nouveau Juge
+                </button>
+            }
+        />
+        <main className="pt-12 md:pt-16 container mx-auto px-4 pb-12 pb-32">
 
           {/* BARRE DE RECHERCHE */}
           <div className="max-w-md mx-auto mb-10 relative group">

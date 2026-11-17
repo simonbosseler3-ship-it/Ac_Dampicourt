@@ -1,5 +1,6 @@
 "use client";
 
+import { PageHero } from "@/components/layout/PageHero";
 import { useState, useEffect, Suspense, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/app/context/authContext";
@@ -88,29 +89,21 @@ function ForumContent() {
   };
 
   return (
-      <main className="container mx-auto px-4 pt-32 pb-20 animate-in fade-in duration-700">
-        {/* HEADER ACD STYLE */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
-          <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="bg-red-600 p-2.5 rounded-xl shadow-lg shadow-red-200">
-                <MessageSquare className="text-white" size={20}/>
-              </div>
-              <span className="text-red-600 font-black uppercase italic tracking-[0.2em] text-[10px]">Espace Discussions</span>
-            </div>
-            <h1 className="text-6xl md:text-8xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">
-              Le <span className="text-red-600">Forum</span>
-            </h1>
-            <p className="text-slate-400 font-bold uppercase italic text-xs mt-4 tracking-widest">Partagez, échangez, progressez.</p>
-          </div>
-
-          <Link href="/forum/poser-question">
-            <button className="bg-slate-900 text-white px-10 py-5 rounded-[1.5rem] font-black uppercase italic tracking-widest flex items-center gap-4 hover:bg-red-600 transition-all shadow-2xl hover:-translate-y-1 active:scale-95">
-              <Plus size={22}/> Poser une question
-            </button>
-          </Link>
-        </div>
-
+      <>
+      <PageHero
+          eyebrow={<><MessageSquare size={14} /> Espace Discussions</>}
+          title={<>Le <em>Forum</em></>}
+          description="Partagez, échangez, progressez. Le staff ACD répond à vos questions."
+          crumbs={[{ label: "Forum" }]}
+          actions={
+              <Link href="/forum/poser-question">
+                <button className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black uppercase italic tracking-widest flex items-center gap-3 hover:bg-red-600 transition-all shadow-2xl active:scale-95">
+                  <Plus size={20}/> Poser une question
+                </button>
+              </Link>
+          }
+      />
+      <main className="container mx-auto px-4 pt-12 md:pt-16 pb-20">
         {/* RECHERCHE ET FILTRES */}
         <div className="flex flex-col gap-8 mb-12">
           <form onSubmit={handleSearch} className="relative group max-w-2xl">
@@ -211,6 +204,7 @@ function ForumContent() {
           )}
         </div>
       </main>
+      </>
   );
 }
 

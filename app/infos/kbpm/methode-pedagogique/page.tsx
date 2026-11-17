@@ -1,5 +1,6 @@
 "use client";
 
+import { PageHero } from "@/components/layout/PageHero";
 import {
   Target,
   Brain,
@@ -19,31 +20,13 @@ import Link from "next/link";
 export default function MethodePedagogiquePage() {
   return (
       <div className="min-h-screen">
-        <main className="container mx-auto px-4 py-12 pt-32 pb-32 animate-in fade-in duration-700">
-
-          {/* TOP BAR / NAVIGATION */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 gap-8">
-            <div className="flex items-center gap-6">
-              <Link href="/infos/kbpm"
-                    className="group flex items-center gap-3 bg-white p-4 rounded-2xl shadow-sm border border-slate-300 hover:border-red-600 transition-all">
-                <ArrowLeft size={20} className="text-slate-400 group-hover:text-red-600 transition-colors"/>
-              </Link>
-              <div>
-                <div className="flex items-center gap-2 text-red-600 mb-1 font-black uppercase tracking-[0.2em] text-[10px] italic">
-                  <GraduationCap size={14} />
-                  Formation Jeunesse
-                </div>
-                <h1 className="text-4xl md:text-6xl font-black text-slate-900 uppercase italic leading-[0.8] tracking-tighter">
-                  MÉTHODE <span className="text-red-600">PÉDAGOGIQUE</span>
-                </h1>
-              </div>
-            </div>
-
-            <div className="hidden md:flex bg-white px-6 py-3 rounded-2xl border border-slate-300 items-center gap-3 shadow-sm">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-[10px] font-black uppercase italic text-slate-500 tracking-widest">Programme Officiel KBPM</span>
-            </div>
-          </div>
+        <PageHero
+            back={{ href: "/infos/kbpm", label: "K.B.P.M." }}
+            eyebrow={<><GraduationCap size={14} /> Formation Jeunesse</>}
+            title={<>Méthode <em>pédagogique</em></>}
+            meta={<span className="ph__chip"><span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>Programme officiel KBPM</span>}
+        />
+        <main className="pt-12 md:pt-16 container mx-auto px-4 pb-12 pb-32 animate-in fade-in duration-700">
 
           {/* SECTION 1 : CATÉGORIES & OBJECTIFS */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mb-10">

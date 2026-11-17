@@ -1,5 +1,6 @@
 "use client";
 
+import { PageHero } from "@/components/layout/PageHero";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/app/context/authContext";
@@ -43,26 +44,19 @@ export default function ClubPage() {
 
   return (
       <div className="min-h-screen">
-        <main className="container mx-auto px-4 py-12 pt-32 pb-32">
-
-          {/* HEADER AVEC TITRE RESPONSIVE */}
-          <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-16">
-            <div className="flex flex-col max-w-full">
-              <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-slate-900 uppercase italic leading-[0.9] tracking-tighter break-words">
-                L'Athlétic Club <br/>
-                <span className="text-red-600">Dampicourt</span>
-              </h1>
-              <div className="h-2 w-32 bg-red-600 mt-4 shadow-lg shadow-red-200"></div>
-            </div>
-
-            {isAdmin && (
-                <Link href="/club/modifier" className="w-full md:w-auto">
+        <PageHero
+            eyebrow="Le club de la Gaume"
+            title={<>L'Athlétic Club <br/><em>Dampicourt</em></>}
+            crumbs={[{ label: "Le Club" }]}
+            actions={isAdmin ? (
+                <Link href="/club/modifier">
                   <button className="w-full flex items-center justify-center gap-3 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black hover:bg-red-600 transition-all text-xs uppercase italic shadow-xl">
                     <Edit size={16}/> Modifier la page
                   </button>
                 </Link>
-            )}
-          </div>
+            ) : undefined}
+        />
+        <main className="pt-12 md:pt-16 container mx-auto px-4 pb-12 pb-32">
 
           {/* PRÉSENTATION & CHIFFRES */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-20 animate-in fade-in duration-700">

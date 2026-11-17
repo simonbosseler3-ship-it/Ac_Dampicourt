@@ -1,5 +1,6 @@
 "use client";
 
+import { PageHero } from "@/components/layout/PageHero";
 import { useEffect, useState, use } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
@@ -126,15 +127,13 @@ export default function ModifierArticle({ params }: { params: Promise<{ id: stri
         .ql-editor h2 { color: #dc2626; font-weight: 900; text-transform: uppercase; font-style: italic; }
       `}} />
 
-        <main className="container mx-auto px-4 py-12 max-w-5xl">
-          <button onClick={() => router.back()} className="flex items-center gap-2 text-slate-400 mb-8 font-black text-[10px] uppercase italic tracking-widest hover:text-red-600 transition-colors">
-            <ArrowLeft size={16} /> Annuler les modifications
-          </button>
-
-          <h1 className="text-4xl md:text-6xl font-black italic uppercase mb-10 tracking-tighter text-slate-900">
-            Modifier <span className="text-red-600">l'actu</span>
-          </h1>
-
+        <PageHero
+            size="sm"
+            back={{ onBack: () => router.back(), label: "Annuler les modifications" }}
+            eyebrow="Rédaction"
+            title={<>Modifier <em>l'actu</em></>}
+        />
+        <main className="pt-12 md:pt-16 container mx-auto px-4 pb-12 max-w-5xl">
           <form onSubmit={handleUpdate} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
             {/* COLONNE GAUCHE : L'ÉDITEUR VISUEL */}

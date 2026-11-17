@@ -1,5 +1,6 @@
 "use client";
 
+import { PageHero } from "@/components/layout/PageHero";
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/app/context/authContext";
@@ -104,27 +105,20 @@ export default function ActualitesPage() {
         }
       `}} />
 
-        <main className="container mx-auto px-4 py-12 pt-24">
-
-          {canManage && (
-              <div className="mb-8 animate-in slide-in-from-left duration-500">
+        <PageHero
+            eyebrow="Le Flux"
+            title={<>Toute l'actualité <em>ACD</em></>}
+            description="Résultats, événements et vie du club : toutes les nouvelles de l'AC Dampicourt."
+            crumbs={[{ label: "Actualités" }]}
+            actions={canManage ? (
                 <Link href="/actualites/nouveau">
-                  <button className="bg-slate-900 text-white px-8 py-3 rounded-2xl font-black uppercase italic text-[10px] tracking-widest hover:bg-red-600 transition-all flex items-center gap-3 shadow-xl hover:-translate-y-1">
-                    <span className="bg-white/20 p-1 rounded-md">+</span> Nouvelle actu
+                  <button className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black uppercase italic text-xs tracking-widest hover:bg-red-600 transition-all flex items-center gap-3 shadow-xl">
+                    <span className="bg-white/20 px-1.5 rounded-md">+</span> Nouvelle actu
                   </button>
                 </Link>
-              </div>
-          )}
-
-          <div className="flex flex-col mb-16">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="h-[2px] w-8 bg-red-600"></div>
-              <span className="text-red-600 font-black uppercase italic text-[10px] tracking-[0.3em]">Le Flux</span>
-            </div>
-            <h1 className="text-5xl md:text-7xl font-black text-slate-900 uppercase italic tracking-tighter leading-none">
-              Toute l'actualité <span className="text-red-600">ACD</span>
-            </h1>
-          </div>
+            ) : undefined}
+        />
+        <main className="pt-12 md:pt-16 container mx-auto px-4 pb-12">
 
           {news.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-20">

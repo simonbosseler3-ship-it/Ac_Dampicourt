@@ -1,3 +1,4 @@
+import { PageHero } from "@/components/layout/PageHero";
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { FileText, Mail, Phone, Award, Settings, Trophy, ChevronRight, Zap } from "lucide-react";
@@ -26,28 +27,19 @@ export default async function RecordsPage() {
 
   return (
       <div className="min-h-screen">
-        <main className="container mx-auto px-4 py-12 pt-32 text-slate-900 animate-in fade-in duration-1000">
-
-          {/* HEADER & ADMIN */}
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-20 gap-8">
-            <div className="flex flex-col">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="h-[2px] w-10 bg-red-600"></span>
-                <span className="text-red-600 font-black uppercase italic tracking-[0.3em] text-[10px]">Performances Historiques</span>
-              </div>
-              <h1 className="text-6xl md:text-8xl font-black text-slate-900 uppercase italic tracking-tighter leading-[0.85]">
-                LES RECORDS <br /><span className="text-red-600">DU CLUB</span>
-              </h1>
-            </div>
-
-            {user && (
+        <PageHero
+            eyebrow="Performances Historiques"
+            title={<>Les records <br /><em>du club</em></>}
+            crumbs={[{ label: "Records" }]}
+            actions={user ? (
                 <Link href="/infos/records/modification"
-                      className="flex items-center gap-4 bg-slate-900 text-white px-10 py-5 rounded-[2rem] font-black uppercase italic text-xs hover:bg-red-600 transition-all shadow-2xl hover:-translate-y-1 active:scale-95 group">
+                      className="flex items-center gap-4 bg-slate-900 text-white px-8 py-4 rounded-2xl font-black uppercase italic text-xs hover:bg-red-600 transition-all shadow-2xl active:scale-95 group">
                   <Settings size={20} className="group-hover:rotate-180 transition-transform duration-700" />
                   Administration des données
                 </Link>
-            )}
-          </div>
+            ) : undefined}
+        />
+        <main className="pt-12 md:pt-16 container mx-auto px-4 pb-12 text-slate-900 animate-in fade-in duration-1000">
 
           {/* SECTION DOCUMENTS & CONTACT */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-24">

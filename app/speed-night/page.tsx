@@ -701,7 +701,7 @@ function SpeedNightContent() {
   const visibleEvents = isAdmin ? allEvents : allEvents.filter(e => !e.hidden);
 
   return (
-      <div className={`min-h-screen relative text-white selection:bg-red-600 overflow-x-hidden ${config ? 'bg-[#050505]' : 'bg-black'}`}>
+      <div className={`acd-dark min-h-screen relative text-white selection:bg-red-600 overflow-x-hidden ${config ? 'bg-[#050505]' : 'bg-black'}`}>
 
         {/* BACKGROUND DYNAMIQUE */}
         {config && (
